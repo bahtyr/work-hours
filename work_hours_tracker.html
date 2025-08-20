@@ -15,6 +15,12 @@
             --danger: #ff4d4d;
         }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
@@ -28,11 +34,24 @@
             padding: 0 16px;
         }
 
+        .header {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+
         h1 {
-            font-size: 20px;
-            font-weight: 650;
-            margin: 0 0 12px;
-            letter-spacing: .2px;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            letter-spacing: -1px;
+        }
+
+        .main-controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
         }
 
         .bar {
@@ -59,9 +78,14 @@
         }
 
         button.primary {
-            background: linear-gradient(180deg, #115b83, #083447);
-            color: #fff;
-            border-color: #083447;
+            /*background: linear-gradient(180deg, #115b83, #083447);*/
+            /*color: #fff;*/
+            /*border-color: #083447;*/
+
+            background: var(--primary-color);
+            color: var(--bg-color);
+            font-size: 18px;
+            padding: 20px 40px;
         }
 
         button.danger {
@@ -210,11 +234,17 @@
 </head>
 <body>
 <div class="wrap">
-    <h1>Simple Timesheet</h1>
+
+    <div class="header">
+        <h1>Work Hours</h1>
+    </div>
+
+    <div class="main-controls">
+        <button id="newBtn" class="primary">● New</button>
+        <button id="stopBtn" class="primary danger">■ Stop</button>
+    </div>
 
     <div class="bar">
-        <button id="newBtn" class="primary">● New</button>
-        <button id="stopBtn" class="danger">■ Stop</button>
         <span id="runningPill" class="running-indicator" style="display:none;">
         <span class="dot"></span> Running
       </span>
