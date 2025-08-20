@@ -1,242 +1,589 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Simple Timesheet</title>
-  <style>
-    :root { --bg:#0f1115; --card:#171a21; --ink:#e8e8e8; --muted:#a7a7a7; --accent:#82cfff; --line:#262a33; --danger:#ff4d4d; }
-    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:var(--bg); color:var(--ink); }
-    .wrap { max-width: 980px; margin: 20px auto; padding: 0 16px; }
-    h1 { font-size: 20px; font-weight: 650; margin: 0 0 12px; letter-spacing: .2px; }
-    .bar { display:flex; gap:8px; align-items:center; margin: 8px 0 12px; flex-wrap:wrap; }
-    button { background: var(--card); color: var(--ink); border:2px solid var(--line); border-radius: 10px; padding:10px 14px; cursor:pointer; font-weight:700; font-size:14px; }
-    button:hover { border-color: var(--accent); }
-    button.primary { background: linear-gradient(180deg,#115b83,#083447); color:#fff; border-color:#083447; }
-    button.danger { background: linear-gradient(180deg,#7b2222,#501515); color:#fff; border-color:#501515; }
-    .tabs { display:flex; gap:6px; overflow:auto; padding-bottom: 4px; border-bottom:1px solid var(--line); margin-bottom: 12px; }
-    .tab { padding:8px 10px; border:1px solid var(--line); border-bottom:none; border-radius: 10px 10px 0 0; background: var(--card); color:var(--muted); cursor:pointer; white-space:nowrap; }
-    .tab.active { color: var(--ink); border-color: var(--accent); font-weight:700; }
-    .card { background: var(--card); border:1px solid var(--line); border-radius: 14px; padding: 12px; }
-    table { width:100%; border-collapse: collapse; }
-    th, td { border-bottom:1px solid var(--line); padding: 8px; text-align:left; }
-    th { color: var(--muted); font-weight:600; font-size: 12px; letter-spacing:.3px; }
-    input[type="time"], input[type="text"], input[type="date"] {
-      width: 100%; box-sizing: border-box; background: #0f1218; color: var(--ink);
-      border:1px solid var(--line); border-radius: 8px; padding:8px 10px; font-size:14px;
-    }
-    input[type="text"]::placeholder { color:#6c7280; }
-    .muted { color: var(--muted); font-size: 12px; }
-    .summary { margin-top: 12px; }
-    .summary table td, .summary table th { padding:6px 8px; }
-    .running-indicator { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--danger); font-weight:700; }
-    .dot { width:10px; height:10px; border-radius:50%; background:var(--danger); animation: blink 1s infinite; box-shadow:0 0 8px rgba(255,77,77,0.6); }
-    @keyframes blink { 0%,50%{opacity:1;} 25%,75%{opacity:0.15;} }
-    .row-actions { display:flex; gap:4px; }
-    .draggable { cursor:grab; }
-    .small { font-size:13px; padding:8px 10px; }
-    .danger-small { background:transparent; border:1px solid var(--line); color:var(--muted); border-radius:8px; padding:6px 8px; }
-    .inline-form { display:inline-flex; gap:8px; align-items:center; }
-  </style>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Simple Timesheet</title>
+    <style>
+        :root {
+            --bg: #0f1115;
+            --card: #171a21;
+            --ink: #e8e8e8;
+            --muted: #a7a7a7;
+            --accent: #82cfff;
+            --line: #262a33;
+            --danger: #ff4d4d;
+        }
+
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+            background: var(--bg);
+            color: var(--ink);
+        }
+
+        .wrap {
+            max-width: 980px;
+            margin: 20px auto;
+            padding: 0 16px;
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 650;
+            margin: 0 0 12px;
+            letter-spacing: .2px;
+        }
+
+        .bar {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin: 8px 0 12px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: var(--card);
+            color: var(--ink);
+            border: 2px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        button:hover {
+            border-color: var(--accent);
+        }
+
+        button.primary {
+            background: linear-gradient(180deg, #115b83, #083447);
+            color: #fff;
+            border-color: #083447;
+        }
+
+        button.danger {
+            background: linear-gradient(180deg, #7b2222, #501515);
+            color: #fff;
+            border-color: #501515;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 6px;
+            overflow: auto;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            padding: 8px 10px;
+            border: 1px solid var(--line);
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            background: var(--card);
+            color: var(--muted);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            color: var(--ink);
+            border-color: var(--accent);
+            font-weight: 700;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border-bottom: 1px solid var(--line);
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: .3px;
+        }
+
+        input[type="time"], input[type="text"], input[type="date"] {
+            width: 100%;
+            box-sizing: border-box;
+            background: #0f1218;
+            color: var(--ink);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 14px;
+        }
+
+        input[type="text"]::placeholder {
+            color: #6c7280;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .summary {
+            margin-top: 12px;
+        }
+
+        .summary table td, .summary table th {
+            padding: 6px 8px;
+        }
+
+        .running-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: blink 1s infinite;
+            box-shadow: 0 0 8px rgba(255, 77, 77, 0.6);
+        }
+
+        @keyframes blink {
+            0%, 50% {
+                opacity: 1;
+            }
+            25%, 75% {
+                opacity: 0.15;
+            }
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .draggable {
+            cursor: grab;
+        }
+
+        .small {
+            font-size: 13px;
+            padding: 8px 10px;
+        }
+
+        .danger-small {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--muted);
+            border-radius: 8px;
+            padding: 6px 8px;
+        }
+
+        .inline-form {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
-  <div class="wrap">
+<div class="wrap">
     <h1>Simple Timesheet</h1>
 
     <div class="bar">
-      <button id="newBtn" class="primary">● New</button>
-      <button id="stopBtn" class="danger">■ Stop</button>
-      <span id="runningPill" class="running-indicator" style="display:none;"><span class="dot"></span> Running</span>
-      <span class="muted" id="dayTotal"></span>
+        <button id="newBtn" class="primary">● New</button>
+        <button id="stopBtn" class="danger">■ Stop</button>
+        <span id="runningPill" class="running-indicator" style="display:none;"><span class="dot"></span> Running</span>
+        <span class="muted" id="dayTotal"></span>
 
-      <div style="width:8px"></div>
+        <div style="width:8px"></div>
 
-      <div class="inline-form">
-        <input type="date" id="addDayInput" title="Pick a date to create/open" />
-        <button id="addDayBtn" class="small">Add / Open Day</button>
-      </div>
+        <div class="inline-form">
+            <input type="date" id="addDayInput" title="Pick a date to create/open"/>
+            <button id="addDayBtn" class="small">Add / Open Day</button>
+        </div>
 
-      <div class="inline-form" style="margin-left:8px;">
-        <button id="editDayBtn" class="small">Edit Day</button>
-        <input type="date" id="editDayInput" style="display:none;" />
-        <button id="saveEditDayBtn" class="small" style="display:none;">Save</button>
-        <button id="cancelEditDayBtn" class="small" style="display:none;">Cancel</button>
-      </div>
+        <div class="inline-form" style="margin-left:8px;">
+            <button id="editDayBtn" class="small">Edit Day</button>
+            <input type="date" id="editDayInput" style="display:none;"/>
+            <button id="saveEditDayBtn" class="small" style="display:none;">Save</button>
+            <button id="cancelEditDayBtn" class="small" style="display:none;">Cancel</button>
+        </div>
 
-      <button id="deleteDayBtn" class="danger small" style="margin-left:auto;">Delete Day</button>
+        <button id="deleteDayBtn" class="danger small" style="margin-left:auto;">Delete Day</button>
     </div>
 
     <div id="tabs" class="tabs"></div>
 
     <div class="card">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:110px;">Start</th>
-            <th style="width:110px;">End</th>
-            <th>Description</th>
-            <th style="width:80px; text-align:center;">Delete</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-      <div id="summary" class="summary"></div>
+        <table>
+            <thead>
+            <tr>
+                <th style="width:110px;">Start</th>
+                <th style="width:110px;">End</th>
+                <th>Description</th>
+                <th style="width:80px; text-align:center;">Delete</th>
+            </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+        <div id="summary" class="summary"></div>
     </div>
 
     <div style="height:40px"></div>
-  </div>
+</div>
 
 <script>
-(function(){
-  const STORAGE_KEY = 'simpleTimesheetV3';
-  const pad = n => String(n).padStart(2,'0');
-  function todayKey(){ const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
-  function timeNow(){ const d=new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; }
-  function parseHM(t){ if(!t||!/^\d{2}:\d{2}$/.test(t)) return null; const [h,m]=t.split(':').map(Number); if(h>23||m>59) return null; return h*60+m; }
-  function fmtHM(min){ const h=Math.floor(min/60), m=min%60; return `${h}:${pad(m)}`; }
+    (function () {
+        const STORAGE_KEY = 'simpleTimesheetV3';
+        const pad = n => String(n).padStart(2, '0');
 
-  // --- state ---
-  let state = load();
-  if(!state.days) state.days = {};
-  if(!state.openDay) state.openDay = todayKey();
-  ensureDay(state.openDay);
-  save();
+        function todayKey() {
+            const d = new Date();
+            return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        }
 
-  // --- dom ---
-  const tabsEl = document.getElementById('tabs');
-  const tbodyEl = document.getElementById('tbody');
-  const newBtn = document.getElementById('newBtn');
-  const stopBtn = document.getElementById('stopBtn');
-  const runningPill = document.getElementById('runningPill');
-  const dayTotalEl = document.getElementById('dayTotal');
-  const summaryEl = document.getElementById('summary');
-  const addDayInput = document.getElementById('addDayInput');
-  const addDayBtn = document.getElementById('addDayBtn');
-  const editDayBtn = document.getElementById('editDayBtn');
-  const editDayInput = document.getElementById('editDayInput');
-  const saveEditDayBtn = document.getElementById('saveEditDayBtn');
-  const cancelEditDayBtn = document.getElementById('cancelEditDayBtn');
-  const deleteDayBtn = document.getElementById('deleteDayBtn');
+        function timeNow() {
+            const d = new Date();
+            return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
 
-  newBtn.addEventListener('click', onNew);
-  stopBtn.addEventListener('click', onStop);
-  addDayBtn.addEventListener('click', ()=>{ if(addDayInput.value){ setOpenDay(addDayInput.value); addDayInput.value=''; } });
+        function parseHM(t) {
+            if (!t || !/^\d{2}:\d{2}$/.test(t)) return null;
+            const [h, m] = t.split(':').map(Number);
+            if (h > 23 || m > 59) return null;
+            return h * 60 + m;
+        }
 
-  editDayBtn.addEventListener('click', ()=>{
-    editDayInput.value = state.openDay; editDayInput.style.display='inline-block'; saveEditDayBtn.style.display='inline-block'; cancelEditDayBtn.style.display='inline-block'; editDayInput.focus();
-  });
-  cancelEditDayBtn.addEventListener('click', ()=>{ editDayInput.style.display='none'; saveEditDayBtn.style.display='none'; cancelEditDayBtn.style.display='none'; });
+        function fmtHM(min) {
+            const h = Math.floor(min / 60), m = min % 60;
+            return `${h}:${pad(m)}`;
+        }
 
-  saveEditDayBtn.addEventListener('click', ()=>{
-    const newDate = editDayInput.value;
-    const oldDate = state.openDay;
-    if(!newDate){ alert('Pick a valid date'); return; }
-    if(newDate === oldDate){ editDayInput.style.display='none'; saveEditDayBtn.style.display='none'; cancelEditDayBtn.style.display='none'; return; }
-    // If target exists, confirm merge
-    if(state.days[newDate]){
-      if(!confirm('Target day already exists. Merge current entries into that day?')) return;
-      // merge
-      state.days[newDate] = (state.days[newDate] || []).concat(state.days[oldDate]);
-      delete state.days[oldDate];
-      state.openDay = newDate;
-      save(); renderAll();
-    } else {
-      // rename (move)
-      state.days[newDate] = state.days[oldDate];
-      delete state.days[oldDate];
-      state.openDay = newDate;
-      save(); renderAll();
-    }
-    editDayInput.style.display='none'; saveEditDayBtn.style.display='none'; cancelEditDayBtn.style.display='none';
-  });
+        // --- state ---
+        let state = load();
+        if (!state.days) state.days = {};
+        if (!state.openDay) state.openDay = todayKey();
+        ensureDay(state.openDay);
+        save();
 
-  deleteDayBtn.addEventListener('click', ()=>{
-    if(!confirm('Delete all entries for this day? This cannot be undone.')) return;
-    delete state.days[state.openDay];
-    state.openDay = todayKey(); ensureDay(state.openDay); save(); renderAll();
-  });
+        // --- dom ---
+        const tabsEl = document.getElementById('tabs');
+        const tbodyEl = document.getElementById('tbody');
+        const newBtn = document.getElementById('newBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const runningPill = document.getElementById('runningPill');
+        const dayTotalEl = document.getElementById('dayTotal');
+        const summaryEl = document.getElementById('summary');
+        const addDayInput = document.getElementById('addDayInput');
+        const addDayBtn = document.getElementById('addDayBtn');
+        const editDayBtn = document.getElementById('editDayBtn');
+        const editDayInput = document.getElementById('editDayInput');
+        const saveEditDayBtn = document.getElementById('saveEditDayBtn');
+        const cancelEditDayBtn = document.getElementById('cancelEditDayBtn');
+        const deleteDayBtn = document.getElementById('deleteDayBtn');
 
-  function load(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }catch(e){ return {}; } }
-  function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-  function ensureDay(day){ if(!state.days[day]) state.days[day] = []; }
-  function uid(){ return 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+        newBtn.addEventListener('click', onNew);
+        stopBtn.addEventListener('click', onStop);
+        addDayBtn.addEventListener('click', () => {
+            if (addDayInput.value) {
+                setOpenDay(addDayInput.value);
+                addDayInput.value = '';
+            }
+        });
 
-  function setOpenDay(day){ state.openDay = day; ensureDay(day); save(); renderAll(); }
+        editDayBtn.addEventListener('click', () => {
+            editDayInput.value = state.openDay;
+            editDayInput.style.display = 'inline-block';
+            saveEditDayBtn.style.display = 'inline-block';
+            cancelEditDayBtn.style.display = 'inline-block';
+            editDayInput.focus();
+        });
+        cancelEditDayBtn.addEventListener('click', () => {
+            editDayInput.style.display = 'none';
+            saveEditDayBtn.style.display = 'none';
+            cancelEditDayBtn.style.display = 'none';
+        });
 
-  function onNew(){
-    const entries = state.days[state.openDay];
-    const running = findLast(entries,e => e.start && !e.end);
-    if(running) running.end = timeNow();
-    entries.push({ id: uid(), start: timeNow(), end: '', desc: '' });
-    save(); renderAll(true);
-    focusLastDesc();
-  }
-  function onStop(){ const entries = state.days[state.openDay]; const running = findLast(entries,e=>e.start && !e.end); if(running && !running.end){ running.end = timeNow(); save(); renderAll(); } }
-  function findLast(arr, pred){ for(let i=arr.length-1;i>=0;i--){ if(pred(arr[i])) return arr[i]; } return null; }
+        saveEditDayBtn.addEventListener('click', () => {
+            const newDate = editDayInput.value;
+            const oldDate = state.openDay;
+            if (!newDate) {
+                alert('Pick a valid date');
+                return;
+            }
+            if (newDate === oldDate) {
+                editDayInput.style.display = 'none';
+                saveEditDayBtn.style.display = 'none';
+                cancelEditDayBtn.style.display = 'none';
+                return;
+            }
+            // If target exists, confirm merge
+            if (state.days[newDate]) {
+                if (!confirm('Target day already exists. Merge current entries into that day?')) return;
+                // merge
+                state.days[newDate] = (state.days[newDate] || []).concat(state.days[oldDate]);
+                delete state.days[oldDate];
+                state.openDay = newDate;
+                save();
+                renderAll();
+            } else {
+                // rename (move)
+                state.days[newDate] = state.days[oldDate];
+                delete state.days[oldDate];
+                state.openDay = newDate;
+                save();
+                renderAll();
+            }
+            editDayInput.style.display = 'none';
+            saveEditDayBtn.style.display = 'none';
+            cancelEditDayBtn.style.display = 'none';
+        });
 
-  function renderAll(scrollBottom){ renderTabs(); renderTable(); renderSummary(); updateRunningUI(); updateDayTotal(); if(scrollBottom) tbodyEl.parentElement.scrollTop = tbodyEl.scrollHeight; }
+        deleteDayBtn.addEventListener('click', () => {
+            if (!confirm('Delete all entries for this day? This cannot be undone.')) return;
+            delete state.days[state.openDay];
+            state.openDay = todayKey();
+            ensureDay(state.openDay);
+            save();
+            renderAll();
+        });
 
-  function renderTabs(){
-    const today = todayKey();
-    // Always show today plus any other days in state
-    const all = new Set(Object.keys(state.days || {}));
-    all.add(today);
-    // Build ordered list: today first, then others newest->oldest
-    const rest = Array.from(all).filter(d=>d!==today).sort((a,b)=> b.localeCompare(a));
-    const days = [today, ...rest];
+        function load() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+            } catch (e) {
+                return {};
+            }
+        }
 
-    tabsEl.innerHTML = '';
-    days.forEach(day => {
-      const el = document.createElement('div');
-      el.className = 'tab' + (day === state.openDay ? ' active' : '');
-      el.textContent = day === today ? 'Today' : day;
-      el.title = day;
-      el.addEventListener('click', ()=> setOpenDay(day));
-      tabsEl.appendChild(el);
-    });
-  }
+        function save() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
 
-  function renderTable(){
-    const entries = state.days[state.openDay] || [];
-    tbodyEl.innerHTML = '';
-    entries.forEach((e, idx) => {
-      const tr = document.createElement('tr'); tr.draggable = true; tr.className = 'draggable';
-      tr.ondragstart = (ev)=> { ev.dataTransfer.setData('text/plain', idx); };
-      tr.ondragover = (ev)=> ev.preventDefault();
-      tr.ondrop = (ev)=> { ev.preventDefault(); const from = +ev.dataTransfer.getData('text/plain'); const to = idx; if(from !== to){ const item = entries.splice(from,1)[0]; entries.splice(to,0,item); save(); renderAll(); } };
+        function ensureDay(day) {
+            if (!state.days[day]) state.days[day] = [];
+        }
 
-      const tdS = document.createElement('td'); const iS = document.createElement('input'); iS.type='time'; iS.step = 60; iS.value = e.start || ''; iS.oninput = ()=>{ e.start = iS.value; save(); renderSummary(); updateDayTotal(); }; tdS.appendChild(iS);
-      const tdE = document.createElement('td'); const iE = document.createElement('input'); iE.type='time'; iE.step = 60; iE.value = e.end || ''; iE.oninput = ()=>{ e.end = iE.value; save(); renderSummary(); updateDayTotal(); }; tdE.appendChild(iE);
-      const tdD = document.createElement('td'); const iD = document.createElement('input'); iD.type='text'; iD.placeholder='Description'; iD.value = e.desc || ''; iD.oninput = ()=>{ e.desc = iD.value; save(); renderSummary(); }; tdD.appendChild(iD);
+        function uid() {
+            return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        }
 
-      const tdDel = document.createElement('td'); tdDel.style.textAlign = 'center'; const delBtn = document.createElement('button'); delBtn.className='danger-small'; delBtn.textContent = 'Delete'; delBtn.onclick = ()=>{ if(confirm('Delete this entry?')){ entries.splice(idx,1); save(); renderAll(); } }; tdDel.appendChild(delBtn);
+        function setOpenDay(day) {
+            state.openDay = day;
+            ensureDay(day);
+            save();
+            renderAll();
+        }
 
-      tr.appendChild(tdS); tr.appendChild(tdE); tr.appendChild(tdD); tr.appendChild(tdDel);
-      tbodyEl.appendChild(tr);
-    });
-  }
+        function onNew() {
+            const entries = state.days[state.openDay];
+            const running = findLast(entries, e => e.start && !e.end);
+            if (running) running.end = timeNow();
+            entries.push({id: uid(), start: timeNow(), end: '', desc: ''});
+            save();
+            renderAll(true);
+            focusLastDesc();
+        }
 
-  function renderSummary(){
-    const entries = state.days[state.openDay] || [];
-    const totals = new Map();
-    for(const e of entries){ const s = parseHM(e.start); const en = parseHM(e.end); if(s!=null && en!=null && en>=s){ const mins = en - s; const key = e.desc || '(no description)'; totals.set(key, (totals.get(key)||0)+mins); } }
-    if(totals.size === 0){ summaryEl.innerHTML = '<div class="muted">Summary will appear here for completed entries.</div>'; return; }
-    let html = '<table style="width:100%;"><thead><tr><th style="text-align:left;">Description</th><th style="text-align:right;">Total (h:mm)</th></tr></thead><tbody>';
-    [...totals.entries()].sort((a,b)=> a[0].localeCompare(b[0])).forEach(([desc,mins])=>{
-      html += `<tr><td>${escapeHtml(desc)}</td><td style="text-align:right;">${fmtHM(mins)}</td></tr>`;
-    });
-    html += '</tbody></table>';
-    summaryEl.innerHTML = html;
-  }
+        function onStop() {
+            const entries = state.days[state.openDay];
+            const running = findLast(entries, e => e.start && !e.end);
+            if (running && !running.end) {
+                running.end = timeNow();
+                save();
+                renderAll();
+            }
+        }
 
-  function updateRunningUI(){ const entries = state.days[state.openDay] || []; const running = findLast(entries, e => e.start && !e.end); runningPill.style.display = running ? 'inline-flex' : 'none'; }
-  function updateDayTotal(){ const entries = state.days[state.openDay] || []; let mins = 0; for(const e of entries){ const s = parseHM(e.start); const en = parseHM(e.end); if(s!=null && en!=null && en>=s) mins += (en-s); } dayTotalEl.textContent = mins ? `Day total: ${fmtHM(mins)}` : ''; }
+        function findLast(arr, pred) {
+            for (let i = arr.length - 1; i >= 0; i--) {
+                if (pred(arr[i])) return arr[i];
+            }
+            return null;
+        }
 
-  function focusLastDesc(){ const inputs = tbodyEl.querySelectorAll('input[type="text"]'); if(inputs.length) inputs[inputs.length-1].focus(); }
-  function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+        function renderAll(scrollBottom) {
+            renderTabs();
+            renderTable();
+            renderSummary();
+            updateRunningUI();
+            updateDayTotal();
+            if (scrollBottom) tbodyEl.parentElement.scrollTop = tbodyEl.scrollHeight;
+        }
 
-  renderAll();
-})();
+        function renderTabs() {
+            const today = todayKey();
+            // Always show today plus any other days in state
+            const all = new Set(Object.keys(state.days || {}));
+            all.add(today);
+            // Build ordered list: today first, then others newest->oldest
+            const rest = Array.from(all).filter(d => d !== today).sort((a, b) => b.localeCompare(a));
+            const days = [today, ...rest];
+
+            tabsEl.innerHTML = '';
+            days.forEach(day => {
+                const el = document.createElement('div');
+                el.className = 'tab' + (day === state.openDay ? ' active' : '');
+                el.textContent = day === today ? 'Today' : day;
+                el.title = day;
+                el.addEventListener('click', () => setOpenDay(day));
+                tabsEl.appendChild(el);
+            });
+        }
+
+        function renderTable() {
+            const entries = state.days[state.openDay] || [];
+            tbodyEl.innerHTML = '';
+            entries.forEach((e, idx) => {
+                const tr = document.createElement('tr');
+                tr.draggable = true;
+                tr.className = 'draggable';
+                tr.ondragstart = (ev) => {
+                    ev.dataTransfer.setData('text/plain', idx);
+                };
+                tr.ondragover = (ev) => ev.preventDefault();
+                tr.ondrop = (ev) => {
+                    ev.preventDefault();
+                    const from = +ev.dataTransfer.getData('text/plain');
+                    const to = idx;
+                    if (from !== to) {
+                        const item = entries.splice(from, 1)[0];
+                        entries.splice(to, 0, item);
+                        save();
+                        renderAll();
+                    }
+                };
+
+                const tdS = document.createElement('td');
+                const iS = document.createElement('input');
+                iS.type = 'time';
+                iS.step = 60;
+                iS.value = e.start || '';
+                iS.oninput = () => {
+                    e.start = iS.value;
+                    save();
+                    renderSummary();
+                    updateDayTotal();
+                };
+                tdS.appendChild(iS);
+                const tdE = document.createElement('td');
+                const iE = document.createElement('input');
+                iE.type = 'time';
+                iE.step = 60;
+                iE.value = e.end || '';
+                iE.oninput = () => {
+                    e.end = iE.value;
+                    save();
+                    renderSummary();
+                    updateDayTotal();
+                };
+                tdE.appendChild(iE);
+                const tdD = document.createElement('td');
+                const iD = document.createElement('input');
+                iD.type = 'text';
+                iD.placeholder = 'Description';
+                iD.value = e.desc || '';
+                iD.oninput = () => {
+                    e.desc = iD.value;
+                    save();
+                    renderSummary();
+                };
+                tdD.appendChild(iD);
+
+                const tdDel = document.createElement('td');
+                tdDel.style.textAlign = 'center';
+                const delBtn = document.createElement('button');
+                delBtn.className = 'danger-small';
+                delBtn.textContent = 'Delete';
+                delBtn.onclick = () => {
+                    if (confirm('Delete this entry?')) {
+                        entries.splice(idx, 1);
+                        save();
+                        renderAll();
+                    }
+                };
+                tdDel.appendChild(delBtn);
+
+                tr.appendChild(tdS);
+                tr.appendChild(tdE);
+                tr.appendChild(tdD);
+                tr.appendChild(tdDel);
+                tbodyEl.appendChild(tr);
+            });
+        }
+
+        function renderSummary() {
+            const entries = state.days[state.openDay] || [];
+            const totals = new Map();
+            for (const e of entries) {
+                const s = parseHM(e.start);
+                const en = parseHM(e.end);
+                if (s != null && en != null && en >= s) {
+                    const mins = en - s;
+                    const key = e.desc || '(no description)';
+                    totals.set(key, (totals.get(key) || 0) + mins);
+                }
+            }
+            if (totals.size === 0) {
+                summaryEl.innerHTML = '<div class="muted">Summary will appear here for completed entries.</div>';
+                return;
+            }
+            let html = '<table style="width:100%;"><thead><tr><th style="text-align:left;">Description</th><th style="text-align:right;">Total (h:mm)</th></tr></thead><tbody>';
+            [...totals.entries()].sort((a, b) => a[0].localeCompare(b[0])).forEach(([desc, mins]) => {
+                html += `<tr><td>${escapeHtml(desc)}</td><td style="text-align:right;">${fmtHM(mins)}</td></tr>`;
+            });
+            html += '</tbody></table>';
+            summaryEl.innerHTML = html;
+        }
+
+        function updateRunningUI() {
+            const entries = state.days[state.openDay] || [];
+            const running = findLast(entries, e => e.start && !e.end);
+            runningPill.style.display = running ? 'inline-flex' : 'none';
+        }
+
+        function updateDayTotal() {
+            const entries = state.days[state.openDay] || [];
+            let mins = 0;
+            for (const e of entries) {
+                const s = parseHM(e.start);
+                const en = parseHM(e.end);
+                if (s != null && en != null && en >= s) mins += (en - s);
+            }
+            dayTotalEl.textContent = mins ? `Day total: ${fmtHM(mins)}` : '';
+        }
+
+        function focusLastDesc() {
+            const inputs = tbodyEl.querySelectorAll('input[type="text"]');
+            if (inputs.length) inputs[inputs.length - 1].focus();
+        }
+
+        function escapeHtml(s) {
+            return String(s).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+        }
+
+        renderAll();
+    })();
 </script>
 </body>
 </html>
