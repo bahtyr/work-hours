@@ -1,0 +1,96 @@
+import { getState, saveState, setOpenDay, ensureDay } from './state.js';
+import { timeNow, findLast, uid, todayKey } from './utils.js';
+import { elements } from './elements.js';
+import { renderAll, focusLastDescription } from './render.js';
+
+const state = getState();
+
+export function onNew() {
+    const entries = state.days[state.openDay];
+    const running = findLast(entries, e => e.start && !e.end);
+
+    if (running) running.end = timeNow();
+
+    entries.push({ id: uid(), start: timeNow(), end: '', desc: '' });
+
+    saveState();
+    renderAll(true);
+    focusLastDescription();
+}
+
+export function onStop() {
+    const entries = state.days[state.openDay];
+    const running = findLast(entries, e => e.start && !e.end);
+
+    if (running && !running.end) {
+        running.end = timeNow();
+        saveState();
+        renderAll();
+    }
+}
+
+export function onAddDay() {
+    if (elements.addDayInput.value) {
+        setOpenDay(elements.addDayInput.value);
+        elements.addDayInput.value = '';
+    }
+}
+
+export function onEditDay() {
+    elements.editDayInput.value = state.openDay;
+    elements.editDayInput.style.display = 'inline-block';
+    elements.saveEditDayBtn.style.display = 'inline-block';
+    elements.cancelEditDayBtn.style.display = 'inline-block';
+    elements.editDayInput.focus();
+}
+
+export function onCancelEditDay() {
+    elements.editDayInput.style.display = 'none';
+    elements.saveEditDayBtn.style.display = 'none';
+    elements.cancelEditDayBtn.style.display = 'none';
+}
+
+export function onSaveEditDay() {
+    const newDate = elements.editDayInput.value;
+    const oldDate = state.openDay;
+
+    if (!newDate) {
+        alert('Pick a valid date');
+        return;
+    }
+
+    if (newDate === oldDate) {
+        onCancelEditDay();
+        return;
+    }
+
+    // Handle existing target date
+    if (state.days[newDate]) {
+        if (!confirm('Target day already exists. Merge current entries into that day?')) {
+            return;
+        }
+        // Merge entries
+        state.days[newDate] = (state.days[newDate] || []).concat(state.days[oldDate]);
+    } else {
+        // Move entries
+        state.days[newDate] = state.days[oldDate];
+    }
+
+    delete state.days[oldDate];
+    state.openDay = newDate;
+    saveState();
+    renderAll();
+    onCancelEditDay();
+}
+
+export function onDeleteDay() {
+    if (!confirm('Delete all entries for this day? This cannot be undone.')) {
+        return;
+    }
+
+    delete state.days[state.openDay];
+    state.openDay = todayKey();
+    ensureDay(state.openDay);
+    saveState();
+    renderAll();
+}
