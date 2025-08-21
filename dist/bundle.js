@@ -227,9 +227,9 @@
       elements.summary.innerHTML = '<div class="muted">Summary will appear here for completed entries.</div>';
       return;
     }
-    let html = '<table style="width:100%;"><thead><tr><th style="text-align:left;">Description</th><th style="text-align:right;">Total (h:mm)</th></tr></thead><tbody>';
+    let html = '<table style="width:100%;"><thead><tr><th style="text-align: right;">Total (h:mm)</th><th style="">Description</th></tr></thead><tbody>';
     [...totals.entries()].sort((a, b) => a[0].localeCompare(b[0])).forEach(([desc, minutes]) => {
-      html += `<tr><td>${escapeHtml(desc)}</td><td style="text-align:right;">${fmtHM(minutes)}</td></tr>`;
+      html += `<tr><td style="text-align: right;">${fmtHM(minutes)}</td><td>${escapeHtml(desc)}</td></tr>`;
     });
     html += "</tbody></table>";
     elements.summary.innerHTML = html;
