@@ -13,32 +13,32 @@
 
     <div class="header">
         <h1>Work Hours</h1>
+        <span class="muted" id="dayTotal"></span>
     </div>
 
     <div class="main-controls">
-        <button id="newBtn" class="primary">● New</button>
-        <button id="stopBtn" class="primary danger">■ Stop</button>
+        <button id="newBtn" class="primary">New</button>
+        <button id="stopBtn" class="primary">Stop</button>
     </div>
 
     <div class="bar">
         <span id="runningPill" class="running-indicator" style="display:none;"><span class="dot"></span> Running</span>
-        <span class="muted" id="dayTotal"></span>
 
         <div style="width:8px"></div>
 
-        <div class="inline-form">
+        <div class="inline-form" style="display: none">
             <input type="date" id="addDayInput" title="Pick a date to create/open"/>
             <button id="addDayBtn" class="small">Add / Open Day</button>
         </div>
 
-        <div class="inline-form" style="margin-left:8px;">
+        <div class="inline-form" style="margin-left:8px; display: none">
             <button id="editDayBtn" class="small">Edit Day</button>
             <input type="date" id="editDayInput" style="display:none;"/>
             <button id="saveEditDayBtn" class="small" style="display:none;">Save</button>
             <button id="cancelEditDayBtn" class="small" style="display:none;">Cancel</button>
         </div>
 
-        <button id="deleteDayBtn" class="danger small" style="margin-left:auto;">Delete Day</button>
+        <button id="deleteDayBtn" class="danger small" style="margin-left:auto; display: none">Delete Day</button>
     </div>
 
     <div id="tabs" class="tabs"></div>
