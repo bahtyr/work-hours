@@ -19,6 +19,7 @@
     <div class="main-controls">
         <button id="newBtn" class="primary">New</button>
         <button id="stopBtn" class="primary">Stop</button>
+        <button id="summaryBtn" class="primary">Summary</button>
     </div>
 
     <div class="bar">
@@ -44,7 +45,7 @@
     <div id="tabs" class="tabs"></div>
 
     <div class="card">
-        <table>
+        <table id="hoursTable">
             <thead>
             <tr>
                 <th style="width:110px;">Start</th>
@@ -55,7 +56,7 @@
             </thead>
             <tbody id="tbody"></tbody>
         </table>
-        <div id="summary" class="summary"></div>
+        <div id="summary" class="summary hidden"></div>
     </div>
 
     <div style="height:40px"></div>

@@ -94,3 +94,8 @@ export function onDeleteDay() {
     saveState();
     renderAll();
 }
+
+export function toggleSummary() {
+    elements.hoursTable.classList.toggle('hidden');
+    elements.summary.classList.toggle('hidden');
+}

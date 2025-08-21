@@ -13,9 +13,11 @@
     "src/elements.js"() {
       elements = {
         tabs: document.getElementById("tabs"),
+        hoursTable: document.getElementById("hoursTable"),
         tbody: document.getElementById("tbody"),
         newBtn: document.getElementById("newBtn"),
         stopBtn: document.getElementById("stopBtn"),
+        summaryBtn: document.getElementById("summaryBtn"),
         runningPill: document.getElementById("runningPill"),
         dayTotal: document.getElementById("dayTotal"),
         summary: document.getElementById("summary"),
@@ -339,6 +341,10 @@
     saveState();
     renderAll();
   }
+  function toggleSummary() {
+    elements.hoursTable.classList.toggle("hidden");
+    elements.summary.classList.toggle("hidden");
+  }
   var state3;
   var init_events = __esm({
     "src/events.js"() {
@@ -358,6 +364,7 @@
       init_events();
       elements.newBtn.addEventListener("click", onNew);
       elements.stopBtn.addEventListener("click", onStop);
+      elements.summaryBtn.addEventListener("click", toggleSummary);
       elements.addDayBtn.addEventListener("click", onAddDay);
       elements.editDayBtn.addEventListener("click", onEditDay);
       elements.cancelEditDayBtn.addEventListener("click", onCancelEditDay);

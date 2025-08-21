@@ -1,3 +1,8 @@
+/* is used to hide the table/summary*/
+.hidden {
+    display: none;
+}
+
 :root {
     --bg: #0f1115;
     --card: #171a21;
