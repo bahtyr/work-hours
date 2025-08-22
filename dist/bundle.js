@@ -193,11 +193,7 @@
   }
   function createTableRow(entry, index, entries) {
     const tr = document.createElement("tr");
-    tr.draggable = true;
     tr.className = "draggable";
-    tr.ondragstart = (ev) => {
-      ev.dataTransfer.setData("text/plain", index);
-    };
     tr.ondragover = (ev) => ev.preventDefault();
     tr.ondrop = (ev) => {
       ev.preventDefault();
@@ -214,7 +210,28 @@
     tr.appendChild(createTimeCell(entry, "end"));
     tr.appendChild(createDescriptionCell(entry));
     tr.appendChild(createDeleteCell(index, entries));
+    tr.appendChild(createDragHandleCell(index));
     return tr;
+  }
+  function createDragHandleCell(index) {
+    const td = document.createElement("td");
+    td.style.textAlign = "center";
+    td.style.cursor = "grab";
+    const handle = document.createElement("span");
+    handle.textContent = "\u2630";
+    handle.draggable = true;
+    handle.ondragstart = (ev) => {
+      ev.dataTransfer.setData("text/plain", index);
+      const tr = handle.closest("tr");
+      const dragClone = tr.cloneNode(true);
+      dragClone.style.position = "absolute";
+      dragClone.style.top = "-9999px";
+      document.body.appendChild(dragClone);
+      ev.dataTransfer.setDragImage(dragClone, 0, 0);
+      setTimeout(() => document.body.removeChild(dragClone), 0);
+    };
+    td.appendChild(handle);
+    return td;
   }
   function createTimeCell(entry, field) {
     const td = document.createElement("td");
@@ -336,6 +353,10 @@
       renderAll();
     }
   }
+  function toggleSummary() {
+    elements.hoursTable.classList.toggle("hidden");
+    elements.summary.classList.toggle("hidden");
+  }
   function onAddDay() {
     if (elements.addDayInput.value) {
       setOpenDay(elements.addDayInput.value);
@@ -388,10 +409,6 @@
     ensureDay(state3.openDay);
     saveState();
     renderAll();
-  }
-  function toggleSummary() {
-    elements.hoursTable.classList.toggle("hidden");
-    elements.summary.classList.toggle("hidden");
   }
   var state3;
   var init_events = __esm({

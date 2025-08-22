@@ -87,6 +87,11 @@ body {
     letter-spacing: -1px;
 }
 
+.tab.active {
+    color: var(--ink);
+    font-weight: 700;
+}
+
 /* ============== FOOTER ============== */
 
 
@@ -121,17 +126,13 @@ th {
 /* ============== TABLE ENTRIES ============== */
 
 
-.tab.active {
-    color: var(--ink);
-    font-weight: 700;
-}
-
 .delete-entry-button {
     background: none;
     text-transform: lowercase;
     border-style: none;
     opacity: .5;
     transition: opacity ease-in-out .15s;
+    user-select: none;
 }
 
 .delete-entry-button:hover {
