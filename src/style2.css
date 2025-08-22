@@ -1,6 +1,7 @@
 :root {
     --bg: #0f1115;
-    --card: #171a21;
+    --card: hsl(222, 18%, 11%);
+    --card-light: hsl(222, 18%, 17%);
     --ink: #e8e8e8;
     --muted: #a7a7a7;
     --accent: #82cfff;
@@ -14,9 +15,12 @@
     box-sizing: border-box;
 }
 
-body {
-    height: 100%;
+html, body {
     margin: 0;
+    height: 100%;
+}
+
+body {
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     background: var(--bg);
     color: var(--ink);
@@ -30,12 +34,40 @@ body {
     height: 100%;
 
     max-width: 980px;
-    margin: 20px auto;
+    margin: 0 auto;
     padding: 0 16px;
 }
 
+.header, .footer {
+    flex-shrink: 0;
+    padding: 16px 0;
+}
 
-/* ============== TABS ============== */
+.card {
+    flex: 1;
+    overflow-y: auto;
+
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.card > * {
+    width: 100%;
+}
+
+/* Hide scrollbar (Webkit browsers: Chrome, Safari, Edge) */
+.card {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.card::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* ============== HEADER / TABS ============== */
 
 
 .tabs {
@@ -55,16 +87,142 @@ body {
     letter-spacing: -1px;
 }
 
+/* ============== FOOTER ============== */
+
+
+.main-controls {
+    display: flex;
+    /*justify-content: center;*/
+    gap: 16px;
+}
+
+
+/* ============== TABLE ENTRIES ============== */
+
+
+table {
+    border-collapse: collapse;
+}
+
+th, td {
+    border-bottom: 1px solid var(--line);
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: .3px;
+}
+
+
+/* ============== TABLE ENTRIES ============== */
+
+
 .tab.active {
     color: var(--ink);
     font-weight: 700;
 }
 
+.delete-entry-button {
+    background: none;
+    text-transform: lowercase;
+    border-style: none;
+    opacity: .5;
+    transition: opacity ease-in-out .15s;
+}
+
+.delete-entry-button:hover {
+    border-style: none;
+    opacity: 1;
+}
+
+
+/* ============== INPUTS ============== */
+
+
+input[type="time"],
+input[type="text"],
+input[type="date"] {
+    width: 100%;
+    box-sizing: border-box;
+    background: #0f1218;
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 14px;
+}
+
+input[type="text"]::placeholder {
+    color: #6c7280;
+}
+
+
+/* ============== BUTTONS ============== */
+
+
+button {
+    cursor: pointer;
+    padding: 10px 14px;
+
+    background: var(--card);
+    color: var(--ink);
+    border: 2px solid var(--line);
+    border-radius: 10px;
+
+    font-weight: 700;
+    font-size: 14px;
+
+    transition: background ease-in-out .15s;
+}
+
+button:hover {
+    /*border-color: var(--accent);*/
+    background: var(--card-light);
+}
+
+button.primary {
+    /*background: var(--primary-color);*/
+    /*color: var(--bg-color);*/
+    /*font-size: 18px;*/
+    /*padding: 20px 40px;*/
+}
+
+button.danger {
+    background: linear-gradient(180deg, #7b2222, #501515);
+    color: #fff;
+    border-color: #501515;
+}
+
+
+/* ============== UTILITY ============== */
+
+.main-controls button {
+    /*border-style: none;*/
+    /*border-radius: 0;*/
+    border-radius: 4px;
+
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+    /*font-family: monospace;*/
+    /*color: hsla(0, 0%, 100%, 0.60);*/
+
+    /*background: none;*/
+    padding: 20px 40px;
+}
+
+.main-controls button:hover {
+    /*border-style: none;*/
+}
 
 /* ============== UTILITY ============== */
 
 
 /* is used to hide the table/summary*/
 .hidden {
-    display: none;
+    display: none !important;
 }

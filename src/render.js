@@ -117,8 +117,8 @@ export function createDeleteCell(index, entries) {
     td.style.textAlign = 'center';
 
     const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'danger-small';
-    deleteBtn.textContent = 'Delete';
+    deleteBtn.className = 'delete-entry-button';
+    deleteBtn.textContent = 'x';
     deleteBtn.onclick = () => {
         if (confirm('Delete this entry?')) {
             entries.splice(index, 1);
