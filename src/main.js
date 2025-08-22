@@ -14,7 +14,7 @@ import {
 // Attach listeners
 elements.newBtn.addEventListener('click', onNew);
 elements.stopBtn.addEventListener('click', onStop);
-elements.summaryBtn.addEventListener('click', toggleSummary);
+elements.toggleSummaryBtn.addEventListener('click', toggleSummary);
 elements.addDayBtn.addEventListener('click', onAddDay);
 elements.editDayBtn.addEventListener('click', onEditDay);
 elements.cancelEditDayBtn.addEventListener('click', onCancelEditDay);
