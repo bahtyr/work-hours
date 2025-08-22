@@ -8,8 +8,6 @@ export const elements = {
     stopBtn: document.getElementById('stopBtn'),
     toggleSummaryBtn: document.getElementById('toggleSummaryBtn'),
     runningPill: document.getElementById('runningPill'),
-    //
-    dayTotal: document.getElementById('dayTotal'),
 
     // days
     addDayBtn: document.getElementById('addDayBtn'),

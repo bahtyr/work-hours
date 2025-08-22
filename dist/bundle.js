@@ -21,8 +21,6 @@
         stopBtn: document.getElementById("stopBtn"),
         toggleSummaryBtn: document.getElementById("toggleSummaryBtn"),
         runningPill: document.getElementById("runningPill"),
-        //
-        dayTotal: document.getElementById("dayTotal"),
         // days
         addDayBtn: document.getElementById("addDayBtn"),
         addDayInput: document.getElementById("addDayInput"),
@@ -50,10 +48,18 @@
     if (h > 23 || m > 59) return null;
     return h * 60 + m;
   }
-  function fmtHM(minutes) {
+  function formatHM(minutes) {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${h}:${pad(m)}`;
+  }
+  function formatMinutes(minutes) {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (h > 0) {
+      return `${h}h ${m}m`;
+    }
+    return `${m}m`;
   }
   function findLast(arr, predicate) {
     for (let i = arr.length - 1; i >= 0; i--) {
@@ -271,9 +277,9 @@
       elements.summary.innerHTML = '<div class="muted">Summary will appear here for completed entries.</div>';
       return;
     }
-    let html = '<table style="width:100%;"><thead><tr><th style="text-align: right;">Total (h:mm)</th><th style="">Description</th></tr></thead><tbody>';
+    let html = '<table style="width:100%;"><thead><tr><th style="text-align: right;">Total</th><th style="">Description</th></tr></thead><tbody>';
     [...totals.entries()].sort((a, b) => a[0].localeCompare(b[0])).forEach(([desc, minutes]) => {
-      html += `<tr><td style="text-align: right;">${fmtHM(minutes)}</td><td>${escapeHtml(desc)}</td></tr>`;
+      html += `<tr><td style="text-align: right;">${formatMinutes(minutes)}</td><td>${escapeHtml(desc)}</td></tr>`;
     });
     html += "</tbody></table>";
     elements.summary.innerHTML = html;
@@ -293,7 +299,7 @@
         totalMinutes += end - start;
       }
     }
-    elements.dayTotal.textContent = totalMinutes ? `Day total: ${fmtHM(totalMinutes)}` : "";
+    elements.toggleSummaryBtn.innerHTML = totalMinutes ? `<span style="font-size: 1.25rem" ">${formatHM(totalMinutes)}</span> View Summary` : "View Summary";
   }
   function focusLastDescription() {
     const inputs = elements.hoursTableBody.querySelectorAll('input[type="text"]');
