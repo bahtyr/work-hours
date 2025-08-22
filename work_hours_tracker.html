@@ -4,23 +4,13 @@
     <title>Hours</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link type="text/css" rel="stylesheet" href="style2.css"/>
     <link type="text/css" rel="stylesheet" href="style.css"/>
     <link rel="icon" href="data:image/svg+xml,
     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>⌛</text></svg>">
 </head>
 <body>
 <div class="wrap">
-
-    <div class="header">
-        <h1>Work Hours</h1>
-        <span class="muted" id="dayTotal"></span>
-    </div>
-
-    <div class="main-controls">
-        <button id="newBtn" class="primary">New</button>
-        <button id="stopBtn" class="primary">Stop</button>
-        <button id="summaryBtn" class="primary">Summary</button>
-    </div>
 
     <div class="bar">
         <span id="runningPill" class="running-indicator" style="display:none;"><span class="dot"></span> Running</span>
@@ -59,7 +49,19 @@
         <div id="summary" class="summary hidden"></div>
     </div>
 
-    <div style="height:40px"></div>
+<!--    <div style="height:40px"></div>-->
+
+    <div class="main-controls">
+        <button id="newBtn" class="primary">New</button>
+        <button id="stopBtn" class="primary">Stop</button>
+        <button id="summaryBtn" class="primary">Summary</button>
+    </div>
+
+    <div class="header">
+        <span class="muted" id="dayTotal"></span>
+    </div>
+
+
 </div>
 <script src="dist/bundle.js"></script>
 </body>
