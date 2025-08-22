@@ -1,36 +1,5 @@
-/* is used to hide the table/summary*/
-.hidden {
-    display: none;
-}
 
-:root {
-    --bg: #0f1115;
-    --card: #171a21;
-    --ink: #e8e8e8;
-    --muted: #a7a7a7;
-    --accent: #82cfff;
-    --line: #262a33;
-    --danger: #ff4d4d;
-}
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-    background: var(--bg);
-    color: var(--ink);
-}
-
-.wrap {
-    max-width: 980px;
-    margin: 20px auto;
-    padding: 0 16px;
-}
 
 .header {
     text-align: center;
@@ -50,6 +19,11 @@ h1 {
     gap: 20px;
     justify-content: center;
     margin-bottom: 40px;
+
+    position: sticky;
+    bottom: 0;
+    background: var(--card); /* give background so it doesn’t overlap table text */
+    padding: 0.5rem;
 }
 
 .bar {
@@ -92,37 +66,21 @@ button.danger {
     border-color: #501515;
 }
 
-.tabs {
-    display: flex;
-    gap: 6px;
-    overflow: auto;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 12px;
-}
 
-.tab {
-    padding: 8px 10px;
-    border: 1px solid var(--line);
-    border-bottom: none;
-    border-radius: 10px 10px 0 0;
-    background: var(--card);
-    color: var(--muted);
-    cursor: pointer;
-    white-space: nowrap;
-}
+/* ============== CARD ============== */
 
-.tab.active {
-    color: var(--ink);
-    border-color: var(--accent);
-    font-weight: 700;
-}
 
 .card {
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: 14px;
     padding: 12px;
+
+    flex: 1;
+    overflow-y: auto;  /* only table scrolls */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* keep content pushed to bottom */
 }
 
 table {
