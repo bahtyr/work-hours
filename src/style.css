@@ -1,12 +1,3 @@
-
-
-
-.header {
-    text-align: center;
-    padding: 20px;
-    margin-top: 40px;
-}
-
 h1 {
     font-size: 2.5rem;
     font-weight: 800;
@@ -14,117 +5,21 @@ h1 {
     letter-spacing: -1px;
 }
 
-.main-controls {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    margin-bottom: 40px;
-
-    position: sticky;
-    bottom: 0;
-    background: var(--card); /* give background so it doesn’t overlap table text */
-    padding: 0.5rem;
-}
-
 .bar {
     display: flex;
     gap: 8px;
     align-items: center;
-    margin: 8px 0 12px;
+    /*margin: 8px 0 12px;*/
     flex-wrap: wrap;
 }
-
-button {
-    background: var(--card);
-    color: var(--ink);
-    border: 2px solid var(--line);
-    border-radius: 10px;
-    padding: 10px 14px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 14px;
-}
-
-button:hover {
-    border-color: var(--accent);
-}
-
-button.primary {
-    /*background: linear-gradient(180deg, #115b83, #083447);*/
-    /*color: #fff;*/
-    /*border-color: #083447;*/
-
-    background: var(--primary-color);
-    color: var(--bg-color);
-    font-size: 18px;
-    padding: 20px 40px;
-}
-
-button.danger {
-    background: linear-gradient(180deg, #7b2222, #501515);
-    color: #fff;
-    border-color: #501515;
-}
-
 
 /* ============== CARD ============== */
 
 
-.card {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 12px;
-
-    flex: 1;
-    overflow-y: auto;  /* only table scrolls */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; /* keep content pushed to bottom */
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    border-bottom: 1px solid var(--line);
-    padding: 8px;
-    text-align: left;
-}
-
-th {
-    color: var(--muted);
-    font-weight: 600;
-    font-size: 12px;
-    letter-spacing: .3px;
-}
-
-input[type="time"],
-input[type="text"],
-input[type="date"] {
-    width: 100%;
-    box-sizing: border-box;
-    background: #0f1218;
-    color: var(--ink);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 8px 10px;
-    font-size: 14px;
-}
-
-input[type="text"]::placeholder {
-    color: #6c7280;
-}
 
 .muted {
     color: var(--muted);
     font-size: 12px;
-}
-
-.summary {
-    margin-top: 12px;
 }
 
 .summary table td,

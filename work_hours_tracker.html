@@ -12,7 +12,7 @@
 <body>
 <div class="wrap">
 
-    <div id="tabs" class="tabs"></div>
+    <div id="tabs" class="tabs header"></div>
 
     <div class="card">
         <table id="hoursTable">
@@ -29,13 +29,13 @@
         <div id="summary" class="summary hidden"></div>
     </div>
 
-    <div class="main-controls">
-        <button id="newBtn" class="primary">New</button>
-        <button id="stopBtn" class="primary">Stop</button>
-        <button id="toggleSummaryBtn" class="primary">Summary</button>
+    <div class="main-controls footer">
+        <button id="newBtn" class="primary start" style="flex: 1">New Task</button>
+        <button id="stopBtn" class="primary stop" style="flex: 1">Stop</button>
+        <button id="toggleSummaryBtn" class="primary" style="flex: 4">View Summary</button>
     </div>
 
-    <div class="header">
+    <div class="header hidden">
         <span class="muted" id="dayTotal"></span>
     </div>
 

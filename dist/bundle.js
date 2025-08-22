@@ -204,8 +204,8 @@
     const td = document.createElement("td");
     td.style.textAlign = "center";
     const deleteBtn = document.createElement("button");
-    deleteBtn.className = "danger-small";
-    deleteBtn.textContent = "Delete";
+    deleteBtn.className = "delete-entry-button";
+    deleteBtn.textContent = "x";
     deleteBtn.onclick = () => {
       if (confirm("Delete this entry?")) {
         entries.splice(index, 1);
@@ -240,9 +240,6 @@
     elements.summary.innerHTML = html;
   }
   function updateRunningUI() {
-    const entries = state2.days[state2.openDay] || [];
-    const running = findLast(entries, (e) => e.start && !e.end);
-    elements.runningPill.style.display = running ? "inline-flex" : "none";
   }
   function updateDayTotal() {
     const entries = state2.days[state2.openDay] || [];
