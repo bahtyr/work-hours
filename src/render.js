@@ -51,13 +51,9 @@ export function renderTable() {
 
 export function createTableRow(entry, index, entries) {
     const tr = document.createElement('tr');
-    tr.draggable = true;
     tr.className = 'draggable';
 
-    // Drag and drop handlers
-    tr.ondragstart = (ev) => {
-        ev.dataTransfer.setData('text/plain', index);
-    };
+    // still needed for dropping on rows
     tr.ondragover = (ev) => ev.preventDefault();
     tr.ondrop = (ev) => {
         ev.preventDefault();
@@ -77,8 +73,39 @@ export function createTableRow(entry, index, entries) {
     tr.appendChild(createTimeCell(entry, 'end'));
     tr.appendChild(createDescriptionCell(entry));
     tr.appendChild(createDeleteCell(index, entries));
+    tr.appendChild(createDragHandleCell(index));
 
     return tr;
+}
+
+function createDragHandleCell(index) {
+    const td = document.createElement('td');
+    td.style.textAlign = 'center';
+    td.style.cursor = 'grab';
+
+    const handle = document.createElement('span');
+    handle.textContent = '☰'; // you can replace with an SVG/icon
+    handle.draggable = true;
+
+    handle.ondragstart = (ev) => {
+        ev.dataTransfer.setData('text/plain', index);
+
+        // Create a temporary clone of the row for drag image
+        const tr = handle.closest('tr');
+        const dragClone = tr.cloneNode(true);
+        dragClone.style.position = 'absolute';
+        dragClone.style.top = '-9999px'; // hide offscreen
+        document.body.appendChild(dragClone);
+
+        // Use the clone as the drag image
+        ev.dataTransfer.setDragImage(dragClone, 0, 0);
+
+        // Remove it shortly after
+        setTimeout(() => document.body.removeChild(dragClone), 0);
+    };
+
+    td.appendChild(handle);
+    return td;
 }
 
 export function createTimeCell(entry, field) {
