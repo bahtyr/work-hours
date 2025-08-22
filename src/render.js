@@ -1,6 +1,6 @@
 import {elements} from './elements.js';
 import {getState, saveState, setOpenDay} from './state.js';
-import {escapeHtml, findLast, fmtHM, parseHM, todayKey} from './utils.js';
+import {escapeHtml, findLast, fmtHM, parseHM, todayKey, formatDayName} from './utils.js';
 
 const state = getState();
 
@@ -32,7 +32,7 @@ export function renderTabs() {
     orderedDays.forEach(day => {
         const tabEl = document.createElement('div');
         tabEl.className = 'tab' + (day === state.openDay ? ' active' : '');
-        tabEl.textContent = day === today ? 'Today' : day;
+        tabEl.textContent = formatDayName(day);
         tabEl.title = day;
         tabEl.addEventListener('click', () => setOpenDay(day));
         elements.tabs.appendChild(tabEl);

@@ -40,3 +40,49 @@ export function escapeHtml(str) {
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;');
 }
+
+export function formatDayName(dateStr) {
+    const today = new Date();
+    const date = new Date(dateStr);
+
+    // Normalize time for accurate day difference
+    const oneDayMs = 1000 * 60 * 60 * 24;
+    const daysDiff = Math.floor((today - date) / oneDayMs);
+
+    // if (daysDiff === 0) return 'Today';
+    // if (daysDiff === 1) return 'Yesterday';
+
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const dayFullNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    const dayName = dayNames[date.getDay()];
+    const dayFullName = dayFullNames[date.getDay()];
+    const month = monthNames[date.getMonth()];
+    const day = date.getDate();
+
+    // Today
+    if (daysDiff === 0) return `${month}, ${dayFullName} ${day}`;
+
+    // This week
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    if (date >= startOfWeek) {
+        return dayName; // just the day name
+    }
+
+    // Last week
+    const startOfLastWeek = new Date(startOfWeek);
+    startOfLastWeek.setDate(startOfWeek.getDate() - 7);
+
+    if (date >= startOfLastWeek) {
+        return `Last ${dayName}`;
+    }
+
+    // Older dates
+    return `${day} ${month}`;
+}
+

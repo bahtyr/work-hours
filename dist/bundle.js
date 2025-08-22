@@ -67,6 +67,45 @@
   function escapeHtml(str) {
     return String(str).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
   }
+  function formatDayName(dateStr) {
+    const today = /* @__PURE__ */ new Date();
+    const date = new Date(dateStr);
+    const oneDayMs = 1e3 * 60 * 60 * 24;
+    const daysDiff = Math.floor((today - date) / oneDayMs);
+    const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const dayFullNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ];
+    const dayName = dayNames[date.getDay()];
+    const dayFullName = dayFullNames[date.getDay()];
+    const month = monthNames[date.getMonth()];
+    const day = date.getDate();
+    if (daysDiff === 0) return `${month}, ${dayFullName} ${day}`;
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    if (date >= startOfWeek) {
+      return dayName;
+    }
+    const startOfLastWeek = new Date(startOfWeek);
+    startOfLastWeek.setDate(startOfWeek.getDate() - 7);
+    if (date >= startOfLastWeek) {
+      return `Last ${dayName}`;
+    }
+    return `${day} ${month}`;
+  }
   var pad;
   var init_utils = __esm({
     "src/utils.js"() {
@@ -132,7 +171,7 @@
     orderedDays.forEach((day) => {
       const tabEl = document.createElement("div");
       tabEl.className = "tab" + (day === state2.openDay ? " active" : "");
-      tabEl.textContent = day === today ? "Today" : day;
+      tabEl.textContent = formatDayName(day);
       tabEl.title = day;
       tabEl.addEventListener("click", () => setOpenDay(day));
       elements.tabs.appendChild(tabEl);
@@ -240,6 +279,9 @@
     elements.summary.innerHTML = html;
   }
   function updateRunningUI() {
+    const entries = state2.days[state2.openDay] || [];
+    const running = findLast(entries, (e) => e.start && !e.end);
+    elements.runningPill.style.display = running ? "inline-flex" : "none";
   }
   function updateDayTotal() {
     const entries = state2.days[state2.openDay] || [];
