@@ -1,6 +1,6 @@
 import {elements} from './elements.js';
 import {getState, saveState, setOpenDay} from './state.js';
-import {escapeHtml, findLast, fmtHM, parseHM, todayKey, formatDayName} from './utils.js';
+import {escapeHtml, findLast, formatHM, formatMinutes, parseHM, todayKey, formatDayName} from './utils.js';
 
 const state = getState();
 
@@ -153,12 +153,12 @@ export function renderSummary() {
     }
 
     // Build summary table
-    let html = '<table style="width:100%;"><thead><tr><th style="text-align: right;">Total (h:mm)</th><th style="">Description</th></tr></thead><tbody>';
+    let html = '<table style="width:100%;"><thead><tr><th style="text-align: right;">Total</th><th style="">Description</th></tr></thead><tbody>';
 
     [...totals.entries()]
         .sort((a, b) => a[0].localeCompare(b[0]))
         .forEach(([desc, minutes]) => {
-            html += `<tr><td style="text-align: right;">${fmtHM(minutes)}</td><td>${escapeHtml(desc)}</td></tr>`;
+            html += `<tr><td style="text-align: right;">${formatMinutes(minutes)}</td><td>${escapeHtml(desc)}</td></tr>`;
         });
 
     html += '</tbody></table>';
@@ -184,7 +184,7 @@ export function updateDayTotal() {
         }
     }
 
-    elements.dayTotal.textContent = totalMinutes ? `Day total: ${fmtHM(totalMinutes)}` : '';
+    elements.toggleSummaryBtn.innerHTML = totalMinutes ? `<span style="font-size: 1.25rem" ">${formatHM(totalMinutes)}</span> View Summary` : 'View Summary';
 }
 
 export function focusLastDescription() {

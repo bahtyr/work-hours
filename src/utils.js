@@ -17,10 +17,19 @@ export function parseHM(time) {
     return h * 60 + m;
 }
 
-export function fmtHM(minutes) {
+export function formatHM(minutes) {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
     return `${h}:${pad(m)}`;
+}
+
+export function formatMinutes(minutes) {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (h > 0) {
+        return `${h}h ${m}m`;
+    }
+    return `${m}m`;
 }
 
 export function findLast(arr, predicate) {

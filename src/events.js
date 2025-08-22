@@ -5,6 +5,8 @@ import { renderAll, focusLastDescription } from './render.js';
 
 const state = getState();
 
+// Start / Stop
+
 export function onNew() {
     const entries = state.days[state.openDay];
     const running = findLast(entries, e => e.start && !e.end);
@@ -28,6 +30,15 @@ export function onStop() {
         renderAll();
     }
 }
+
+// Summary
+
+export function toggleSummary() {
+    elements.hoursTable.classList.toggle('hidden');
+    elements.summary.classList.toggle('hidden');
+}
+
+// Days
 
 export function onAddDay() {
     if (elements.addDayInput.value) {
@@ -93,9 +104,4 @@ export function onDeleteDay() {
     ensureDay(state.openDay);
     saveState();
     renderAll();
-}
-
-export function toggleSummary() {
-    elements.hoursTable.classList.toggle('hidden');
-    elements.summary.classList.toggle('hidden');
 }
