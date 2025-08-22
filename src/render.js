@@ -12,7 +12,7 @@ export function renderAll(scrollBottom = false) {
     updateDayTotal();
 
     if (scrollBottom) {
-        elements.tbody.parentElement.scrollTop = elements.tbody.scrollHeight;
+        elements.hoursTableBody.parentElement.scrollTop = elements.hoursTableBody.scrollHeight;
     }
 }
 
@@ -41,11 +41,11 @@ export function renderTabs() {
 
 export function renderTable() {
     const entries = state.days[state.openDay] || [];
-    elements.tbody.innerHTML = '';
+    elements.hoursTableBody.innerHTML = '';
 
     entries.forEach((entry, index) => {
         const row = createTableRow(entry, index, entries);
-        elements.tbody.appendChild(row);
+        elements.hoursTableBody.appendChild(row);
     });
 }
 
@@ -188,7 +188,7 @@ export function updateDayTotal() {
 }
 
 export function focusLastDescription() {
-    const inputs = elements.tbody.querySelectorAll('input[type="text"]');
+    const inputs = elements.hoursTableBody.querySelectorAll('input[type="text"]');
     if (inputs.length) {
         inputs[inputs.length - 1].focus();
     }

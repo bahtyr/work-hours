@@ -14,15 +14,18 @@
       elements = {
         tabs: document.getElementById("tabs"),
         hoursTable: document.getElementById("hoursTable"),
-        tbody: document.getElementById("tbody"),
+        hoursTableBody: document.getElementById("hoursTableBody"),
+        summary: document.getElementById("summary"),
+        // buttons
         newBtn: document.getElementById("newBtn"),
         stopBtn: document.getElementById("stopBtn"),
-        summaryBtn: document.getElementById("summaryBtn"),
+        toggleSummaryBtn: document.getElementById("toggleSummaryBtn"),
         runningPill: document.getElementById("runningPill"),
+        //
         dayTotal: document.getElementById("dayTotal"),
-        summary: document.getElementById("summary"),
-        addDayInput: document.getElementById("addDayInput"),
+        // days
         addDayBtn: document.getElementById("addDayBtn"),
+        addDayInput: document.getElementById("addDayInput"),
         editDayBtn: document.getElementById("editDayBtn"),
         editDayInput: document.getElementById("editDayInput"),
         saveEditDayBtn: document.getElementById("saveEditDayBtn"),
@@ -116,7 +119,7 @@
     updateRunningUI();
     updateDayTotal();
     if (scrollBottom) {
-      elements.tbody.parentElement.scrollTop = elements.tbody.scrollHeight;
+      elements.hoursTableBody.parentElement.scrollTop = elements.hoursTableBody.scrollHeight;
     }
   }
   function renderTabs() {
@@ -137,10 +140,10 @@
   }
   function renderTable() {
     const entries = state2.days[state2.openDay] || [];
-    elements.tbody.innerHTML = "";
+    elements.hoursTableBody.innerHTML = "";
     entries.forEach((entry, index) => {
       const row = createTableRow(entry, index, entries);
-      elements.tbody.appendChild(row);
+      elements.hoursTableBody.appendChild(row);
     });
   }
   function createTableRow(entry, index, entries) {
@@ -254,7 +257,7 @@
     elements.dayTotal.textContent = totalMinutes ? `Day total: ${fmtHM(totalMinutes)}` : "";
   }
   function focusLastDescription() {
-    const inputs = elements.tbody.querySelectorAll('input[type="text"]');
+    const inputs = elements.hoursTableBody.querySelectorAll('input[type="text"]');
     if (inputs.length) {
       inputs[inputs.length - 1].focus();
     }
@@ -364,7 +367,7 @@
       init_events();
       elements.newBtn.addEventListener("click", onNew);
       elements.stopBtn.addEventListener("click", onStop);
-      elements.summaryBtn.addEventListener("click", toggleSummary);
+      elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
       elements.addDayBtn.addEventListener("click", onAddDay);
       elements.editDayBtn.addEventListener("click", onEditDay);
       elements.cancelEditDayBtn.addEventListener("click", onCancelEditDay);
