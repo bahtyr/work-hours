@@ -3,6 +3,8 @@ import {getState, saveState, setOpenDay} from './state.js';
 import {escapeHtml, findLast, formatDayName, formatHM, formatMinutes, parseHM, todayKey} from './utils.js';
 
 const state = getState();
+const gapRows = new Map();
+
 
 export function renderAll(scrollBottom = false) {
     renderTabs();
@@ -45,17 +47,23 @@ export function renderTabs() {
 
 export function renderTable() {
     const entries = state.days[state.openDay] || [];
-    elements.hoursTableBody.innerHTML = '';
+    const tbody = elements.hoursTableBody;
+    tbody.innerHTML = '';
+    gapRows.clear();
 
     entries.forEach((entry, index) => {
         const row = createTableRow(entry, index, entries);
-        elements.hoursTableBody.appendChild(row);
+        tbody.appendChild(row);
+
+        // Create gap after previous entry
+        if (index > 0) updateGapAfter(entries[index - 1]);
     });
 }
 
+
 export function createTableRow(entry, index, entries) {
     const tr = document.createElement('tr');
-    tr.className = 'draggable';
+    tr.dataset.entryId = entry.id;
 
     tr.ondragover = (ev) => ev.preventDefault();
     tr.ondrop = (ev) => {
@@ -89,7 +97,6 @@ export function createTableRow(entry, index, entries) {
     return tr;
 }
 
-
 export function createTimeCell(entry, field, onChange) {
     const td = document.createElement('td');
     const input = document.createElement('input');
@@ -102,7 +109,14 @@ export function createTimeCell(entry, field, onChange) {
         saveState();
         renderSummary();
         updateDayTotal();
-        if (onChange) onChange(); // notify duration to update
+
+        // Update gap after this entry and gap after previous entry
+        const entries = state.days[state.openDay] || [];
+        const index = entries.indexOf(entry);
+        if (index > 0) updateGapAfter(entries[index - 1]);
+        updateGapAfter(entry);
+
+        if (onChange) onChange();
     };
 
     td.appendChild(input);
@@ -192,6 +206,90 @@ export function createDragHandleCell(index) {
     td.appendChild(handle);
     return td;
 }
+
+function createGapRow(minutes, isOverlap = false) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = 5;
+    td.style.textAlign = 'center';
+    td.style.fontStyle = 'italic';
+    td.style.color = '#666';
+    td.textContent = `${formatMinutes(minutes)} ${isOverlap ? 'overlap' : 'gap'}`;
+    tr.appendChild(td);
+    return tr;
+}
+
+export function updateGapsAround(entry) {
+    const entries = state.days[state.openDay] || [];
+    const tbody = elements.hoursTableBody;
+    const index = entries.indexOf(entry);
+    if (index === -1) return;
+
+    const prevEntry = entries[index - 1];
+
+    // All gaps belong to the previous entry
+    if (!prevEntry) return;
+
+    // Compute gap
+    if (prevEntry.end && entry.start) {
+        const gapMinutes = parseHM(entry.start) - parseHM(prevEntry.end);
+
+        // Remove old gap if exists
+        if (gapRows.has(prevEntry.id)) {
+            gapRows.get(prevEntry.id).remove();
+            gapRows.delete(prevEntry.id);
+        }
+
+        // Insert new gap if needed
+        if (gapMinutes > 0) {
+            const gapRow = createGapRow(gapMinutes);
+            gapRows.set(prevEntry.id, gapRow);
+
+            const prevRow = tbody.querySelector(`tr[data-entry-id="${prevEntry.id}"]`);
+            if (prevRow) {
+                if (prevRow.nextSibling) {
+                    tbody.insertBefore(gapRow, prevRow.nextSibling);
+                } else {
+                    tbody.appendChild(gapRow);
+                }
+            }
+        }
+    }
+}
+
+function updateGapAfter(prevEntry) {
+    const entries = state.days[state.openDay] || [];
+    const tbody = elements.hoursTableBody;
+    const index = entries.indexOf(prevEntry);
+    if (index === -1) return;
+
+    const nextEntry = entries[index + 1];
+
+    // Remove old gap/overlap row if exists
+    if (gapRows.has(prevEntry.id)) {
+        gapRows.get(prevEntry.id).remove();
+        gapRows.delete(prevEntry.id);
+    }
+
+    if (nextEntry && prevEntry.end && nextEntry.start) {
+        const prevEnd = parseHM(prevEntry.end);
+        const nextStart = parseHM(nextEntry.start);
+        const diff = nextStart - prevEnd;
+
+        if (diff !== 0) { // gap or overlap
+            const gapRow = createGapRow(Math.abs(diff), diff < 0); // negative → overlap
+            gapRows.set(prevEntry.id, gapRow);
+
+            const prevRow = tbody.querySelector(`tr[data-entry-id="${prevEntry.id}"]`);
+            if (prevRow) {
+                tbody.insertBefore(gapRow, prevRow.nextSibling);
+            }
+        }
+    }
+}
+
+
+
 
 // Summary
 
