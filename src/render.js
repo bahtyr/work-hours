@@ -1,6 +1,6 @@
 import {elements} from './elements.js';
 import {getState, saveState, setOpenDay} from './state.js';
-import {escapeHtml, findLast, formatHM, formatMinutes, parseHM, todayKey, formatDayName} from './utils.js';
+import {escapeHtml, findLast, formatDayName, formatHM, formatMinutes, parseHM, todayKey} from './utils.js';
 
 const state = getState();
 
@@ -166,35 +166,83 @@ export function createDeleteCell(index, entries) {
 
 export function renderSummary() {
     const entries = state.days[state.openDay] || [];
-    const totals = new Map();
+    const totals = new Map(); // Stores total minutes per key
+    const ticketDescriptions = new Map(); // Stores a set of descriptions for each Jira ticket
 
-    // Calculate totals by description
+    // Count totals for matching entries
     for (const entry of entries) {
         const start = parseHM(entry.start);
         const end = parseHM(entry.end);
 
-        if (start !== null && end !== null && end >= start) {
-            const minutes = end - start;
-            const key = entry.desc || '(no description)';
-            totals.set(key, (totals.get(key) || 0) + minutes);
+        if (start === null || end === null || end < start) continue;
+
+        const minutes = end - start;
+        const entryDesc = entry.desc || "(no description)";
+
+        // Try to detect a Jira ticket key, e.g. "TUE-250"
+        const ticketMatch = entryDesc.match(/\b[a-zA-Z]+-\d+\b/);
+
+        if (!ticketMatch) {
+            // No Jira key → find matching entry, increment total
+            totals.set(entryDesc, (totals.get(entryDesc) || 0) + minutes);
+        } else {
+            // JIRA key → split key & description
+            const ticketKey = ticketMatch[0].toUpperCase();
+            const ticketDesc = entryDesc.replace(ticketMatch[0], "").trim();
+
+            // create a set to store unique descriptions
+            if (!ticketDescriptions.has(ticketKey))
+                ticketDescriptions.set(ticketKey, new Set());
+            // store descriptions separately
+            if (ticketDesc)
+                ticketDescriptions.get(ticketKey).add(ticketDesc);
+
+            // increment total for the key
+            totals.set(ticketKey, (totals.get(ticketKey) || 0) + minutes);
         }
     }
 
+    // No table
     if (totals.size === 0) {
         elements.summary.innerHTML = '<div class="muted">Summary will appear here for completed entries.</div>';
         return;
     }
 
-    // Build summary table
-    let html = '<table style="width:100%;"><thead><tr><th style="text-align: right;">Total</th><th style="">Description</th></tr></thead><tbody>';
+    // Build table
+    let html = `
+        <table style="width:100%;">
+            <thead>
+                <tr>
+                    <th style="text-align: right;">Total</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
 
+    // Build table rows
     [...totals.entries()]
+        // Sort alphabetically by description
         .sort((a, b) => a[0].localeCompare(b[0]))
-        .forEach(([desc, minutes]) => {
-            html += `<tr><td style="text-align: right;">${formatMinutes(minutes)}</td><td>${escapeHtml(desc)}</td></tr>`;
+        .forEach(([key, minutes]) => {
+            let description = key;
+
+            // If it's a Jira ticket, append all its grouped notes
+            if (ticketDescriptions.has(key)) {
+                const ticketDesc = [...ticketDescriptions.get(key)].join(", ");
+                if (ticketDesc)
+                    description += " - " + ticketDesc;
+            }
+
+            html += `
+                <tr>
+                    <td style="text-align: right;">${formatMinutes(minutes)}</td>
+                    <td>${escapeHtml(description)}</td>
+                </tr>
+            `;
         });
 
-    html += '</tbody></table>';
+    html += "</tbody></table>";
     elements.summary.innerHTML = html;
 }
 
