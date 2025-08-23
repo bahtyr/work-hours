@@ -57,13 +57,11 @@ export function createTableRow(entry, index, entries) {
     const tr = document.createElement('tr');
     tr.className = 'draggable';
 
-    // still needed for dropping on rows
     tr.ondragover = (ev) => ev.preventDefault();
     tr.ondrop = (ev) => {
         ev.preventDefault();
         const from = +ev.dataTransfer.getData('text/plain');
         const to = index;
-
         if (from !== to) {
             const item = entries.splice(from, 1)[0];
             entries.splice(to, 0, item);
@@ -72,60 +70,63 @@ export function createTableRow(entry, index, entries) {
         }
     };
 
-    // Create cells
-    tr.appendChild(createTimeCell(entry, 'start'));
-    tr.appendChild(createTimeCell(entry, 'end'));
+    const durationCell = createDurationCell();
+
+    // Create start and end cells and update duration when input changes
+    const startCell = createTimeCell(entry, 'start', () => updateDurationCell(entry, durationCell));
+    const endCell = createTimeCell(entry, 'end', () => updateDurationCell(entry, durationCell));
+
+    tr.appendChild(startCell);
+    tr.appendChild(endCell);
+    tr.appendChild(durationCell);
     tr.appendChild(createDescriptionCell(entry));
     tr.appendChild(createDeleteCell(index, entries));
     tr.appendChild(createDragHandleCell(index));
 
+    // Initialize duration immediately
+    updateDurationCell(entry, durationCell);
+
     return tr;
 }
 
-export function createDragHandleCell(index) {
-    const td = document.createElement('td');
-    td.style.textAlign = 'center';
-    td.style.cursor = 'grab';
 
-    const handle = document.createElement('span');
-    handle.textContent = '☰'; // you can replace with an SVG/icon
-    handle.draggable = true;
-
-    handle.ondragstart = (ev) => {
-        ev.dataTransfer.setData('text/plain', index);
-
-        // Create a temporary clone of the row for drag image
-        const tr = handle.closest('tr');
-        const dragClone = tr.cloneNode(true);
-        dragClone.style.position = 'absolute';
-        dragClone.style.top = '-9999px'; // hide offscreen
-        document.body.appendChild(dragClone);
-
-        // Use the clone as the drag image
-        ev.dataTransfer.setDragImage(dragClone, 0, 0);
-
-        // Remove it shortly after
-        setTimeout(() => document.body.removeChild(dragClone), 0);
-    };
-
-    td.appendChild(handle);
-    return td;
-}
-
-export function createTimeCell(entry, field) {
+export function createTimeCell(entry, field, onChange) {
     const td = document.createElement('td');
     const input = document.createElement('input');
     input.type = 'time';
     input.step = 60;
     input.value = entry[field] || '';
+
     input.oninput = () => {
         entry[field] = input.value;
         saveState();
         renderSummary();
         updateDayTotal();
+        if (onChange) onChange(); // notify duration to update
     };
+
     td.appendChild(input);
     return td;
+}
+
+export function createDurationCell() {
+    const td = document.createElement('td');
+    td.style.textAlign = 'right';
+    td.textContent = '-'; // default
+    return td;
+}
+
+export function updateDurationCell(entry, td) {
+    if (entry.start && entry.end) {
+        const start = parseHM(entry.start);
+        const end = parseHM(entry.end);
+        const minutes = end - start;
+        if (minutes === 0)
+            td.textContent = '';
+        else td.textContent = formatMinutes(minutes);
+    } else {
+        td.textContent = '';
+    }
 }
 
 export function createDescriptionCell(entry) {
@@ -159,6 +160,36 @@ export function createDeleteCell(index, entries) {
     };
 
     td.appendChild(deleteBtn);
+    return td;
+}
+
+export function createDragHandleCell(index) {
+    const td = document.createElement('td');
+    td.style.textAlign = 'center';
+    td.style.cursor = 'grab';
+
+    const handle = document.createElement('span');
+    handle.textContent = '☰'; // you can replace with an SVG/icon
+    handle.draggable = true;
+
+    handle.ondragstart = (ev) => {
+        ev.dataTransfer.setData('text/plain', index);
+
+        // Create a temporary clone of the row for drag image
+        const tr = handle.closest('tr');
+        const dragClone = tr.cloneNode(true);
+        dragClone.style.position = 'absolute';
+        dragClone.style.top = '-9999px'; // hide offscreen
+        document.body.appendChild(dragClone);
+
+        // Use the clone as the drag image
+        ev.dataTransfer.setDragImage(dragClone, 0, 0);
+
+        // Remove it shortly after
+        setTimeout(() => document.body.removeChild(dragClone), 0);
+    };
+
+    td.appendChild(handle);
     return td;
 }
 
@@ -210,7 +241,7 @@ export function renderSummary() {
 
     // Build table
     let html = `
-        <table style="width:100%;">
+        <table id="summaryTable">
             <thead>
                 <tr>
                     <th style="text-align: right;">Total</th>

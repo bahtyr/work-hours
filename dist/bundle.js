@@ -206,34 +206,19 @@
         renderAll();
       }
     };
-    tr.appendChild(createTimeCell(entry, "start"));
-    tr.appendChild(createTimeCell(entry, "end"));
+    const durationCell = createDurationCell();
+    const startCell = createTimeCell(entry, "start", () => updateDurationCell(entry, durationCell));
+    const endCell = createTimeCell(entry, "end", () => updateDurationCell(entry, durationCell));
+    tr.appendChild(startCell);
+    tr.appendChild(endCell);
+    tr.appendChild(durationCell);
     tr.appendChild(createDescriptionCell(entry));
     tr.appendChild(createDeleteCell(index, entries));
     tr.appendChild(createDragHandleCell(index));
+    updateDurationCell(entry, durationCell);
     return tr;
   }
-  function createDragHandleCell(index) {
-    const td = document.createElement("td");
-    td.style.textAlign = "center";
-    td.style.cursor = "grab";
-    const handle = document.createElement("span");
-    handle.textContent = "\u2630";
-    handle.draggable = true;
-    handle.ondragstart = (ev) => {
-      ev.dataTransfer.setData("text/plain", index);
-      const tr = handle.closest("tr");
-      const dragClone = tr.cloneNode(true);
-      dragClone.style.position = "absolute";
-      dragClone.style.top = "-9999px";
-      document.body.appendChild(dragClone);
-      ev.dataTransfer.setDragImage(dragClone, 0, 0);
-      setTimeout(() => document.body.removeChild(dragClone), 0);
-    };
-    td.appendChild(handle);
-    return td;
-  }
-  function createTimeCell(entry, field) {
+  function createTimeCell(entry, field, onChange) {
     const td = document.createElement("td");
     const input = document.createElement("input");
     input.type = "time";
@@ -244,9 +229,28 @@
       saveState();
       renderSummary();
       updateDayTotal();
+      if (onChange) onChange();
     };
     td.appendChild(input);
     return td;
+  }
+  function createDurationCell() {
+    const td = document.createElement("td");
+    td.style.textAlign = "right";
+    td.textContent = "-";
+    return td;
+  }
+  function updateDurationCell(entry, td) {
+    if (entry.start && entry.end) {
+      const start = parseHM(entry.start);
+      const end = parseHM(entry.end);
+      const minutes = end - start;
+      if (minutes === 0)
+        td.textContent = "";
+      else td.textContent = formatMinutes(minutes);
+    } else {
+      td.textContent = "";
+    }
   }
   function createDescriptionCell(entry) {
     const td = document.createElement("td");
@@ -278,6 +282,26 @@
     td.appendChild(deleteBtn);
     return td;
   }
+  function createDragHandleCell(index) {
+    const td = document.createElement("td");
+    td.style.textAlign = "center";
+    td.style.cursor = "grab";
+    const handle = document.createElement("span");
+    handle.textContent = "\u2630";
+    handle.draggable = true;
+    handle.ondragstart = (ev) => {
+      ev.dataTransfer.setData("text/plain", index);
+      const tr = handle.closest("tr");
+      const dragClone = tr.cloneNode(true);
+      dragClone.style.position = "absolute";
+      dragClone.style.top = "-9999px";
+      document.body.appendChild(dragClone);
+      ev.dataTransfer.setDragImage(dragClone, 0, 0);
+      setTimeout(() => document.body.removeChild(dragClone), 0);
+    };
+    td.appendChild(handle);
+    return td;
+  }
   function renderSummary() {
     const entries = state2.days[state2.openDay] || [];
     const totals = /* @__PURE__ */ new Map();
@@ -292,9 +316,8 @@
       if (!ticketMatch) {
         totals.set(entryDesc, (totals.get(entryDesc) || 0) + minutes);
       } else {
-        let ticketKey = ticketMatch[0];
-        const ticketDesc = entryDesc.replace(ticketKey, "").trim();
-        ticketKey = ticketKey.toUpperCase();
+        const ticketKey = ticketMatch[0].toUpperCase();
+        const ticketDesc = entryDesc.replace(ticketMatch[0], "").trim();
         if (!ticketDescriptions.has(ticketKey))
           ticketDescriptions.set(ticketKey, /* @__PURE__ */ new Set());
         if (ticketDesc)
@@ -307,7 +330,7 @@
       return;
     }
     let html = `
-        <table style="width:100%;">
+        <table id="summaryTable">
             <thead>
                 <tr>
                     <th style="text-align: right;">Total</th>
