@@ -1,0 +1,64 @@
+/* ============== INPUTS ============== */
+
+
+input[type="time"],
+input[type="text"],
+input[type="date"] {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--input-bg);
+    color: var(--ink);
+    transition: border-color var(--transition), background var(--transition);
+}
+
+input::placeholder {
+    color: var(--placeholder);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+
+/* ============== BUTTONS ============== */
+
+
+button {
+    cursor: pointer;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: 1px solid var(--button-border);
+    font-weight: 700;
+    font-size: 14px;
+    transition: background var(--transition), border-color var(--transition);
+}
+
+button:hover {
+    background: var(--button-hover);
+}
+
+button.primary {
+    /*background: var(--accent);*/
+    /*color: var(--bg);*/
+}
+
+button.danger {
+    background: linear-gradient(180deg, var(--danger-gradient-from), var(--danger-gradient-to));
+    color: var(--danger-text);
+    border-color: var(--danger-border);
+}
+
+/* Main controls buttons */
+.main-controls button {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+    /*padding: 14px 28px;*/
+    padding: 22px 40px;
+}

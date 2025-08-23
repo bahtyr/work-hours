@@ -1,0 +1,85 @@
+.wrap {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+/* ============== WRAPPER ============== */
+
+
+.header, .footer {
+    flex-shrink: 0;
+    padding: 16px 0;
+}
+
+
+/* ============== CARD ============== */
+
+
+.card {
+    flex: 1;
+    overflow-y: auto;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    transition: background var(--transition);
+}
+
+.card table {
+    width: 100%;
+}
+
+/* Hide scrollbar */
+.card {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.card::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* ============== HEADER / TABS ============== */
+
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+
+.tab {
+    padding: 8px 12px;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+    transition: color var(--transition), background var(--transition);
+}
+
+.tab:hover {
+    color: var(--ink);
+}
+
+.tab.active {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+
+/* ============== FOOTER ============== */
+
+
+.main-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
