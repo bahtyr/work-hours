@@ -34,9 +34,18 @@
   });
 
   // src/utils.js
+  function uid() {
+    return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  }
   function todayKey() {
     const d = /* @__PURE__ */ new Date();
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+  function findLast(arr, predicate) {
+    for (let i = arr.length - 1; i >= 0; i--) {
+      if (predicate(arr[i])) return arr[i];
+    }
+    return null;
   }
   function timeNow() {
     const d = /* @__PURE__ */ new Date();
@@ -60,18 +69,6 @@
       return `${h}h ${m}m`;
     }
     return `${m}m`;
-  }
-  function findLast(arr, predicate) {
-    for (let i = arr.length - 1; i >= 0; i--) {
-      if (predicate(arr[i])) return arr[i];
-    }
-    return null;
-  }
-  function uid() {
-    return "e" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-  }
-  function escapeHtml(str) {
-    return String(str).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
   }
   function formatDayName(dateStr) {
     const today = /* @__PURE__ */ new Date();
@@ -111,6 +108,9 @@
       return `Last ${dayName}`;
     }
     return `${day} ${month}`;
+  }
+  function escapeHtml(str) {
+    return String(str).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
   }
   var pad;
   var init_utils = __esm({
@@ -281,30 +281,57 @@
   function renderSummary() {
     const entries = state2.days[state2.openDay] || [];
     const totals = /* @__PURE__ */ new Map();
+    const ticketDescriptions = /* @__PURE__ */ new Map();
     for (const entry of entries) {
       const start = parseHM(entry.start);
       const end = parseHM(entry.end);
-      if (start !== null && end !== null && end >= start) {
-        const minutes = end - start;
-        const key = entry.desc || "(no description)";
-        totals.set(key, (totals.get(key) || 0) + minutes);
+      if (start === null || end === null || end < start) continue;
+      const minutes = end - start;
+      const entryDesc = entry.desc || "(no description)";
+      const ticketMatch = entryDesc.match(/\b[a-zA-Z]+-\d+\b/);
+      if (!ticketMatch) {
+        totals.set(entryDesc, (totals.get(entryDesc) || 0) + minutes);
+      } else {
+        let ticketKey = ticketMatch[0];
+        const ticketDesc = entryDesc.replace(ticketKey, "").trim();
+        ticketKey = ticketKey.toUpperCase();
+        if (!ticketDescriptions.has(ticketKey))
+          ticketDescriptions.set(ticketKey, /* @__PURE__ */ new Set());
+        if (ticketDesc)
+          ticketDescriptions.get(ticketKey).add(ticketDesc);
+        totals.set(ticketKey, (totals.get(ticketKey) || 0) + minutes);
       }
     }
     if (totals.size === 0) {
       elements.summary.innerHTML = '<div class="muted">Summary will appear here for completed entries.</div>';
       return;
     }
-    let html = '<table style="width:100%;"><thead><tr><th style="text-align: right;">Total</th><th style="">Description</th></tr></thead><tbody>';
-    [...totals.entries()].sort((a, b) => a[0].localeCompare(b[0])).forEach(([desc, minutes]) => {
-      html += `<tr><td style="text-align: right;">${formatMinutes(minutes)}</td><td>${escapeHtml(desc)}</td></tr>`;
+    let html = `
+        <table style="width:100%;">
+            <thead>
+                <tr>
+                    <th style="text-align: right;">Total</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    [...totals.entries()].sort((a, b) => a[0].localeCompare(b[0])).forEach(([key, minutes]) => {
+      let description = key;
+      if (ticketDescriptions.has(key)) {
+        const ticketDesc = [...ticketDescriptions.get(key)].join(", ");
+        if (ticketDesc)
+          description += " - " + ticketDesc;
+      }
+      html += `
+                <tr>
+                    <td style="text-align: right;">${formatMinutes(minutes)}</td>
+                    <td>${escapeHtml(description)}</td>
+                </tr>
+            `;
     });
     html += "</tbody></table>";
     elements.summary.innerHTML = html;
-  }
-  function updateRunningUI() {
-    const entries = state2.days[state2.openDay] || [];
-    const running = findLast(entries, (e) => e.start && !e.end);
-    elements.runningPill.style.display = running ? "inline-flex" : "none";
   }
   function updateDayTotal() {
     const entries = state2.days[state2.openDay] || [];
@@ -317,6 +344,11 @@
       }
     }
     elements.toggleSummaryBtn.innerHTML = totalMinutes ? `<span style="font-size: 1.25rem" ">${formatHM(totalMinutes)}</span> View Summary` : "View Summary";
+  }
+  function updateRunningUI() {
+    const entries = state2.days[state2.openDay] || [];
+    const running = findLast(entries, (e) => e.start && !e.end);
+    elements.runningPill.style.display = running ? "inline-flex" : "none";
   }
   function focusLastDescription() {
     const inputs = elements.hoursTableBody.querySelectorAll('input[type="text"]');
