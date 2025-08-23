@@ -1,9 +1,25 @@
-export const pad = (n) => String(n).padStart(2, '0');
+
+// Identifiers
+
+export function uid() {
+    return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
 
 export function todayKey() {
     const d = new Date();
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
+
+// HTML
+
+export function findLast(arr, predicate) {
+    for (let i = arr.length - 1; i >= 0; i--) {
+        if (predicate(arr[i])) return arr[i];
+    }
+    return null;
+}
+
+// Time
 
 export function timeNow() {
     const d = new Date();
@@ -16,6 +32,10 @@ export function parseHM(time) {
     if (h > 23 || m > 59) return null;
     return h * 60 + m;
 }
+
+// Format Time
+
+export const pad = (n) => String(n).padStart(2, '0');
 
 export function formatHM(minutes) {
     const h = Math.floor(minutes / 60);
@@ -32,23 +52,7 @@ export function formatMinutes(minutes) {
     return `${m}m`;
 }
 
-export function findLast(arr, predicate) {
-    for (let i = arr.length - 1; i >= 0; i--) {
-        if (predicate(arr[i])) return arr[i];
-    }
-    return null;
-}
-
-export function uid() {
-    return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-}
-
-export function escapeHtml(str) {
-    return String(str)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;');
-}
+// Format Text
 
 export function formatDayName(dateStr) {
     const today = new Date();
@@ -95,3 +99,9 @@ export function formatDayName(dateStr) {
     return `${day} ${month}`;
 }
 
+export function escapeHtml(str) {
+    return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
+}
