@@ -16,6 +16,8 @@ export function renderAll(scrollBottom = false) {
     }
 }
 
+// Tabs
+
 export function renderTabs() {
     const today = todayKey();
     const allDays = new Set(Object.keys(state.days || {}));
@@ -38,6 +40,8 @@ export function renderTabs() {
         elements.tabs.appendChild(tabEl);
     });
 }
+
+// Table
 
 export function renderTable() {
     const entries = state.days[state.openDay] || [];
@@ -78,7 +82,7 @@ export function createTableRow(entry, index, entries) {
     return tr;
 }
 
-function createDragHandleCell(index) {
+export function createDragHandleCell(index) {
     const td = document.createElement('td');
     td.style.textAlign = 'center';
     td.style.cursor = 'grab';
@@ -158,6 +162,8 @@ export function createDeleteCell(index, entries) {
     return td;
 }
 
+// Summary
+
 export function renderSummary() {
     const entries = state.days[state.openDay] || [];
     const totals = new Map();
@@ -192,12 +198,6 @@ export function renderSummary() {
     elements.summary.innerHTML = html;
 }
 
-export function updateRunningUI() {
-    const entries = state.days[state.openDay] || [];
-    const running = findLast(entries, e => e.start && !e.end);
-    elements.runningPill.style.display = running ? 'inline-flex' : 'none';
-}
-
 export function updateDayTotal() {
     const entries = state.days[state.openDay] || [];
     let totalMinutes = 0;
@@ -212,6 +212,14 @@ export function updateDayTotal() {
     }
 
     elements.toggleSummaryBtn.innerHTML = totalMinutes ? `<span style="font-size: 1.25rem" ">${formatHM(totalMinutes)}</span> View Summary` : 'View Summary';
+}
+
+// Other
+
+export function updateRunningUI() {
+    const entries = state.days[state.openDay] || [];
+    const running = findLast(entries, e => e.start && !e.end);
+    elements.runningPill.style.display = running ? 'inline-flex' : 'none';
 }
 
 export function focusLastDescription() {
