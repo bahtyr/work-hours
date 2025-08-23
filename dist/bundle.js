@@ -185,15 +185,18 @@
   }
   function renderTable() {
     const entries = state2.days[state2.openDay] || [];
-    elements.hoursTableBody.innerHTML = "";
+    const tbody = elements.hoursTableBody;
+    tbody.innerHTML = "";
+    gapRows.clear();
     entries.forEach((entry, index) => {
       const row = createTableRow(entry, index, entries);
-      elements.hoursTableBody.appendChild(row);
+      tbody.appendChild(row);
+      if (index > 0) updateGapAfter(entries[index - 1]);
     });
   }
   function createTableRow(entry, index, entries) {
     const tr = document.createElement("tr");
-    tr.className = "draggable";
+    tr.dataset.entryId = entry.id;
     tr.ondragover = (ev) => ev.preventDefault();
     tr.ondrop = (ev) => {
       ev.preventDefault();
@@ -229,6 +232,10 @@
       saveState();
       renderSummary();
       updateDayTotal();
+      const entries = state2.days[state2.openDay] || [];
+      const index = entries.indexOf(entry);
+      if (index > 0) updateGapAfter(entries[index - 1]);
+      updateGapAfter(entry);
       if (onChange) onChange();
     };
     td.appendChild(input);
@@ -301,6 +308,41 @@
     };
     td.appendChild(handle);
     return td;
+  }
+  function createGapRow(minutes, isOverlap = false) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 5;
+    td.style.textAlign = "center";
+    td.style.fontStyle = "italic";
+    td.style.color = "#666";
+    td.textContent = `${formatMinutes(minutes)} ${isOverlap ? "overlap" : "gap"}`;
+    tr.appendChild(td);
+    return tr;
+  }
+  function updateGapAfter(prevEntry) {
+    const entries = state2.days[state2.openDay] || [];
+    const tbody = elements.hoursTableBody;
+    const index = entries.indexOf(prevEntry);
+    if (index === -1) return;
+    const nextEntry = entries[index + 1];
+    if (gapRows.has(prevEntry.id)) {
+      gapRows.get(prevEntry.id).remove();
+      gapRows.delete(prevEntry.id);
+    }
+    if (nextEntry && prevEntry.end && nextEntry.start) {
+      const prevEnd = parseHM(prevEntry.end);
+      const nextStart = parseHM(nextEntry.start);
+      const diff = nextStart - prevEnd;
+      if (diff !== 0) {
+        const gapRow = createGapRow(Math.abs(diff), diff < 0);
+        gapRows.set(prevEntry.id, gapRow);
+        const prevRow = tbody.querySelector(`tr[data-entry-id="${prevEntry.id}"]`);
+        if (prevRow) {
+          tbody.insertBefore(gapRow, prevRow.nextSibling);
+        }
+      }
+    }
   }
   function renderSummary() {
     const entries = state2.days[state2.openDay] || [];
@@ -379,13 +421,14 @@
       inputs[inputs.length - 1].focus();
     }
   }
-  var state2;
+  var state2, gapRows;
   var init_render = __esm({
     "src/render.js"() {
       init_elements();
       init_state();
       init_utils();
       state2 = getState();
+      gapRows = /* @__PURE__ */ new Map();
     }
   });
 
