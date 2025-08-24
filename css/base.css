@@ -2,10 +2,10 @@
     --bg: #0f1115;
     --card: hsl(222, 18%, 11%);
     --card-light: hsl(222, 18%, 17%);
+    --line: #262a33;
     --ink: #e8e8e8;
     --muted: #a7a7a7;
     --accent: #82cfff;
-    --line: #262a33;
     --danger: #ff4d4d;
 
     /* new variables for inputs and placeholder */

@@ -22,9 +22,9 @@
 .card {
     flex: 1;
     overflow-y: auto;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 12px;
+    /*background: var(--card);*/
+    /*border: 1px solid var(--line);*/
+    /*border-radius: 12px;*/
     padding: 16px;
     transition: background var(--transition);
 }
