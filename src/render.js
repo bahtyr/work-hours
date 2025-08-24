@@ -1,6 +1,6 @@
 import {elements} from './elements.js';
 import {getState, saveState, setOpenDay} from './state.js';
-import {escapeHtml, findLast, formatDayName, formatHM, formatMinutes, parseHM, todayKey} from './utils.js';
+import {escapeHtml, findLast, formatDayName, formatMinutes, parseHM, todayKey} from './utils.js';
 
 const state = getState();
 const gapRows = new Map();
@@ -358,7 +358,12 @@ export function updateDayTotal() {
         }
     }
 
-    elements.toggleSummaryBtn.innerHTML = totalMinutes ? `<span style="font-size: 1.25rem" ">${formatHM(totalMinutes)}</span> View Summary` : 'View Summary';
+    elements.hoursLogged.textContent = formatMinutes(totalMinutes);
+    elements.hoursLeft.textContent = formatMinutes((8 * 60) - totalMinutes);
+
+    const maxDayMinutes = 8 * 60;
+    const percent = (totalMinutes / maxDayMinutes) * 100;
+    elements.hoursTimeline.style.width = percent + '%';
 }
 
 // Other

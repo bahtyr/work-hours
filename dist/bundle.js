@@ -12,10 +12,16 @@
   var init_elements = __esm({
     "src/elements.js"() {
       elements = {
+        // tabs
         tabs: document.getElementById("tabs"),
+        // tables
         hoursTable: document.getElementById("hoursTable"),
         hoursTableBody: document.getElementById("hoursTableBody"),
         summary: document.getElementById("summary"),
+        // progress
+        hoursLogged: document.querySelector(".hours-logged .number"),
+        hoursLeft: document.querySelector(".hours-left .number"),
+        hoursTimeline: document.querySelector(".timeline .done"),
         // buttons
         newBtn: document.getElementById("newBtn"),
         stopBtn: document.getElementById("stopBtn"),
@@ -56,11 +62,6 @@
     const [h, m] = time.split(":").map(Number);
     if (h > 23 || m > 59) return null;
     return h * 60 + m;
-  }
-  function formatHM(minutes) {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return `${h}:${pad(m)}`;
   }
   function formatMinutes(minutes) {
     const h = Math.floor(minutes / 60);
@@ -407,7 +408,11 @@
         totalMinutes += end - start;
       }
     }
-    elements.toggleSummaryBtn.innerHTML = totalMinutes ? `<span style="font-size: 1.25rem" ">${formatHM(totalMinutes)}</span> View Summary` : "View Summary";
+    elements.hoursLogged.textContent = formatMinutes(totalMinutes);
+    elements.hoursLeft.textContent = formatMinutes(8 * 60 - totalMinutes);
+    const maxDayMinutes = 8 * 60;
+    const percent = totalMinutes / maxDayMinutes * 100;
+    elements.hoursTimeline.style.width = percent + "%";
   }
   function updateRunningUI() {
     const entries = state2.days[state2.openDay] || [];
