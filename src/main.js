@@ -1,13 +1,13 @@
-import { elements } from './elements.js';
-import { renderAll } from './render.js';
+import {elements} from './elements.js';
+import {renderAll} from './render.js';
 import {
-    onNew,
-    onStop,
     onAddDay,
-    onEditDay,
     onCancelEditDay,
-    onSaveEditDay,
     onDeleteDay,
+    onEditDay,
+    onNew,
+    onSaveEditDay,
+    onStop,
     toggleSummary
 } from './events.js';
 

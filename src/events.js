@@ -1,7 +1,7 @@
-import { getState, saveState, setOpenDay, ensureDay } from './state.js';
-import { timeNow, findLast, uid, todayKey } from './utils.js';
-import { elements } from './elements.js';
-import { renderAll, focusLastDescription } from './render.js';
+import {ensureDay, getState, saveState, setOpenDay} from './state.js';
+import {findLast, timeNow, todayKey, uid} from './utils.js';
+import {elements} from './elements.js';
+import {focusLastDescription, renderAll} from './render.js';
 
 const state = getState();
 
@@ -13,7 +13,7 @@ export function onNew() {
 
     if (running) running.end = timeNow();
 
-    entries.push({ id: uid(), start: timeNow(), end: '', desc: '' });
+    entries.push({id: uid(), start: timeNow(), end: '', desc: ''});
 
     saveState();
     renderAll(true);
