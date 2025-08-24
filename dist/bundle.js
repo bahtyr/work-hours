@@ -78,16 +78,17 @@
     today.setHours(0, 0, 0, 0);
     const oneDayMs = 1e3 * 60 * 60 * 24;
     const daysDiff = Math.round((today - date) / oneDayMs);
-    const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const dayFullNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const dayFullNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const dayName = dayNames[date.getDay()];
     const dayFullName = dayFullNames[date.getDay()];
     const month = monthNames[date.getMonth()];
     const day = date.getDate();
-    if (daysDiff === 0) return `${month}, ${dayFullName} ${day}`;
+    if (daysDiff === 0) return `${dayFullName}, ${month} ${day}`;
     const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
+    const dayIndex = today.getDay() || 7;
+    startOfWeek.setDate(today.getDate() - (dayIndex - 1));
     startOfWeek.setHours(0, 0, 0, 0);
     if (date >= startOfWeek) {
       return dayName;

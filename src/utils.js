@@ -1,4 +1,3 @@
-
 // Identifiers
 
 export function uid() {
@@ -66,8 +65,8 @@ export function formatDayName(dateStr) {
     // if (daysDiff === 0) return 'Today';
     // if (daysDiff === 1) return 'Yesterday';
 
-    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const dayFullNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayFullNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     const dayName = dayNames[date.getDay()];
@@ -76,15 +75,16 @@ export function formatDayName(dateStr) {
     const day = date.getDate();
 
     // Today
-    if (daysDiff === 0) return `${month}, ${dayFullName} ${day}`;
+    if (daysDiff === 0) return `${dayFullName}, ${month} ${day}`;
 
     // This week
     const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay());
+    const dayIndex = today.getDay() || 7; // convert Sunday (0) -> 7 to consider monday as the first day
+    startOfWeek.setDate(today.getDate() - (dayIndex - 1));
     startOfWeek.setHours(0, 0, 0, 0);
 
     if (date >= startOfWeek) {
-        return dayName; // just the day name
+        return dayName;
     }
 
     // Last week
