@@ -75,6 +75,46 @@
 }
 
 
+/* ============== HEADER SUMMARY ============== */
+
+#hours-summary {
+    padding: 0 2px;
+}
+
+.hours-summary-info {
+    display: flex;
+    gap: 16px;
+    padding: 0 2px;
+    font-size: 1rem;
+    color: var(--muted);
+}
+
+.hours-summary-info .number {
+    font-size: 1.2rem;
+    color: var(--ink);
+}
+
+/* Timeline */
+
+.timeline {
+    overflow: hidden;
+    border-radius: 4px;
+    height: 4px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    background: var(--card-light);
+}
+
+.block {
+    height: 100%;
+    transition: width var(--transition);
+}
+
+.done {
+    background: var(--ink);
+}
+
+
 /* ============== FOOTER ============== */
 
 
