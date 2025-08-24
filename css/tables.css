@@ -39,6 +39,11 @@ table .action:hover {
     font-size: 14px;
 }
 
+/* actions heading */
+#hoursTable tr > th:nth-child(5) {
+    user-select: none;
+}
+
 /* gap row */
 .gap-row,
 .gap-row input {
@@ -52,16 +57,19 @@ table .action:hover {
 #hoursTable tr > *:nth-child(2) {
     text-align: center;
 }
+
 /* actions */
 #hoursTable tr > *:nth-child(5),
 #hoursTable tr > *:nth-child(6) {
     text-align: center;
 }
+
 /* duration */
 #summary tr > *:nth-child(1),
 #hoursTable tr > td:nth-child(3) {
     text-align: right;
 }
+
 /* duration heading */
 #hoursTable tr > th:nth-child(3) {
     text-align: center;
