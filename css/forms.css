@@ -1,5 +1,8 @@
 /* ============== INPUTS ============== */
 
+input[type="time"] {
+    text-align: center;
+}
 
 input[type="time"],
 input[type="text"],

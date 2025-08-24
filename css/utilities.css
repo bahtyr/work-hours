@@ -1,3 +1,7 @@
 .hidden {
     display: none !important;
 }
+
+[draggable="true"] {
+    cursor: pointer !important;
+}
