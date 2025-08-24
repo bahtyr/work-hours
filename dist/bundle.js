@@ -18,10 +18,13 @@
         hoursTable: document.getElementById("hoursTable"),
         hoursTableBody: document.getElementById("hoursTableBody"),
         summary: document.getElementById("summary"),
-        // progress
+        // hours-summary
         hoursLogged: document.querySelector(".hours-logged .number"),
         hoursLeft: document.querySelector(".hours-left .number"),
+        ticketsCount: document.querySelector(".tickets-count .number"),
+        ticketsCountLabel: document.querySelector(".tickets-count .label"),
         hoursTimeline: document.querySelector(".timeline .done"),
+        hoursTimelineHighlight: document.querySelector(".timeline .highlight"),
         // buttons
         newBtn: document.getElementById("newBtn"),
         stopBtn: document.getElementById("stopBtn"),
@@ -402,18 +405,29 @@
   function updateDayTotal() {
     const entries = state2.days[state2.openDay] || [];
     let totalMinutes = 0;
+    let ticketMinutes = 0;
+    let ticketCounter = 0;
     for (const entry of entries) {
       const start = parseHM(entry.start);
       const end = parseHM(entry.end);
       if (start !== null && end !== null && end >= start) {
-        totalMinutes += end - start;
+        if (entry.desc.match(/\b[a-zA-Z]+-\d+\b/)) {
+          ticketCounter++;
+          ticketMinutes += end - start;
+        } else totalMinutes += end - start;
       }
     }
-    elements.hoursLogged.textContent = formatMinutes(totalMinutes);
-    elements.hoursLeft.textContent = formatMinutes(8 * 60 - totalMinutes);
+    elements.hoursLogged.textContent = formatMinutes(totalMinutes + ticketMinutes);
+    elements.hoursLeft.textContent = formatMinutes(8 * 60 - totalMinutes - ticketMinutes);
+    elements.ticketsCount.textContent = ticketCounter + "";
+    if (ticketCounter === 1)
+      elements.ticketsCountLabel.textContent = "ticket";
+    else elements.ticketsCountLabel.textContent = "tickets";
     const maxDayMinutes = 8 * 60;
     const percent = totalMinutes / maxDayMinutes * 100;
+    const percentH = ticketMinutes / maxDayMinutes * 100;
     elements.hoursTimeline.style.width = percent + "%";
+    elements.hoursTimelineHighlight.style.width = percentH + "%";
   }
   function updateRunningUI() {
     const entries = state2.days[state2.openDay] || [];
@@ -442,7 +456,16 @@
     const entries = state3.days[state3.openDay];
     const running = findLast(entries, (e) => e.start && !e.end);
     if (running) running.end = timeNow();
-    entries.push({ id: uid(), start: timeNow(), end: "", desc: "" });
+    entries.push({
+      id: uid(),
+      start: timeNow(),
+      end: "",
+      desc: "",
+      ticket() {
+        const ticketMatch = this.desc.match(/\b[a-zA-Z]+-\d+\b/);
+        return ticketMatch ? ticketMatch[0] : null;
+      }
+    });
     saveState();
     renderAll(true);
     focusLastDescription();
