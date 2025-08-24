@@ -4,12 +4,18 @@
     <title>Hours</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+    <!-- CSS -->
     <link type="text/css" rel="stylesheet" href="css/base.css"/>
     <link type="text/css" rel="stylesheet" href="css/forms.css"/>
     <link type="text/css" rel="stylesheet" href="css/layout.css"/>
     <link type="text/css" rel="stylesheet" href="css/tables.css"/>
     <link type="text/css" rel="stylesheet" href="css/utilities.css"/>
     <link type="text/css" rel="stylesheet" href="css/other.css"/>
+    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,
     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>⌛</text></svg>">
 </head>
@@ -18,6 +24,16 @@
 
     <div id="tabs" class="tabs header"></div>
 
+    <div id="hours-summary">
+        <div class="hours-summary-info">
+            <span class="hours-logged"><span class="number">0h</span> logged</span>
+            <span class="hours-left"><span class="number">0h</span> left</span>
+        </div>
+        <div class="timeline">
+            <div class="block done" style="width: 0%;"></div>
+            <div class="block empty"></div>
+        </div>
+    </div>
 
     <div class="card">
         <table id="hoursTable">
@@ -36,20 +52,7 @@
         <div id="summary" class="summary hidden"></div>
     </div>
 
-    <div id="hours-summary">
-        <div class="hours-summary-info">
-            <span class="hours-logged"><span class="number">0h</span> logged</span>
-            <span class="hours-left"><span class="number">0h</span> left</span>
-        </div>
-        <div class="timeline">
-            <div class="block done" style="width: 0%;"></div>
-            <div class="block empty"></div>
-        </div>
-    </div>
-
     <div class="main-controls footer">
-<!--        <button id="newSinceBtn" class="primary start" style="flex: 1">Start From Last</button>-->
-<!--        <button id="newBtn" class="primary start" style="flex: 1">Start Now</button>-->
         <button id="newBtn" class="primary start" style="flex: 1">New Task</button>
         <button id="stopBtn" class="primary stop" style="flex: 1">Stop</button>
         <button id="toggleSummaryBtn" class="primary" style="flex: 4">View Summary</button>
@@ -76,6 +79,7 @@
     </div>
 
 </div>
+<!-- Javascript -->
 <script src="dist/bundle.js"></script>
 </body>
 </html>
