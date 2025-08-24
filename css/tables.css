@@ -2,8 +2,11 @@ table {
     border-collapse: collapse;
 }
 
-th, td {
+tr {
     border-bottom: 1px solid var(--line);
+}
+
+th, td {
     padding: 8px;
     text-align: left;
 }

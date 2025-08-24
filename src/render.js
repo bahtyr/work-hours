@@ -60,7 +60,6 @@ export function renderTable() {
     });
 }
 
-
 export function createTableRow(entry, index, entries) {
     const tr = document.createElement('tr');
     tr.dataset.entryId = entry.id;
@@ -207,57 +206,30 @@ export function createDragHandleCell(index) {
     return td;
 }
 
-function createGapRow(minutes, isOverlap = false) {
+export function createGapRow(minutes, isOverlap = false) {
     const tr = document.createElement('tr');
     const td = document.createElement('td');
-    td.colSpan = 5;
-    td.style.textAlign = 'center';
+    td.colSpan = 3;
+    td.style.textAlign = 'right';
     td.style.fontStyle = 'italic';
     td.style.color = '#666';
-    td.textContent = `${formatMinutes(minutes)} ${isOverlap ? 'overlap' : 'gap'}`;
+    td.textContent = `${formatMinutes(minutes)}`;
     tr.appendChild(td);
+
+    const tdDesc = document.createElement('td');
+    const desc = document.createElement('input');
+    tdDesc.colSpan = 3;
+    desc.type = 'text';
+    desc.value = `${isOverlap ? 'Overlap' : 'Gap'}`;
+    desc.style.color = '#666';
+    desc.style.fontStyle = 'italic';
+    desc.disabled = true;
+    tdDesc.appendChild(desc);
+    tr.appendChild(tdDesc);
     return tr;
 }
 
-export function updateGapsAround(entry) {
-    const entries = state.days[state.openDay] || [];
-    const tbody = elements.hoursTableBody;
-    const index = entries.indexOf(entry);
-    if (index === -1) return;
-
-    const prevEntry = entries[index - 1];
-
-    // All gaps belong to the previous entry
-    if (!prevEntry) return;
-
-    // Compute gap
-    if (prevEntry.end && entry.start) {
-        const gapMinutes = parseHM(entry.start) - parseHM(prevEntry.end);
-
-        // Remove old gap if exists
-        if (gapRows.has(prevEntry.id)) {
-            gapRows.get(prevEntry.id).remove();
-            gapRows.delete(prevEntry.id);
-        }
-
-        // Insert new gap if needed
-        if (gapMinutes > 0) {
-            const gapRow = createGapRow(gapMinutes);
-            gapRows.set(prevEntry.id, gapRow);
-
-            const prevRow = tbody.querySelector(`tr[data-entry-id="${prevEntry.id}"]`);
-            if (prevRow) {
-                if (prevRow.nextSibling) {
-                    tbody.insertBefore(gapRow, prevRow.nextSibling);
-                } else {
-                    tbody.appendChild(gapRow);
-                }
-            }
-        }
-    }
-}
-
-function updateGapAfter(prevEntry) {
+export function updateGapAfter(prevEntry) {
     const entries = state.days[state.openDay] || [];
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
@@ -287,8 +259,6 @@ function updateGapAfter(prevEntry) {
         }
     }
 }
-
-
 
 
 // Summary

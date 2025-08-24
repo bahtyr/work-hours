@@ -301,12 +301,22 @@
   function createGapRow(minutes, isOverlap = false) {
     const tr = document.createElement("tr");
     const td = document.createElement("td");
-    td.colSpan = 5;
-    td.style.textAlign = "center";
+    td.colSpan = 3;
+    td.style.textAlign = "right";
     td.style.fontStyle = "italic";
     td.style.color = "#666";
-    td.textContent = `${formatMinutes(minutes)} ${isOverlap ? "overlap" : "gap"}`;
+    td.textContent = `${formatMinutes(minutes)}`;
     tr.appendChild(td);
+    const tdDesc = document.createElement("td");
+    const desc = document.createElement("input");
+    tdDesc.colSpan = 3;
+    desc.type = "text";
+    desc.value = `${isOverlap ? "Overlap" : "Gap"}`;
+    desc.style.color = "#666";
+    desc.style.fontStyle = "italic";
+    desc.disabled = true;
+    tdDesc.appendChild(desc);
+    tr.appendChild(tdDesc);
     return tr;
   }
   function updateGapAfter(prevEntry) {
