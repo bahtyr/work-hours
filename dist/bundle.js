@@ -71,26 +71,15 @@
     return `${m}m`;
   }
   function formatDayName(dateStr) {
+    const [year, monthNum, dayNum] = dateStr.split("-").map(Number);
+    const date = new Date(year, monthNum - 1, dayNum);
     const today = /* @__PURE__ */ new Date();
-    const date = new Date(dateStr);
+    today.setHours(0, 0, 0, 0);
     const oneDayMs = 1e3 * 60 * 60 * 24;
-    const daysDiff = Math.floor((today - date) / oneDayMs);
+    const daysDiff = Math.round((today - date) / oneDayMs);
     const dayNames = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const dayFullNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    const monthNames = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec"
-    ];
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const dayName = dayNames[date.getDay()];
     const dayFullName = dayFullNames[date.getDay()];
     const month = monthNames[date.getMonth()];
