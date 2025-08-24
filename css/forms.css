@@ -73,9 +73,27 @@ button.danger {
 
 /* Main controls buttons */
 .main-controls button {
-    text-transform: uppercase;
     letter-spacing: 1px;
     font-size: 0.75rem;
-    /*padding: 14px 28px;*/
     padding: 22px 40px;
+    border-radius: 32px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+#newBtn {
+    flex: 1;
+}
+
+#stopBtn {
+    flex: 1;
+}
+
+#toggleSummaryBtn {
+    flex: 4;
+    background: var(--bg);
+}
+
+#toggleSummaryBtn:hover {
+    flex: 4;
+    background: var(--button-bg);
 }
