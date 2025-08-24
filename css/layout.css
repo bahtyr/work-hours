@@ -57,6 +57,7 @@
     overflow-x: auto;
     padding-bottom: 4px;
     margin-bottom: 8px;
+    align-items: baseline;
 }
 
 .tab {
@@ -65,7 +66,7 @@
     cursor: pointer;
     white-space: nowrap;
     font-size: 1.5rem;
-    transition: color var(--transition), background var(--transition);
+    transition: color var(--transition);
 }
 
 .tab:hover {
@@ -75,6 +76,7 @@
 .tab.active {
     color: var(--ink);
     font-weight: 500;
+    font-size: 1.75rem;
 }
 
 

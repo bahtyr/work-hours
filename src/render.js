@@ -161,7 +161,7 @@ export function createDescriptionCell(entry) {
 export function createDeleteCell(index, entries) {
     const td = document.createElement('td');
     const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'delete-entry-button';
+    deleteBtn.classList.add('action');
     deleteBtn.textContent = 'x';
     deleteBtn.onclick = () => {
         if (confirm('Delete this entry?')) {
@@ -178,6 +178,7 @@ export function createDeleteCell(index, entries) {
 export function createDragHandleCell(index) {
     const td = document.createElement('td');
     const handle = document.createElement('span');
+    handle.classList.add('action');
     handle.textContent = '☰'; // you can replace with an SVG/icon
     handle.draggable = true;
 
