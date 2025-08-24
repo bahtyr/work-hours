@@ -5,10 +5,13 @@ export const elements = {
     hoursTable: document.getElementById('hoursTable'),
     hoursTableBody: document.getElementById('hoursTableBody'),
     summary: document.getElementById('summary'),
-    // progress
+    // hours-summary
     hoursLogged: document.querySelector('.hours-logged .number'),
     hoursLeft: document.querySelector('.hours-left .number'),
+    ticketsCount: document.querySelector('.tickets-count .number'),
+    ticketsCountLabel: document.querySelector('.tickets-count .label'),
     hoursTimeline: document.querySelector('.timeline .done'),
+    hoursTimelineHighlight: document.querySelector('.timeline .highlight'),
 
     // buttons
     newBtn: document.getElementById('newBtn'),

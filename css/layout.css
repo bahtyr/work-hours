@@ -108,6 +108,7 @@
     margin-top: 8px;
     margin-bottom: 4px;
     background: var(--card-light);
+    display: flex;
 }
 
 .block {
@@ -115,7 +116,11 @@
     transition: width var(--transition);
 }
 
-.done {
+.block.highlight {
+    background: var(--accent2);
+}
+
+.block.done {
     background: var(--ink);
 }
 

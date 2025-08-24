@@ -13,7 +13,16 @@ export function onNew() {
 
     if (running) running.end = timeNow();
 
-    entries.push({id: uid(), start: timeNow(), end: '', desc: ''});
+    entries.push({
+        id: uid(),
+        start: timeNow(),
+        end: '',
+        desc: '',
+        ticket() {
+            const ticketMatch = this.desc.match(/\b[a-zA-Z]+-\d+\b/);
+            return ticketMatch ? ticketMatch[0] : null;
+        },
+    });
 
     saveState();
     renderAll(true);
