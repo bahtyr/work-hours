@@ -237,7 +237,6 @@
   }
   function createDurationCell() {
     const td = document.createElement("td");
-    td.style.textAlign = "right";
     td.textContent = "-";
     return td;
   }
@@ -269,7 +268,6 @@
   }
   function createDeleteCell(index, entries) {
     const td = document.createElement("td");
-    td.style.textAlign = "center";
     const deleteBtn = document.createElement("button");
     deleteBtn.className = "delete-entry-button";
     deleteBtn.textContent = "x";
@@ -285,8 +283,6 @@
   }
   function createDragHandleCell(index) {
     const td = document.createElement("td");
-    td.style.textAlign = "center";
-    td.style.cursor = "grab";
     const handle = document.createElement("span");
     handle.textContent = "\u2630";
     handle.draggable = true;
@@ -305,23 +301,20 @@
   }
   function createGapRow(minutes, isOverlap = false) {
     const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 3;
-    td.style.textAlign = "right";
-    td.style.fontStyle = "italic";
-    td.style.color = "#666";
-    td.textContent = `${formatMinutes(minutes)}`;
-    tr.appendChild(td);
-    const tdDesc = document.createElement("td");
-    const desc = document.createElement("input");
-    tdDesc.colSpan = 3;
-    desc.type = "text";
-    desc.value = `${isOverlap ? "Overlap" : "Gap"}`;
-    desc.style.color = "#666";
-    desc.style.fontStyle = "italic";
-    desc.disabled = true;
-    tdDesc.appendChild(desc);
-    tr.appendChild(tdDesc);
+    tr.classList.add("gap-row");
+    tr.appendChild(document.createElement("td"));
+    tr.appendChild(document.createElement("td"));
+    const duration = document.createElement("td");
+    duration.textContent = `${formatMinutes(minutes)}`;
+    tr.appendChild(duration);
+    const desc = document.createElement("td");
+    const descInput = document.createElement("input");
+    desc.colSpan = 3;
+    descInput.type = "text";
+    descInput.value = `${isOverlap ? "Overlap" : "Gap"}`;
+    descInput.disabled = true;
+    desc.appendChild(descInput);
+    tr.appendChild(desc);
     return tr;
   }
   function updateGapAfter(prevEntry) {
@@ -379,7 +372,7 @@
         <table id="summaryTable">
             <thead>
                 <tr>
-                    <th style="text-align: right;">Total</th>
+                    <th>Total</th>
                     <th>Description</th>
                 </tr>
             </thead>
@@ -394,7 +387,7 @@
       }
       html += `
                 <tr>
-                    <td style="text-align: right;">${formatMinutes(minutes)}</td>
+                    <td>${formatMinutes(minutes)}</td>
                     <td>${escapeHtml(description)}</td>
                 </tr>
             `;

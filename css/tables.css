@@ -29,3 +29,33 @@ th {
 .delete-entry-button:hover {
     opacity: 1;
 }
+
+
+/* hours */
+#hoursTable tr > *:nth-child(1),
+#hoursTable tr > *:nth-child(2) {
+    text-align: center;
+}
+
+/* duration */
+#hoursTable tr > th:nth-child(3) {
+    text-align: center;
+}
+
+/* duration */
+#hoursTable tr > td:nth-child(3),
+#summary tr > *:nth-child(1) {
+    text-align: right;
+}
+
+/* actions */
+#hoursTable tr > *:nth-child(5),
+#hoursTable tr > *:nth-child(6) {
+    text-align: center;
+}
+
+/* gap row */
+.gap-row,
+.gap-row input {
+    color: var(--placeholder);
+}
