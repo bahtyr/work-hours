@@ -269,7 +269,7 @@
   function createDeleteCell(index, entries) {
     const td = document.createElement("td");
     const deleteBtn = document.createElement("button");
-    deleteBtn.className = "delete-entry-button";
+    deleteBtn.classList.add("action");
     deleteBtn.textContent = "x";
     deleteBtn.onclick = () => {
       if (confirm("Delete this entry?")) {
@@ -284,6 +284,7 @@
   function createDragHandleCell(index) {
     const td = document.createElement("td");
     const handle = document.createElement("span");
+    handle.classList.add("action");
     handle.textContent = "\u2630";
     handle.draggable = true;
     handle.ondragstart = (ev) => {
