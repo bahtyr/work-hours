@@ -24,6 +24,18 @@ input:focus {
 }
 
 
+/* Hide input clock icon */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+    cursor: default;
+}
+
+input[type="time"]::-moz-calendar-picker-indicator {
+    display: none;
+}
+
+
 /* ============== BUTTONS ============== */
 
 
