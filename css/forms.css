@@ -7,15 +7,20 @@ input[type="date"] {
     width: 100%;
     padding: 8px 12px;
     font-size: 14px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--bg);
     border-radius: 6px;
-    background: var(--input-bg);
+    background: var(--bg);
     color: var(--ink);
     transition: border-color var(--transition), background var(--transition);
 }
 
 input::placeholder {
     color: var(--placeholder);
+}
+
+input:not([disabled]):hover {
+    outline: none;
+    border-color: var(--accent);
 }
 
 input:focus {
