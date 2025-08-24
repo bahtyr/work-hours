@@ -37,6 +37,7 @@ table .action:hover {
 #hoursTable tr > td:nth-child(3) {
     font-family: monospace;
     font-size: 14px;
+    cursor: default;
 }
 
 /* actions heading */
@@ -73,4 +74,16 @@ table .action:hover {
 /* duration heading */
 #hoursTable tr > th:nth-child(3) {
     text-align: center;
+}
+
+
+/* --------- SUMMARY TABLE */
+
+#summary td:nth-child(1) {
+    font-family: monospace;
+}
+
+#summary td {
+    font-size: 14px;
+    padding: 8px 12px;
 }

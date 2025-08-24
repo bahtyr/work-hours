@@ -2,6 +2,7 @@
 
 input[type="time"] {
     text-align: center;
+    cursor: text;
 }
 
 input[type="time"],
