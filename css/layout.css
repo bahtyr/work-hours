@@ -9,6 +9,10 @@
 
 /* ============== WRAPPER ============== */
 
+.header {
+    margin-top: 48px;
+}
+
 
 .header, .footer {
     flex-shrink: 0;
@@ -61,7 +65,6 @@
     cursor: pointer;
     white-space: nowrap;
     font-size: 1.5rem;
-    letter-spacing: -0.5px;
     transition: color var(--transition), background var(--transition);
 }
 
@@ -71,26 +74,28 @@
 
 .tab.active {
     color: var(--ink);
-    font-weight: 700;
+    font-weight: 500;
 }
 
 
 /* ============== HEADER SUMMARY ============== */
 
 #hours-summary {
-    padding: 0 2px;
+    padding: 0 12px;
+    margin-top: 8px;
+    margin-bottom: 4px;
 }
 
 .hours-summary-info {
     display: flex;
     gap: 16px;
-    padding: 0 2px;
-    font-size: 1rem;
+    padding: 0 4px;
+    font-size: 12px;
     color: var(--muted);
 }
 
 .hours-summary-info .number {
-    font-size: 1.2rem;
+    font-size: 14px;
     color: var(--ink);
 }
 
