@@ -83,6 +83,10 @@ export function createTableRow(entry, index, entries) {
     const startCell = createTimeCell(entry, 'start', () => updateDurationCell(entry, durationCell));
     const endCell = createTimeCell(entry, 'end', () => updateDurationCell(entry, durationCell));
 
+    if (entry.type && entry.type === 'gap') {
+        tr.classList.add('gap-entry');
+    }
+
     tr.appendChild(startCell);
     tr.appendChild(endCell);
     tr.appendChild(durationCell);

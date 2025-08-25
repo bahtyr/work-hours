@@ -206,6 +206,9 @@
     const durationCell = createDurationCell();
     const startCell = createTimeCell(entry, "start", () => updateDurationCell(entry, durationCell));
     const endCell = createTimeCell(entry, "end", () => updateDurationCell(entry, durationCell));
+    if (entry.type && entry.type === "gap") {
+      tr.classList.add("gap-entry");
+    }
     tr.appendChild(startCell);
     tr.appendChild(endCell);
     tr.appendChild(durationCell);
@@ -451,6 +454,20 @@
     const entries = state3.days[state3.openDay];
     const running = findLast(entries, (e) => e.start && !e.end);
     if (running) running.end = timeNow();
+    const lastEntry = entries[entries.length - 1];
+    if (lastEntry && lastEntry.end) {
+      const lastEnd = parseHM(lastEntry.end);
+      const nowHM = parseHM(timeNow());
+      if (nowHM > lastEnd) {
+        entries.push({
+          id: uid(),
+          start: lastEntry.end,
+          end: timeNow(),
+          desc: "Gap",
+          type: "gap"
+        });
+      }
+    }
     entries.push({
       id: uid(),
       start: timeNow(),
@@ -459,7 +476,9 @@
       ticket() {
         const ticketMatch = this.desc.match(/\b[a-zA-Z]+-\d+\b/);
         return ticketMatch ? ticketMatch[0] : null;
-      }
+      },
+      type: "entry"
+      // entry, gap, ticket, meeting ??
     });
     saveState();
     renderAll(true);
@@ -470,8 +489,16 @@
     const running = findLast(entries, (e) => e.start && !e.end);
     if (running && !running.end) {
       running.end = timeNow();
+      entries.push({
+        id: uid(),
+        start: timeNow(),
+        end: "",
+        desc: "Gap",
+        type: "gap"
+      });
       saveState();
-      renderAll();
+      renderAll(true);
+      focusLastDescription();
     }
   }
   function toggleSummary() {
