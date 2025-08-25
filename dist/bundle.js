@@ -477,6 +477,8 @@
   function toggleSummary() {
     elements.hoursTable.classList.toggle("hidden");
     elements.summary.classList.toggle("hidden");
+    elements.newBtn.disabled = !elements.newBtn.disabled;
+    elements.stopBtn.disabled = !elements.stopBtn.disabled;
   }
   function onAddDay() {
     if (elements.addDayInput.value) {

@@ -57,7 +57,14 @@ button {
     border: 1px solid var(--button-border);
     font-weight: 700;
     font-size: 14px;
-    transition: background var(--transition), border-color var(--transition);
+    transition: background var(--transition), border-color var(--transition), opacity var(--transition);
+}
+
+button[disabled],
+button[disabled]:hover {
+    cursor: default;
+    background: var(--button-bg);
+    opacity: 0.8;
 }
 
 button:hover {
