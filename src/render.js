@@ -345,26 +345,27 @@ export function updateDayTotal() {
     const entries = state.days[state.openDay] || [];
     let totalMinutes = 0;
     let ticketMinutes = 0;
-    let ticketCounter = 0;
+    const uniqueTickets = new Set();
 
     for (const entry of entries) {
         const start = parseHM(entry.start);
         const end = parseHM(entry.end);
 
         if (start !== null && end !== null && end >= start) {
-            if (entry.desc.match(/\b[a-zA-Z]+-\d+\b/)) {
-                ticketCounter++;
+            const ticketMatch = entry.desc.match(/\b[a-zA-Z]+-\d+\b/);
+            if (ticketMatch) {
+                uniqueTickets.add(ticketMatch[0]); // store ticket ID
                 ticketMinutes += (end - start);
-            } else totalMinutes += (end - start);
+            } else {
+                totalMinutes += (end - start);
+            }
         }
     }
 
     elements.hoursLogged.textContent = formatMinutes(totalMinutes + ticketMinutes);
     elements.hoursLeft.textContent = formatMinutes((8 * 60) - totalMinutes - ticketMinutes);
-    elements.ticketsCount.textContent = ticketCounter + "";
-    if (ticketCounter === 1)
-        elements.ticketsCountLabel.textContent = "ticket";
-    else elements.ticketsCountLabel.textContent = "tickets";
+    elements.ticketsCount.textContent = uniqueTickets.size + "";
+    elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
 
     const maxDayMinutes = 8 * 60;
     const percent = (totalMinutes / maxDayMinutes) * 100;
