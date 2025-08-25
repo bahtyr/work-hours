@@ -90,15 +90,16 @@
 
 .hours-summary-info {
     display: flex;
-    gap: 16px;
+    gap: 22px;
     padding: 0 4px;
-    font-size: 12px;
+    /*font-size: 12px;*/
     color: var(--muted);
 }
 
 .hours-summary-info .number {
-    font-size: 14px;
+    /*font-size: 14px;*/
     color: var(--ink);
+    font-size: 18px;
 }
 
 /* Timeline */
@@ -106,8 +107,8 @@
 .timeline {
     overflow: hidden;
     border-radius: 4px;
-    height: 4px;
-    margin-top: 8px;
+    height: 6px;
+    margin-top: 16px;
     margin-bottom: 4px;
     background: var(--card-light);
     display: flex;
