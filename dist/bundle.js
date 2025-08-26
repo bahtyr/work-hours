@@ -206,12 +206,10 @@
     const durationCell = createDurationCell();
     const startCell = createTimeCell(entry, "start", () => updateDurationCell(entry, durationCell));
     const endCell = createTimeCell(entry, "end", () => updateDurationCell(entry, durationCell));
-    if (entry.type && entry.type === "gap") {
-      tr.classList.add("gap-entry");
-    }
     tr.appendChild(startCell);
     tr.appendChild(endCell);
     tr.appendChild(durationCell);
+    tr.appendChild(createTypeCell(entry));
     tr.appendChild(createDescriptionCell(entry));
     tr.appendChild(createDeleteCell(index, entries));
     tr.appendChild(createDragHandleCell(index));
@@ -259,7 +257,7 @@
     const td = document.createElement("td");
     const input = document.createElement("input");
     input.type = "text";
-    input.placeholder = "Description";
+    input.placeholder = entry.type && entry.type === 3 ? "Break" : "Description";
     input.value = entry.desc || "";
     input.oninput = () => {
       entry.desc = input.value;
@@ -267,6 +265,23 @@
       renderSummary();
     };
     td.appendChild(input);
+    return td;
+  }
+  function createTypeCell(entry) {
+    const td = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.classList.add("action");
+    btn.classList.add("bigger");
+    if (typeof entry.type !== "number") {
+      entry.type = 0;
+    }
+    btn.textContent = types[entry.type].emoji;
+    btn.onclick = () => {
+      entry.type = (entry.type + 1) % types.length;
+      btn.textContent = types[entry.type].emoji;
+      saveState();
+    };
+    td.appendChild(btn);
     return td;
   }
   function createDeleteCell(index, entries) {
@@ -438,7 +453,7 @@
       inputs[inputs.length - 1].focus();
     }
   }
-  var state2, gapRows;
+  var state2, gapRows, types;
   var init_render = __esm({
     "src/render.js"() {
       init_elements();
@@ -446,6 +461,12 @@
       init_utils();
       state2 = getState();
       gapRows = /* @__PURE__ */ new Map();
+      types = [
+        { label: "Work", emoji: "\u{1F4C4}" },
+        { label: "Ticket", emoji: "\u{1F4D8}\uFE0F" },
+        { label: "Meeting", emoji: "\u{1F4DE}" },
+        { label: "Break", emoji: "\u{1F9CB}" }
+      ];
     }
   });
 
@@ -463,8 +484,8 @@
           id: uid(),
           start: lastEntry.end,
           end: timeNow(),
-          desc: "Gap",
-          type: "gap"
+          desc: "",
+          type: 3
         });
       }
     }
@@ -493,8 +514,8 @@
         id: uid(),
         start: timeNow(),
         end: "",
-        desc: "Gap",
-        type: "gap"
+        desc: "",
+        type: 3
       });
       saveState();
       renderAll(true);

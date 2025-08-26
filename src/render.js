@@ -83,13 +83,10 @@ export function createTableRow(entry, index, entries) {
     const startCell = createTimeCell(entry, 'start', () => updateDurationCell(entry, durationCell));
     const endCell = createTimeCell(entry, 'end', () => updateDurationCell(entry, durationCell));
 
-    if (entry.type && entry.type === 'gap') {
-        tr.classList.add('gap-entry');
-    }
-
     tr.appendChild(startCell);
     tr.appendChild(endCell);
     tr.appendChild(durationCell);
+    tr.appendChild(createTypeCell(entry));
     tr.appendChild(createDescriptionCell(entry));
     tr.appendChild(createDeleteCell(index, entries));
     tr.appendChild(createDragHandleCell(index));
@@ -149,7 +146,7 @@ export function createDescriptionCell(entry) {
     const td = document.createElement('td');
     const input = document.createElement('input');
     input.type = 'text';
-    input.placeholder = 'Description';
+    input.placeholder = (entry.type && entry.type === 3) ? 'Break' : 'Description';
     input.value = entry.desc || '';
     input.oninput = () => {
         entry.desc = input.value;
@@ -161,6 +158,37 @@ export function createDescriptionCell(entry) {
 }
 
 // Table Row Actions
+
+const types = [
+    {label: "Work", emoji: "📄"},
+    {label: "Ticket", emoji: "📘️"},
+    {label: "Meeting", emoji: "📞"},
+    {label: "Break", emoji: "🧋"},
+];
+
+export function createTypeCell(entry) {
+    const td = document.createElement('td');
+    const btn = document.createElement('button');
+    btn.classList.add('action');
+    btn.classList.add('bigger');
+
+    // default type if not set
+    if (typeof entry.type !== "number") {
+        entry.type = 0; // Work
+    }
+
+    btn.textContent = types[entry.type].emoji;
+
+    // cycle to next type
+    btn.onclick = () => {
+        entry.type = (entry.type + 1) % types.length;
+        btn.textContent = types[entry.type].emoji;
+        saveState();
+    };
+
+    td.appendChild(btn);
+    return td;
+}
 
 export function createDeleteCell(index, entries) {
     const td = document.createElement('td');
