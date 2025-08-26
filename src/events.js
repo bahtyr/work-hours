@@ -1,7 +1,7 @@
 import {ensureDay, getState, saveState, setOpenDay} from './state.js';
 import {findLast, parseHM, timeNow, todayKey, uid} from './utils.js';
 import {elements} from './elements.js';
-import {focusLastDescription, renderAll} from './render.js';
+import {focusLastDescription, renderAll, renderSummary} from './render.js';
 
 const state = getState();
 
@@ -71,6 +71,7 @@ export function onStop() {
 // Summary
 
 export function toggleSummary() {
+    renderSummary();
     elements.hoursTable.classList.toggle('hidden');
     elements.summary.classList.toggle('hidden');
     elements.newBtn.disabled = !elements.newBtn.disabled;

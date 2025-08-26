@@ -9,7 +9,6 @@ const gapRows = new Map();
 export function renderAll(scrollBottom = false) {
     renderTabs();
     renderTable();
-    renderSummary();
     updateRunningUI();
     updateDayTotal();
 
@@ -107,7 +106,6 @@ export function createTimeCell(entry, field, onChange) {
     input.oninput = () => {
         entry[field] = input.value;
         saveState();
-        renderSummary();
         updateDayTotal();
 
         // Update gap after this entry and gap after previous entry
@@ -162,7 +160,6 @@ export function createDescriptionCell(entry) {
         }
 
         saveState();
-        renderSummary();
     };
     td.appendChild(input);
     return td;
