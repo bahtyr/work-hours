@@ -401,7 +401,7 @@ export function updateDayTotal() {
             if (entry.type === 3) {
                 breakMinutes += (end - start);
             } else if (entry.type === 1 || ticketMatch) {
-                uniqueTickets.add(ticketMatch??[0]); // store ticket ID
+                uniqueTickets.add(ticketMatch ? ticketMatch[0] : "(no ticket number)");
                 ticketMinutes += (end - start);
             } else {
                 totalMinutes += (end - start);
