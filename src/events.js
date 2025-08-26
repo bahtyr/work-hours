@@ -24,8 +24,8 @@ export function onNew() {
                 id: uid(),
                 start: lastEntry.end,
                 end: timeNow(),
-                desc: 'Gap',
-                type: 'gap',
+                desc: '',
+                type: 3,
             });
         }
     }
@@ -58,8 +58,8 @@ export function onStop() {
             id: uid(),
             start: timeNow(),
             end: '',
-            desc: 'Gap',
-            type: 'gap'
+            desc: '',
+            type: 3,
         });
 
         saveState();

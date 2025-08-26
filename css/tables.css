@@ -33,6 +33,11 @@ table .action:hover {
     background: none;
 }
 
+.action.bigger {
+    font-size: 18px;
+    padding: 6px;
+}
+
 /* duration text */
 #hoursTable tr > td:nth-child(3) {
     font-family: monospace;
@@ -53,19 +58,20 @@ table .action:hover {
 
 /* gap entry */
 .gap-entry {
-    opacity: 0.8;
+    /*opacity: 0.8;*/
 }
 
 /* alignment */
 /* hours */
 #hoursTable tr > *:nth-child(1),
-#hoursTable tr > *:nth-child(2) {
+#hoursTable tr > *:nth-child(2),
+#hoursTable tr > *:nth-child(4) {
     text-align: center;
 }
 
 /* actions */
-#hoursTable tr > *:nth-child(5),
-#hoursTable tr > *:nth-child(6) {
+#hoursTable tr > *:nth-child(6),
+#hoursTable tr > *:nth-child(7) {
     text-align: center;
 }
 
