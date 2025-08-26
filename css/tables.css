@@ -53,12 +53,7 @@ table .action:hover {
 /* gap row */
 .gap-row,
 .gap-row input {
-    color: var(--placeholder);
-}
-
-/* gap entry */
-.gap-entry {
-    /*opacity: 0.8;*/
+    color: var(--warning);
 }
 
 /* alignment */

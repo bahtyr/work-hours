@@ -7,6 +7,7 @@
     --muted: #a7a7a7;
     --accent: #82cfff;
     --accent2: #549dcb;
+    --warning: hsl(40 94% 77% / 1);
     --danger: #ff4d4d;
 
     /* new variables for inputs and placeholder */
@@ -34,6 +35,7 @@
     --muted: #6c6c6c;
     --accent: #1d9bf0;
     --line: #d1d5db;
+    --warning: hsl(40, 95%, 45%);
     --danger: #e53935;
 
     --input-bg: #ffffff;
