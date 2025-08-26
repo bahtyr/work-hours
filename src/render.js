@@ -1,6 +1,6 @@
 import {elements} from './elements.js';
 import {getState, saveState, setOpenDay} from './state.js';
-import {escapeHtml, findLast, formatDayName, formatMinutes, parseHM, todayKey} from './utils.js';
+import {escapeHtml, findLast, findTicketNumber, formatDayName, formatMinutes, parseHM, todayKey} from './utils.js';
 
 const state = getState();
 const gapRows = new Map();
@@ -150,7 +150,7 @@ export function createDescriptionCell(entry) {
         entry.desc = input.value;
 
         // set entry type as Ticket if description includes ticket number
-        const ticketMatch = entry.desc.match(/\b[a-zA-Z]+-\d+\b/);
+        const ticketMatch = findTicketNumber(entry.desc);
         if (ticketMatch) {
             const row = input.closest('tr');
             const btn = row.querySelector('button.action.type');
@@ -318,7 +318,7 @@ export function renderSummary() {
         const entryDesc = entry.desc || "(no description)";
 
         // Try to detect a Jira ticket key, e.g. "TUE-250"
-        const ticketMatch = entryDesc.match(/\b[a-zA-Z]+-\d+\b/);
+        const ticketMatch = findTicketNumber(entryDesc);
 
         if (!ticketMatch) {
             // No Jira key → find matching entry, increment total
@@ -396,7 +396,7 @@ export function updateDayTotal() {
         const end = parseHM(entry.end);
 
         if (start !== null && end !== null && end >= start) {
-            const ticketMatch = entry.desc.match(/\b[a-zA-Z]+-\d+\b/);
+            const ticketMatch = findTicketNumber(entry.desc);
 
             if (entry.type === 3) {
                 breakMinutes += (end - start);

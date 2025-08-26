@@ -105,3 +105,11 @@ export function escapeHtml(str) {
         .replaceAll('<', '&lt;')
         .replaceAll('>', '&gt;');
 }
+
+// Entry
+
+export function findTicketNumber(desc) {
+    // const match = desc.match(/\b[a-zA-Z]+-\d+\b/);
+    // return match ? match[0] : null;
+    return desc.match(/\b[a-zA-Z]+-\d+\b/);
+}
