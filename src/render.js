@@ -184,6 +184,7 @@ export function createTypeCell(entry) {
         entry.type = (entry.type + 1) % types.length;
         btn.textContent = types[entry.type].emoji;
         saveState();
+        updateDayTotal();
     };
 
     td.appendChild(btn);
@@ -378,6 +379,7 @@ export function updateDayTotal() {
     const entries = state.days[state.openDay] || [];
     let totalMinutes = 0;
     let ticketMinutes = 0;
+    let breakMinutes = 0;
     const uniqueTickets = new Set();
 
     for (const entry of entries) {
@@ -386,8 +388,11 @@ export function updateDayTotal() {
 
         if (start !== null && end !== null && end >= start) {
             const ticketMatch = entry.desc.match(/\b[a-zA-Z]+-\d+\b/);
-            if (ticketMatch) {
-                uniqueTickets.add(ticketMatch[0]); // store ticket ID
+
+            if (entry.type === 3) {
+                breakMinutes += (end - start);
+            } else if (entry.type === 1 || ticketMatch) {
+                uniqueTickets.add(ticketMatch??[0]); // store ticket ID
                 ticketMinutes += (end - start);
             } else {
                 totalMinutes += (end - start);
@@ -395,16 +400,19 @@ export function updateDayTotal() {
         }
     }
 
-    elements.hoursLogged.textContent = formatMinutes(totalMinutes + ticketMinutes);
-    elements.hoursLeft.textContent = formatMinutes((8 * 60) - totalMinutes - ticketMinutes);
+    elements.hoursLogged.textContent = formatMinutes(totalMinutes + ticketMinutes + breakMinutes);
+    elements.hoursLeft.textContent = formatMinutes((8 * 60) - totalMinutes - ticketMinutes - breakMinutes);
+    elements.breakTime.textContent = formatMinutes(breakMinutes);
     elements.ticketsCount.textContent = uniqueTickets.size + "";
     elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
 
     const maxDayMinutes = 8 * 60;
     const percent = (totalMinutes / maxDayMinutes) * 100;
     const percentH = (ticketMinutes / maxDayMinutes) * 100;
+    const percentB = (breakMinutes / maxDayMinutes) * 100;
     elements.hoursTimeline.style.width = percent + '%';
     elements.hoursTimelineHighlight.style.width = percentH + '%';
+    elements.hoursTimelineBreak.style.width = percentB + '%';
 }
 
 // Other
