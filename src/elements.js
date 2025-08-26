@@ -14,6 +14,7 @@ export const elements = {
     hoursTimeline: document.querySelector('.timeline .done'),
     hoursTimelineHighlight: document.querySelector('.timeline .highlight'),
     hoursTimelineBreak: document.querySelector('.timeline .break'),
+    hoursTimelineMeeting: document.querySelector('.timeline .meeting'),
 
     // buttons
     newBtn: document.getElementById('newBtn'),

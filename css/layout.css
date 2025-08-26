@@ -127,6 +127,10 @@
     background: var(--break);
 }
 
+.block.meeting {
+    background: var(--danger);
+}
+
 .block.done {
     background: var(--ink);
 }

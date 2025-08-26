@@ -386,42 +386,43 @@ export function renderSummary() {
 
 export function updateDayTotal() {
     const entries = state.days[state.openDay] || [];
-    let totalMinutes = 0;
-    let ticketMinutes = 0;
-    let breakMinutes = 0;
+    const minutes = {ticket: 0, meeting: 0, break: 0, other: 0, total: 0};
     const uniqueTickets = new Set();
 
+    // count total minutes per entry type
     for (const entry of entries) {
         const start = parseHM(entry.start);
         const end = parseHM(entry.end);
 
         if (start !== null && end !== null && end >= start) {
+            const duration = end - start;
             const ticketMatch = findTicketNumber(entry.desc);
-
-            if (entry.type === 3) {
-                breakMinutes += (end - start);
-            } else if (entry.type === 1 || ticketMatch) {
+            if (entry.type === 1 || ticketMatch) {
                 uniqueTickets.add(ticketMatch ? ticketMatch[0] : "(no ticket number)");
-                ticketMinutes += (end - start);
-            } else {
-                totalMinutes += (end - start);
-            }
+                minutes.ticket += duration;
+            } else if (entry.type === 2)
+                minutes.meeting += duration;
+            else if (entry.type === 3)
+                minutes.break += duration;
+            else minutes.other += duration;
         }
     }
 
-    elements.hoursLogged.textContent = formatMinutes(totalMinutes + ticketMinutes + breakMinutes);
-    elements.hoursLeft.textContent = formatMinutes((8 * 60) - totalMinutes - ticketMinutes - breakMinutes);
-    elements.breakTime.textContent = formatMinutes(breakMinutes);
+    // sum total
+    minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
+    // hours
+    elements.hoursLogged.textContent = formatMinutes(minutes.total);
+    elements.hoursLeft.textContent = formatMinutes((8 * 60) - minutes.total);
+    elements.breakTime.textContent = formatMinutes(minutes.break);
+    // ticket count
     elements.ticketsCount.textContent = uniqueTickets.size + "";
     elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
-
+    // timeline percentage based on 8 hours
     const maxDayMinutes = 8 * 60;
-    const percent = (totalMinutes / maxDayMinutes) * 100;
-    const percentH = (ticketMinutes / maxDayMinutes) * 100;
-    const percentB = (breakMinutes / maxDayMinutes) * 100;
-    elements.hoursTimeline.style.width = percent + '%';
-    elements.hoursTimelineHighlight.style.width = percentH + '%';
-    elements.hoursTimelineBreak.style.width = percentB + '%';
+    elements.hoursTimeline.style.width = (minutes.other / maxDayMinutes) * 100 + '%';
+    elements.hoursTimelineHighlight.style.width = (minutes.ticket / maxDayMinutes) * 100 + '%';
+    elements.hoursTimelineBreak.style.width = (minutes.break / maxDayMinutes) * 100 + '%';
+    elements.hoursTimelineMeeting.style.width = (minutes.meeting / maxDayMinutes) * 100 + '%';
 }
 
 // Other

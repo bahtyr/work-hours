@@ -27,6 +27,7 @@
         hoursTimeline: document.querySelector(".timeline .done"),
         hoursTimelineHighlight: document.querySelector(".timeline .highlight"),
         hoursTimelineBreak: document.querySelector(".timeline .break"),
+        hoursTimelineMeeting: document.querySelector(".timeline .meeting"),
         // buttons
         newBtn: document.getElementById("newBtn"),
         stopBtn: document.getElementById("stopBtn"),
@@ -107,6 +108,9 @@
   }
   function escapeHtml(str) {
     return String(str).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+  }
+  function findTicketNumber(desc) {
+    return desc.match(/\b[a-zA-Z]+-\d+\b/);
   }
   var pad;
   var init_utils = __esm({
@@ -261,7 +265,7 @@
     input.value = entry.desc || "";
     input.oninput = () => {
       entry.desc = input.value;
-      const ticketMatch = entry.desc.match(/\b[a-zA-Z]+-\d+\b/);
+      const ticketMatch = findTicketNumber(entry.desc);
       if (ticketMatch) {
         const row = input.closest("tr");
         const btn = row.querySelector("button.action.type");
@@ -380,7 +384,7 @@
       if (start === null || end === null || end < start) continue;
       const minutes = end - start;
       const entryDesc = entry.desc || "(no description)";
-      const ticketMatch = entryDesc.match(/\b[a-zA-Z]+-\d+\b/);
+      const ticketMatch = findTicketNumber(entryDesc);
       if (!ticketMatch) {
         totals.set(entryDesc, (totals.get(entryDesc) || 0) + minutes);
       } else {
@@ -426,37 +430,35 @@
   }
   function updateDayTotal() {
     const entries = state2.days[state2.openDay] || [];
-    let totalMinutes = 0;
-    let ticketMinutes = 0;
-    let breakMinutes = 0;
+    const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
     const uniqueTickets = /* @__PURE__ */ new Set();
     for (const entry of entries) {
       const start = parseHM(entry.start);
       const end = parseHM(entry.end);
       if (start !== null && end !== null && end >= start) {
-        const ticketMatch = entry.desc.match(/\b[a-zA-Z]+-\d+\b/);
-        if (entry.type === 3) {
-          breakMinutes += end - start;
-        } else if (entry.type === 1 || ticketMatch) {
+        const duration = end - start;
+        const ticketMatch = findTicketNumber(entry.desc);
+        if (entry.type === 1 || ticketMatch) {
           uniqueTickets.add(ticketMatch ? ticketMatch[0] : "(no ticket number)");
-          ticketMinutes += end - start;
-        } else {
-          totalMinutes += end - start;
-        }
+          minutes.ticket += duration;
+        } else if (entry.type === 2)
+          minutes.meeting += duration;
+        else if (entry.type === 3)
+          minutes.break += duration;
+        else minutes.other += duration;
       }
     }
-    elements.hoursLogged.textContent = formatMinutes(totalMinutes + ticketMinutes + breakMinutes);
-    elements.hoursLeft.textContent = formatMinutes(8 * 60 - totalMinutes - ticketMinutes - breakMinutes);
-    elements.breakTime.textContent = formatMinutes(breakMinutes);
+    minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
+    elements.hoursLogged.textContent = formatMinutes(minutes.total);
+    elements.hoursLeft.textContent = formatMinutes(8 * 60 - minutes.total);
+    elements.breakTime.textContent = formatMinutes(minutes.break);
     elements.ticketsCount.textContent = uniqueTickets.size + "";
     elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
     const maxDayMinutes = 8 * 60;
-    const percent = totalMinutes / maxDayMinutes * 100;
-    const percentH = ticketMinutes / maxDayMinutes * 100;
-    const percentB = breakMinutes / maxDayMinutes * 100;
-    elements.hoursTimeline.style.width = percent + "%";
-    elements.hoursTimelineHighlight.style.width = percentH + "%";
-    elements.hoursTimelineBreak.style.width = percentB + "%";
+    elements.hoursTimeline.style.width = minutes.other / maxDayMinutes * 100 + "%";
+    elements.hoursTimelineHighlight.style.width = minutes.ticket / maxDayMinutes * 100 + "%";
+    elements.hoursTimelineBreak.style.width = minutes.break / maxDayMinutes * 100 + "%";
+    elements.hoursTimelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
   }
   function updateRunningUI() {
     const entries = state2.days[state2.openDay] || [];
