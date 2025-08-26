@@ -246,6 +246,7 @@ export function createGapRow(minutes, isOverlap = false) {
     const duration = document.createElement('td');
     duration.textContent = `${formatMinutes(minutes)}`;
     tr.appendChild(duration);
+    tr.appendChild(document.createElement('td'));
 
     const desc = document.createElement('td');
     const descInput = document.createElement('input');
