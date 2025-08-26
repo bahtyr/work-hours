@@ -7,7 +7,8 @@
     --muted: #a7a7a7;
     --accent: #82cfff;
     --accent2: #549dcb;
-    --warning: hsl(40 94% 77% / 1);
+    --break: hsl(35 86% 71% / 1);;
+    --warning: hsl(40deg 94% 77% / 76%);
     --danger: #ff4d4d;
 
     /* new variables for inputs and placeholder */

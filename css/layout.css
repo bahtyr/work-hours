@@ -123,6 +123,10 @@
     background: var(--accent2);
 }
 
+.block.break {
+    background: var(--break);
+}
+
 .block.done {
     background: var(--ink);
 }
