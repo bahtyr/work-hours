@@ -150,6 +150,17 @@ export function createDescriptionCell(entry) {
     input.value = entry.desc || '';
     input.oninput = () => {
         entry.desc = input.value;
+
+        // set entry type as Ticket if description includes ticket number
+        const ticketMatch = entry.desc.match(/\b[a-zA-Z]+-\d+\b/);
+        if (ticketMatch) {
+            const row = input.closest('tr');
+            const btn = row.querySelector('button.action.type');
+            btn.textContent = types[1].emoji;
+            entry.type = 1;
+            updateDayTotal();
+        }
+
         saveState();
         renderSummary();
     };
@@ -171,6 +182,7 @@ export function createTypeCell(entry) {
     const btn = document.createElement('button');
     btn.classList.add('action');
     btn.classList.add('bigger');
+    btn.classList.add('type');
 
     // default type if not set
     if (typeof entry.type !== "number") {
