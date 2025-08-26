@@ -156,7 +156,6 @@
   function renderAll(scrollBottom = false) {
     renderTabs();
     renderTable();
-    renderSummary();
     updateRunningUI();
     updateDayTotal();
     if (scrollBottom) {
@@ -227,7 +226,6 @@
     input.oninput = () => {
       entry[field] = input.value;
       saveState();
-      renderSummary();
       updateDayTotal();
       const entries = state2.days[state2.openDay] || [];
       const index = entries.indexOf(entry);
@@ -263,8 +261,15 @@
     input.value = entry.desc || "";
     input.oninput = () => {
       entry.desc = input.value;
+      const ticketMatch = entry.desc.match(/\b[a-zA-Z]+-\d+\b/);
+      if (ticketMatch) {
+        const row = input.closest("tr");
+        const btn = row.querySelector("button.action.type");
+        btn.textContent = types[1].emoji;
+        entry.type = 1;
+        updateDayTotal();
+      }
       saveState();
-      renderSummary();
     };
     td.appendChild(input);
     return td;
@@ -274,6 +279,7 @@
     const btn = document.createElement("button");
     btn.classList.add("action");
     btn.classList.add("bigger");
+    btn.classList.add("type");
     if (typeof entry.type !== "number") {
       entry.type = 0;
     }
@@ -533,6 +539,7 @@
     }
   }
   function toggleSummary() {
+    renderSummary();
     elements.hoursTable.classList.toggle("hidden");
     elements.summary.classList.toggle("hidden");
     elements.newBtn.disabled = !elements.newBtn.disabled;
