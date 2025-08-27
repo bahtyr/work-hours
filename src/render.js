@@ -352,8 +352,13 @@ export function renderSummary() {
         <table id="summaryTable">
             <thead>
                 <tr>
-                    <th>Total</th>
+                    <th style="width:110px;"></th>
+                    <th style="width:110px;"></th>
+                    <th style="width:64px;">Duration</th>
+                    <th style="width:14px;">Type</th>
                     <th>Description</th>
+                    <th style="width:64px;"></th>
+                    <th style="width:64px;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -375,8 +380,13 @@ export function renderSummary() {
 
             html += `
                 <tr>
+                    <td><input type="time" step="60" style="visibility: hidden"></td>
+                    <td><input type="time" step="60" style="visibility: hidden"></td>
                     <td>${formatMinutes(minutes)}</td>
-                    <td>${escapeHtml(description)}</td>
+                    <td><button class="action bigger type">🧋</button></td>
+                    <td><input type="text" value="${escapeHtml(description)}"/></td>
+                    <td></td>
+                    <td></td>
                 </tr>
             `;
         });

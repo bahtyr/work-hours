@@ -1,5 +1,6 @@
 :root {
     --bg: #0f1115;
+    --bg-transparent: rgba(15, 17, 21, 0);
     --card: hsl(222, 18%, 11%);
     --card-light: hsl(222, 18%, 17%);
     --line: #262a33;
@@ -30,6 +31,7 @@
 
 .light {
     --bg: #f5f5f5;
+    --bg-transparent: rgba(245, 245, 245, 0);
     --card: #ffffff;
     --card-light: #f0f0f0;
     --ink: #1a1a1a;
@@ -54,6 +56,7 @@
 @media (prefers-color-scheme: light) {
     :root {
         --bg: #f5f5f5;
+        --bg-transparent: rgba(245, 245, 245, 0);
         --card: #ffffff;
         --card-light: #f0f0f0;
         --ink: #1a1a1a;

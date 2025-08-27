@@ -19,76 +19,94 @@ th {
 }
 
 
-/* action cells */
+/* --------- Action Buttons */
+
 table .action {
+    user-select: none;
     background: none;
     border: none;
     opacity: 0.6;
     transition: opacity var(--transition);
-    user-select: none;
 }
 
 table .action:hover {
-    opacity: 1;
     background: none;
+    opacity: 1;
 }
 
-.action.bigger {
+table .action.bigger {
     font-size: 18px;
     padding: 6px;
 }
 
-/* duration text */
-#hoursTable tr > td:nth-child(3) {
-    font-family: monospace;
-    font-size: 14px;
-    cursor: default;
-}
+/* --------- Gap Row */
 
-/* actions heading */
-#hoursTable tr > th:nth-child(5) {
-    user-select: none;
-}
-
-/* gap row */
 .gap-row,
 .gap-row input {
     color: var(--warning);
 }
 
-/* alignment */
-/* hours */
-#hoursTable tr > *:nth-child(1),
-#hoursTable tr > *:nth-child(2),
-#hoursTable tr > *:nth-child(4) {
+
+/* --------- Column Adjustments */
+
+table tr > *:nth-child(1),
+table tr > *:nth-child(2) {
+    /* hours */
     text-align: center;
 }
 
-/* actions */
-#hoursTable tr > *:nth-child(6),
-#hoursTable tr > *:nth-child(7) {
+table tr > th:nth-child(3) {
+    /* duration heading */
     text-align: center;
 }
 
-/* duration */
-#summary tr > *:nth-child(1),
-#hoursTable tr > td:nth-child(3) {
+table tr > td:nth-child(3) {
+    /* duration row */
     text-align: right;
+    font-size: 14px;
+    font-family: monospace;
+    cursor: default;
 }
 
-/* duration heading */
-#hoursTable tr > th:nth-child(3) {
+table tr > *:nth-child(4) {
+    /* type icon */
     text-align: center;
 }
 
-
-/* --------- SUMMARY TABLE */
-
-#summary td:nth-child(1) {
-    font-family: monospace;
+table tr > *:nth-child(5) {
+    /* description */
+    text-align: left;
 }
 
-#summary td {
-    font-size: 14px;
-    padding: 8px 12px;
+table tr > *:nth-child(6),
+table tr > *:nth-child(7) {
+    /* actions */
+    text-align: center;
+    user-select: none;
+}
+
+
+/* --------- Dark Overlay */
+
+#hoursTable {
+    position: relative;
+    /*overflow-y: auto;*/
+    /*max-height: 500px; !* adjust to your layout *!*/
+}
+
+#hoursTable::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%; /* how much fade you want */
+    pointer-events: none; /* very important: allow clicks through */
+    /*background: linear-gradient(to bottom, rgba(15, 17, 21, 0.8), var(--bg-transparent));*/
+    z-index: 5;
+    transition: opacity 0.5s ease;
+}
+
+#hoursTable::before:hover {
+    /*opacity: 0;*/
 }
