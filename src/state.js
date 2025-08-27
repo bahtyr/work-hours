@@ -15,7 +15,7 @@ export function getState() {
     return state;
 }
 
-export function loadState() {
+function loadState() {
     try {
         return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
     } catch {
@@ -27,6 +27,9 @@ export function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+/**
+ * Initiates the day if it isn't created yet
+ */
 export function ensureDay(day) {
     if (!state.days[day]) state.days[day] = [];
 }
