@@ -305,8 +305,7 @@ export function updateGapAfter(prevEntry) {
 
 export function renderSummary() {
     const entries = state.days[state.openDay] || [];
-    const totals = new Map(); // Stores total minutes per key
-    const ticketDescriptions = new Map(); // Stores a set of descriptions for each Jira ticket
+    const grouped = []; // will store { type, key, minutes, descs }
 
     // Count totals for matching entries
     for (const entry of entries) {
@@ -317,35 +316,53 @@ export function renderSummary() {
 
         const minutes = end - start;
         const entryDesc = entry.desc || "(no description)";
+        const entryType = entry.type ?? 0;
 
         // Try to detect a Jira ticket key, e.g. "TUE-250"
         const ticketMatch = findTicketNumber(entryDesc);
 
+        let key, desc;
         if (!ticketMatch) {
-            // No Jira key → find matching entry, increment total
-            totals.set(entryDesc, (totals.get(entryDesc) || 0) + minutes);
+            key = entryDesc;
+            desc = null;
         } else {
-            // JIRA key → split key & description
             const ticketKey = ticketMatch[0].toUpperCase();
             const ticketDesc = entryDesc.replace(ticketMatch[0], "").trim();
-
-            // create a set to store unique descriptions
-            if (!ticketDescriptions.has(ticketKey))
-                ticketDescriptions.set(ticketKey, new Set());
-            // store descriptions separately
-            if (ticketDesc)
-                ticketDescriptions.get(ticketKey).add(ticketDesc);
-
-            // increment total for the key
-            totals.set(ticketKey, (totals.get(ticketKey) || 0) + minutes);
+            key = ticketKey;
+            desc = ticketDesc || null;
         }
+
+        // find or create group
+        let group = grouped.find(g => g.type === entryType && g.key === key);
+        if (!group) {
+            group = { type: entryType, key, minutes: 0, descs: new Set() };
+            grouped.push(group);
+        }
+
+        group.minutes += minutes;
+        if (desc) group.descs.add(desc);
     }
 
     // No table
-    if (totals.size === 0) {
-        elements.summary.innerHTML = '<div class="muted">Summary will appear here for completed entries.</div>';
+    if (grouped.length === 0) {
+        elements.summary.innerHTML =
+            '<div class="muted">Summary will appear here for completed entries.</div>';
         return;
     }
+
+    // Sort: first by type, then by key alphabetically
+    const typeOrder = {
+        0: 2, // work
+        1: 0, // ticket
+        2: 1, // meet
+        3: 3, // break
+    };
+    grouped.sort((a, b) => {
+        const orderA = typeOrder[a.type] ?? 999;
+        const orderB = typeOrder[b.type] ?? 999;
+        if (orderA !== orderB) return orderA - orderB;
+        return a.key.localeCompare(b.key); // within type: A–Z
+    });
 
     // Build table
     let html = `
@@ -364,32 +381,25 @@ export function renderSummary() {
             <tbody>
     `;
 
-    // Build table rows
-    [...totals.entries()]
-        // Sort alphabetically by description
-        .sort((a, b) => a[0].localeCompare(b[0]))
-        .forEach(([key, minutes]) => {
-            let description = key;
+    // Build rows
+    for (const g of grouped) {
+        let description = g.key;
+        if (g.descs.size > 0) {
+            description += " - " + [...g.descs].join(", ");
+        }
 
-            // If it's a Jira ticket, append all its grouped notes
-            if (ticketDescriptions.has(key)) {
-                const ticketDesc = [...ticketDescriptions.get(key)].join(", ");
-                if (ticketDesc)
-                    description += " - " + ticketDesc;
-            }
-
-            html += `
-                <tr>
-                    <td><input type="time" step="60" style="visibility: hidden"></td>
-                    <td><input type="time" step="60" style="visibility: hidden"></td>
-                    <td>${formatMinutes(minutes)}</td>
-                    <td><button class="action bigger type">🧋</button></td>
-                    <td><input type="text" value="${escapeHtml(description)}"/></td>
-                    <td></td>
-                    <td></td>
-                </tr>
-            `;
-        });
+        html += `
+            <tr disabled="true">
+                <td><input type="time" step="60" style="visibility: hidden"></td>
+                <td><input type="time" step="60" style="visibility: hidden"></td>
+                <td>${formatMinutes(g.minutes)}</td>
+                <td><button class="action bigger type" disabled>${types[g.type]?.emoji || ""}</button></td>
+                <td><input type="text" value="${escapeHtml(description)}" disabled/></td>
+                <td></td>
+                <td></td>
+            </tr>
+        `;
+    }
 
     html += "</tbody></table>";
     elements.summary.innerHTML = html;
