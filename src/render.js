@@ -9,8 +9,9 @@ const gapRows = new Map();
 export function renderAll(scrollBottom = false) {
     renderTabs();
     renderTable();
-    updateRunningUI();
     updateDayTotal();
+    renderSummary();
+    updateRunningUI();
 
     if (scrollBottom) {
         elements.hoursTableBody.parentElement.scrollTop = elements.hoursTableBody.scrollHeight;
