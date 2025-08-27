@@ -24,12 +24,12 @@ input::placeholder {
 
 input:not([disabled]):hover {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent3);
 }
 
 input:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent) !important;
 }
 
 

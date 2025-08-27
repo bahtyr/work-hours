@@ -96,6 +96,13 @@ table tr > *:nth-child(7) {
     user-select: none;
 }
 
+/* summary */
+#summary tr > *:nth-child(3),
+#summary tr > *:nth-child(4) {
+    user-select: none;
+    pointer-events: none; /* "allow mouse clicks passthrough" so that other text can be selected */
+}
+
 
 /* --------- Dark Overlay */
 

@@ -166,6 +166,159 @@
     }
   });
 
+  // src/events.js
+  function newEntry(start, end, desc, type) {
+    return {
+      id: uid(),
+      start,
+      end,
+      desc,
+      type
+    };
+  }
+  function onNew(desc) {
+    const entries = state2.days[state2.openDay];
+    const running = findLast(entries, (e) => e.start && !e.end);
+    if (running) running.end = timeNow();
+    const lastEntry = entries[entries.length - 1];
+    if (lastEntry && lastEntry.end) {
+      const lastEnd = parseHM(lastEntry.end);
+      const nowHM = parseHM(timeNow());
+      if (nowHM > lastEnd) {
+        entries.push(newEntry(lastEntry.end, timeNow(), "", 3));
+      }
+    }
+    entries.push(
+      newEntry(
+        timeNow(),
+        "",
+        desc ?? "",
+        identifyTicketType(desc)
+      )
+    );
+    saveState();
+    renderAll(true);
+    focusLastDescription();
+  }
+  function onStop() {
+    const entries = state2.days[state2.openDay];
+    const running = findLast(entries, (e) => e.start && !e.end);
+    if (running && !running.end) {
+      running.end = timeNow();
+      entries.push(newEntry(timeNow(), "", "", 3));
+      saveState();
+      renderAll(true);
+      focusLastDescription();
+    }
+  }
+  function onQuickEntry(e) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    const desc = elements.quickEntryInput.value.trim();
+    onNew(desc);
+    elements.quickEntryInput.value = "";
+    elements.quickEntryInput.focus();
+  }
+  function onDocumentKeyDown(e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === " ") {
+      onStop();
+      return;
+    }
+    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+      handleArrowNavigation(e);
+      return;
+    }
+  }
+  function handleArrowNavigation(e) {
+    const inputs = Array.from(document.querySelectorAll('input[type="text"]:not([disabled])'));
+    if (inputs.length === 0) return;
+    const active = document.activeElement;
+    let index = inputs.indexOf(active);
+    if (index === -1) {
+      inputs[inputs.length - 1].focus();
+      e.preventDefault();
+      return;
+    }
+    if (e.key === "ArrowUp" && index > 0) {
+      inputs[index - 1].focus();
+      e.preventDefault();
+    } else if (e.key === "ArrowDown" && index < inputs.length - 1) {
+      inputs[index + 1].focus();
+      e.preventDefault();
+    }
+  }
+  function toggleSummary() {
+    renderSummary();
+    elements.hoursTable.classList.toggle("hidden");
+    elements.summary.classList.toggle("hidden");
+    elements.newBtn.disabled = !elements.newBtn.disabled;
+    elements.stopBtn.disabled = !elements.stopBtn.disabled;
+  }
+  function onAddDay() {
+    if (elements.addDayInput.value) {
+      setOpenDay(elements.addDayInput.value);
+      elements.addDayInput.value = "";
+    }
+  }
+  function onEditDay() {
+    elements.editDayInput.value = state2.openDay;
+    elements.editDayInput.style.display = "inline-block";
+    elements.saveEditDayBtn.style.display = "inline-block";
+    elements.cancelEditDayBtn.style.display = "inline-block";
+    elements.editDayInput.focus();
+  }
+  function onCancelEditDay() {
+    elements.editDayInput.style.display = "none";
+    elements.saveEditDayBtn.style.display = "none";
+    elements.cancelEditDayBtn.style.display = "none";
+  }
+  function onSaveEditDay() {
+    const newDate = elements.editDayInput.value;
+    const oldDate = state2.openDay;
+    if (!newDate) {
+      alert("Pick a valid date");
+      return;
+    }
+    if (newDate === oldDate) {
+      onCancelEditDay();
+      return;
+    }
+    if (state2.days[newDate]) {
+      if (!confirm("Target day already exists. Merge current entries into that day?")) {
+        return;
+      }
+      state2.days[newDate] = (state2.days[newDate] || []).concat(state2.days[oldDate]);
+    } else {
+      state2.days[newDate] = state2.days[oldDate];
+    }
+    delete state2.days[oldDate];
+    state2.openDay = newDate;
+    saveState();
+    renderAll();
+    onCancelEditDay();
+  }
+  function onDeleteDay() {
+    if (!confirm("Delete all entries for this day? This cannot be undone.")) {
+      return;
+    }
+    delete state2.days[state2.openDay];
+    state2.openDay = todayKey();
+    ensureDay(state2.openDay);
+    saveState();
+    renderAll();
+  }
+  var state2;
+  var init_events = __esm({
+    "src/events.js"() {
+      init_state();
+      init_utils();
+      init_elements();
+      init_render();
+      state2 = getState();
+    }
+  });
+
   // src/render.js
   function renderAll(scrollBottom = false) {
     renderTabs();
@@ -179,14 +332,14 @@
   }
   function renderTabs() {
     const today = todayKey();
-    const allDays = new Set(Object.keys(state2.days || {}));
+    const allDays = new Set(Object.keys(state3.days || {}));
     allDays.add(today);
     const otherDays = Array.from(allDays).filter((d) => d !== today).sort((a, b) => b.localeCompare(a));
     const orderedDays = [today, ...otherDays];
     elements.tabs.innerHTML = "";
     orderedDays.forEach((day) => {
       const tabEl = document.createElement("div");
-      tabEl.className = "tab" + (day === state2.openDay ? " active" : "");
+      tabEl.className = "tab" + (day === state3.openDay ? " active" : "");
       tabEl.textContent = formatDayName(day);
       tabEl.title = day;
       tabEl.addEventListener("click", () => setOpenDay(day));
@@ -194,7 +347,7 @@
     });
   }
   function renderTable() {
-    const entries = state2.days[state2.openDay] || [];
+    const entries = state3.days[state3.openDay] || [];
     const tbody = elements.hoursTableBody;
     tbody.innerHTML = "";
     gapRows.clear();
@@ -242,7 +395,7 @@
       entry[field] = input.value;
       saveState();
       updateDayTotal();
-      const entries = state2.days[state2.openDay] || [];
+      const entries = state3.days[state3.openDay] || [];
       const index = entries.indexOf(entry);
       if (index > 0) updateGapAfter(entries[index - 1]);
       updateGapAfter(entry);
@@ -284,6 +437,16 @@
       updateDayTotal();
       saveState();
     };
+    input.addEventListener("keydown", (e) => {
+      if ((e.key === "Backspace" || e.key === "Delete") && input.value === "") {
+        const row = input.closest("tr");
+        const btn = row.querySelector("button.action.delete");
+        btn.click();
+      }
+      if (e.key === "Enter") {
+        onNew();
+      }
+    });
     td.appendChild(input);
     return td;
   }
@@ -309,7 +472,7 @@
   function createDeleteCell(index, entries) {
     const td = document.createElement("td");
     const deleteBtn = document.createElement("button");
-    deleteBtn.classList.add("action");
+    deleteBtn.classList.add("action", "delete");
     deleteBtn.textContent = "x";
     deleteBtn.onclick = () => {
       if (confirm("Delete this entry?")) {
@@ -360,7 +523,7 @@
     return tr;
   }
   function updateGapAfter(prevEntry) {
-    const entries = state2.days[state2.openDay] || [];
+    const entries = state3.days[state3.openDay] || [];
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;
@@ -384,7 +547,7 @@
     }
   }
   function renderSummary() {
-    const entries = state2.days[state2.openDay] || [];
+    const entries = state3.days[state3.openDay] || [];
     const grouped = [];
     for (const entry of entries) {
       const start = parseHM(entry.start);
@@ -468,7 +631,7 @@
     elements.summary.innerHTML = html;
   }
   function updateDayTotal() {
-    const entries = state2.days[state2.openDay] || [];
+    const entries = state3.days[state3.openDay] || [];
     const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
     const uniqueTickets = /* @__PURE__ */ new Set();
     for (const entry of entries) {
@@ -500,7 +663,7 @@
     elements.hoursTimelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
   }
   function updateRunningUI() {
-    const entries = state2.days[state2.openDay] || [];
+    const entries = state3.days[state3.openDay] || [];
     const running = findLast(entries, (e) => e.start && !e.end);
     elements.runningPill.style.display = running ? "inline-flex" : "none";
   }
@@ -510,13 +673,14 @@
       inputs[inputs.length - 1].focus();
     }
   }
-  var state2, gapRows, types;
+  var state3, gapRows, types;
   var init_render = __esm({
     "src/render.js"() {
       init_elements();
       init_state();
       init_utils();
-      state2 = getState();
+      init_events();
+      state3 = getState();
       gapRows = /* @__PURE__ */ new Map();
       types = [
         { label: "Work", emoji: "\u{1F4C4}" },
@@ -524,168 +688,6 @@
         { label: "Meeting", emoji: "\u{1F4DE}" },
         { label: "Break", emoji: "\u{1F9CB}" }
       ];
-    }
-  });
-
-  // src/events.js
-  function newEntry(start, end, desc, type) {
-    return {
-      id: uid(),
-      start,
-      end,
-      desc,
-      type
-    };
-  }
-  function onNew(desc) {
-    const entries = state3.days[state3.openDay];
-    const running = findLast(entries, (e) => e.start && !e.end);
-    if (running) running.end = timeNow();
-    const lastEntry = entries[entries.length - 1];
-    if (lastEntry && lastEntry.end) {
-      const lastEnd = parseHM(lastEntry.end);
-      const nowHM = parseHM(timeNow());
-      if (nowHM > lastEnd) {
-        entries.push(newEntry(lastEntry.end, timeNow(), "", 3));
-      }
-    }
-    entries.push(
-      newEntry(
-        timeNow(),
-        "",
-        desc ?? "",
-        identifyTicketType(desc)
-      )
-    );
-    saveState();
-    renderAll(true);
-    focusLastDescription();
-  }
-  function onStop() {
-    const entries = state3.days[state3.openDay];
-    const running = findLast(entries, (e) => e.start && !e.end);
-    if (running && !running.end) {
-      running.end = timeNow();
-      entries.push(newEntry(timeNow(), "", "", 3));
-      saveState();
-      renderAll(true);
-      focusLastDescription();
-    }
-  }
-  function onQuickEntry(e) {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-    const desc = elements.quickEntryInput.value.trim();
-    if (!desc) return;
-    onNew(desc);
-    elements.quickEntryInput.value = "";
-    elements.quickEntryInput.focus();
-  }
-  function onDocumentKeyDown(e) {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (e.key === "Escape") {
-      handleDoubleEscape();
-      return;
-    }
-    handleGlobalTyping(e);
-  }
-  function handleGlobalTyping(e) {
-    const active = document.activeElement;
-    const isInputFocused = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
-    if (!isInputFocused) {
-      const input = elements.quickEntryInput;
-      input.focus();
-      if (e.key.length === 1) {
-        const start = input.selectionStart || 0;
-        const end = input.selectionEnd || 0;
-        const value = input.value;
-        input.value = value.slice(0, start) + e.key + value.slice(end);
-        input.selectionStart = input.selectionEnd = start + 1;
-      }
-      e.preventDefault();
-    }
-  }
-  function handleDoubleEscape() {
-    const now = Date.now();
-    if (now - lastEscTime < 400) {
-      onDoubleEscape();
-      lastEscTime = 0;
-    } else {
-      lastEscTime = now;
-    }
-  }
-  function onDoubleEscape() {
-    onStop();
-  }
-  function toggleSummary() {
-    renderSummary();
-    elements.hoursTable.classList.toggle("hidden");
-    elements.summary.classList.toggle("hidden");
-    elements.newBtn.disabled = !elements.newBtn.disabled;
-    elements.stopBtn.disabled = !elements.stopBtn.disabled;
-  }
-  function onAddDay() {
-    if (elements.addDayInput.value) {
-      setOpenDay(elements.addDayInput.value);
-      elements.addDayInput.value = "";
-    }
-  }
-  function onEditDay() {
-    elements.editDayInput.value = state3.openDay;
-    elements.editDayInput.style.display = "inline-block";
-    elements.saveEditDayBtn.style.display = "inline-block";
-    elements.cancelEditDayBtn.style.display = "inline-block";
-    elements.editDayInput.focus();
-  }
-  function onCancelEditDay() {
-    elements.editDayInput.style.display = "none";
-    elements.saveEditDayBtn.style.display = "none";
-    elements.cancelEditDayBtn.style.display = "none";
-  }
-  function onSaveEditDay() {
-    const newDate = elements.editDayInput.value;
-    const oldDate = state3.openDay;
-    if (!newDate) {
-      alert("Pick a valid date");
-      return;
-    }
-    if (newDate === oldDate) {
-      onCancelEditDay();
-      return;
-    }
-    if (state3.days[newDate]) {
-      if (!confirm("Target day already exists. Merge current entries into that day?")) {
-        return;
-      }
-      state3.days[newDate] = (state3.days[newDate] || []).concat(state3.days[oldDate]);
-    } else {
-      state3.days[newDate] = state3.days[oldDate];
-    }
-    delete state3.days[oldDate];
-    state3.openDay = newDate;
-    saveState();
-    renderAll();
-    onCancelEditDay();
-  }
-  function onDeleteDay() {
-    if (!confirm("Delete all entries for this day? This cannot be undone.")) {
-      return;
-    }
-    delete state3.days[state3.openDay];
-    state3.openDay = todayKey();
-    ensureDay(state3.openDay);
-    saveState();
-    renderAll();
-  }
-  var state3, lastEscTime;
-  var init_events = __esm({
-    "src/events.js"() {
-      init_state();
-      init_utils();
-      init_elements();
-      init_render();
-      state3 = getState();
-      lastEscTime = 0;
     }
   });
 

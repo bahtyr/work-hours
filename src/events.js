@@ -63,10 +63,10 @@ export function onStop() {
 
 export function onQuickEntry(e) {
     if (e.key !== 'Enter') return;
+    // when enter pressed submit
     e.preventDefault();
 
     const desc = elements.quickEntryInput.value.trim();
-    if (!desc) return; // ignore empty
 
     onNew(desc);
 
@@ -83,33 +83,39 @@ export function onDocumentKeyDown(e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
 
     // Handle double ESC
-    if (e.key === 'Escape') {
-        handleDoubleEscape();
+    if (e.key === ' ') {
+        onStop();
+        return;
+    }
+
+    // Handle arrow navigation between inputs
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        handleArrowNavigation(e);
         return;
     }
 
     // Handle global typing when no input focused
-    handleGlobalTyping(e);
 }
 
-function handleGlobalTyping(e) {
+function handleArrowNavigation(e) {
+    const inputs = Array.from(document.querySelectorAll('input[type="text"]:not([disabled])'));
+    if (inputs.length === 0) return;
+
     const active = document.activeElement;
-    const isInputFocused = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+    let index = inputs.indexOf(active);
 
-    // Only trigger if nothing else is focused
-    if (!isInputFocused) {
-        const input = elements.quickEntryInput;
-        input.focus();
+    // If nothing valid is focused → pick last input
+    if (index === -1) {
+        inputs[inputs.length - 1].focus();
+        e.preventDefault();
+        return;
+    }
 
-        if (e.key.length === 1) { // printable chars
-            const start = input.selectionStart || 0;
-            const end = input.selectionEnd || 0;
-            const value = input.value;
-            input.value = value.slice(0, start) + e.key + value.slice(end);
-            input.selectionStart = input.selectionEnd = start + 1;
-        }
-
-        // Prevent default so keys don’t trigger elsewhere
+    if (e.key === 'ArrowUp' && index > 0) {
+        inputs[index - 1].focus();
+        e.preventDefault();
+    } else if (e.key === 'ArrowDown' && index < inputs.length - 1) {
+        inputs[index + 1].focus();
         e.preventDefault();
     }
 }

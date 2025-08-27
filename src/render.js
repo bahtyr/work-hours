@@ -10,6 +10,7 @@ import {
     parseHM,
     todayKey
 } from './utils.js';
+import {onDocumentKeyDown, onNew} from "./events";
 
 const state = getState();
 const gapRows = new Map();
@@ -171,6 +172,16 @@ export function createDescriptionCell(entry) {
 
         saveState();
     };
+    input.addEventListener('keydown', e => {
+        if ((e.key === 'Backspace' || e.key === 'Delete') && input.value === '') {
+            const row = input.closest('tr');
+            const btn = row.querySelector('button.action.delete');
+            btn.click();
+        }
+        if (e.key === 'Enter') {
+            onNew();
+        }
+    });
     td.appendChild(input);
     return td;
 }
@@ -213,7 +224,7 @@ export function createTypeCell(entry) {
 export function createDeleteCell(index, entries) {
     const td = document.createElement('td');
     const deleteBtn = document.createElement('button');
-    deleteBtn.classList.add('action');
+    deleteBtn.classList.add('action','delete');
     deleteBtn.textContent = 'x';
     deleteBtn.onclick = () => {
         if (confirm('Delete this entry?')) {
