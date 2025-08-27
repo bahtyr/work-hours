@@ -1,5 +1,5 @@
 import {ensureDay, getState, saveState, setOpenDay} from './state.js';
-import {findLast, findTicketNumber, parseHM, timeNow, todayKey, uid} from './utils.js';
+import {findLast, identifyTicketType, parseHM, timeNow, todayKey, uid} from './utils.js';
 import {elements} from './elements.js';
 import {focusLastDescription, renderAll, renderSummary} from './render.js';
 
@@ -38,7 +38,7 @@ export function onNew(desc) {
         timeNow(),
         '',
         desc ?? '',
-        findTicketNumber(desc) ? 1 : 0)
+        identifyTicketType(desc))
     );
 
     saveState();
