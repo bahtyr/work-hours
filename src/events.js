@@ -5,6 +5,16 @@ import {focusLastDescription, renderAll, renderSummary} from './render.js';
 
 const state = getState();
 
+function newEntry(start, end, type) {
+    return {
+        id: uid(),
+        start: start,
+        end: end,
+        desc: '',
+        type: type,
+    };
+}
+
 // Start / Stop
 
 export function onNew() {
@@ -20,27 +30,11 @@ export function onNew() {
         const lastEnd = parseHM(lastEntry.end);
         const nowHM = parseHM(timeNow());
         if (nowHM > lastEnd) {
-            entries.push({
-                id: uid(),
-                start: lastEntry.end,
-                end: timeNow(),
-                desc: '',
-                type: 3,
-            });
+            entries.push(newEntry(lastEntry.end, timeNow(), 3));
         }
     }
 
-    entries.push({
-        id: uid(),
-        start: timeNow(),
-        end: '',
-        desc: '',
-        ticket() {
-            const ticketMatch = this.desc.match(/\b[a-zA-Z]+-\d+\b/);
-            return ticketMatch ? ticketMatch[0] : null;
-        },
-        type: 'entry' // entry, gap, ticket, meeting ??
-    });
+    entries.push(newEntry(timeNow(), '', 0));
 
     saveState();
     renderAll(true);
@@ -54,13 +48,7 @@ export function onStop() {
     if (running && !running.end) {
         // create gap entry
         running.end = timeNow();
-        entries.push({
-            id: uid(),
-            start: timeNow(),
-            end: '',
-            desc: '',
-            type: 3,
-        });
+        entries.push(newEntry(timeNow(), '', 3));
 
         saveState();
         renderAll(true);
