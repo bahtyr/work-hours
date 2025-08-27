@@ -582,9 +582,16 @@
     elements.quickEntryInput.focus();
   }
   function onDocumentKeyDown(e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === "Escape") {
+      handleDoubleEscape();
+      return;
+    }
+    handleGlobalTyping(e);
+  }
+  function handleGlobalTyping(e) {
     const active = document.activeElement;
     const isInputFocused = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (!isInputFocused) {
       const input = elements.quickEntryInput;
       input.focus();
@@ -597,6 +604,18 @@
       }
       e.preventDefault();
     }
+  }
+  function handleDoubleEscape() {
+    const now = Date.now();
+    if (now - lastEscTime < 400) {
+      onDoubleEscape();
+      lastEscTime = 0;
+    } else {
+      lastEscTime = now;
+    }
+  }
+  function onDoubleEscape() {
+    onStop();
   }
   function toggleSummary() {
     renderSummary();
@@ -658,7 +677,7 @@
     saveState();
     renderAll();
   }
-  var state3;
+  var state3, lastEscTime;
   var init_events = __esm({
     "src/events.js"() {
       init_state();
@@ -666,6 +685,7 @@
       init_elements();
       init_render();
       state3 = getState();
+      lastEscTime = 0;
     }
   });
 

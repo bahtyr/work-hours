@@ -79,19 +79,29 @@ export function onQuickEntry(e) {
  * If no input is focused, redirect keystrokes to quick entry input
  */
 export function onDocumentKeyDown(e) {
-    const active = document.activeElement;
-    const isInputFocused = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
-
     // Ignore modifier keys
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+    // Handle double ESC
+    if (e.key === 'Escape') {
+        handleDoubleEscape();
+        return;
+    }
+
+    // Handle global typing when no input focused
+    handleGlobalTyping(e);
+}
+
+function handleGlobalTyping(e) {
+    const active = document.activeElement;
+    const isInputFocused = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
 
     // Only trigger if nothing else is focused
     if (!isInputFocused) {
         const input = elements.quickEntryInput;
         input.focus();
 
-        // Insert typed character (printable)
-        if (e.key.length === 1) {
+        if (e.key.length === 1) { // printable chars
             const start = input.selectionStart || 0;
             const end = input.selectionEnd || 0;
             const value = input.value;
@@ -103,6 +113,22 @@ export function onDocumentKeyDown(e) {
         e.preventDefault();
     }
 }
+
+let lastEscTime = 0;
+function handleDoubleEscape() {
+    const now = Date.now();
+    if (now - lastEscTime < 400) {
+        onDoubleEscape();   // run custom action
+        lastEscTime = 0;    // reset
+    } else {
+        lastEscTime = now;
+    }
+}
+
+function onDoubleEscape() {
+    onStop();
+}
+
 
 // Summary
 
