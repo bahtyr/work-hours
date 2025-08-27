@@ -28,6 +28,8 @@
         hoursTimelineHighlight: document.querySelector(".timeline .highlight"),
         hoursTimelineBreak: document.querySelector(".timeline .break"),
         hoursTimelineMeeting: document.querySelector(".timeline .meeting"),
+        quickEntryInput: document.getElementById("quickEntryInput"),
+        quickEntryBtn: document.getElementById("quickEntryBtn"),
         // buttons
         newBtn: document.getElementById("newBtn"),
         stopBtn: document.getElementById("stopBtn"),
@@ -110,6 +112,7 @@
     return String(str).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
   }
   function findTicketNumber(desc) {
+    if (!desc) return null;
     return desc.match(/\b[a-zA-Z]+-\d+\b/);
   }
   var pad;
@@ -520,7 +523,16 @@
   });
 
   // src/events.js
-  function onNew() {
+  function newEntry(start, end, desc, type) {
+    return {
+      id: uid(),
+      start,
+      end,
+      desc,
+      type
+    };
+  }
+  function onNew(desc) {
     const entries = state3.days[state3.openDay];
     const running = findLast(entries, (e) => e.start && !e.end);
     if (running) running.end = timeNow();
@@ -529,27 +541,17 @@
       const lastEnd = parseHM(lastEntry.end);
       const nowHM = parseHM(timeNow());
       if (nowHM > lastEnd) {
-        entries.push({
-          id: uid(),
-          start: lastEntry.end,
-          end: timeNow(),
-          desc: "",
-          type: 3
-        });
+        entries.push(newEntry(lastEntry.end, timeNow(), "", 3));
       }
     }
-    entries.push({
-      id: uid(),
-      start: timeNow(),
-      end: "",
-      desc: "",
-      ticket() {
-        const ticketMatch = this.desc.match(/\b[a-zA-Z]+-\d+\b/);
-        return ticketMatch ? ticketMatch[0] : null;
-      },
-      type: "entry"
-      // entry, gap, ticket, meeting ??
-    });
+    entries.push(
+      newEntry(
+        timeNow(),
+        "",
+        desc ?? "",
+        findTicketNumber(desc) ? 1 : 0
+      )
+    );
     saveState();
     renderAll(true);
     focusLastDescription();
@@ -559,16 +561,36 @@
     const running = findLast(entries, (e) => e.start && !e.end);
     if (running && !running.end) {
       running.end = timeNow();
-      entries.push({
-        id: uid(),
-        start: timeNow(),
-        end: "",
-        desc: "",
-        type: 3
-      });
+      entries.push(newEntry(timeNow(), "", "", 3));
       saveState();
       renderAll(true);
       focusLastDescription();
+    }
+  }
+  function onQuickEntry(e) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    const desc = elements.quickEntryInput.value.trim();
+    if (!desc) return;
+    onNew(desc);
+    elements.quickEntryInput.value = "";
+    elements.quickEntryInput.focus();
+  }
+  function onDocumentKeyDown(e) {
+    const active = document.activeElement;
+    const isInputFocused = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (!isInputFocused) {
+      const input = elements.quickEntryInput;
+      input.focus();
+      if (e.key.length === 1) {
+        const start = input.selectionStart || 0;
+        const end = input.selectionEnd || 0;
+        const value = input.value;
+        input.value = value.slice(0, start) + e.key + value.slice(end);
+        input.selectionStart = input.selectionEnd = start + 1;
+      }
+      e.preventDefault();
     }
   }
   function toggleSummary() {
@@ -656,6 +678,9 @@
       elements.cancelEditDayBtn.addEventListener("click", onCancelEditDay);
       elements.saveEditDayBtn.addEventListener("click", onSaveEditDay);
       elements.deleteDayBtn.addEventListener("click", onDeleteDay);
+      elements.quickEntryBtn.addEventListener("click", onQuickEntry);
+      elements.quickEntryInput.addEventListener("keydown", onQuickEntry);
+      document.addEventListener("keydown", onDocumentKeyDown);
       renderAll();
     }
   });

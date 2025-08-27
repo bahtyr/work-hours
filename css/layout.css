@@ -145,3 +145,20 @@
     gap: 16px;
     margin-bottom: 16px;
 }
+
+.quick-entry {
+}
+
+.quick-entry input {
+    /*background: var(--button-hover);*/
+    border: 1px solid var(--button-border);
+    font-size: 18px;
+    padding: 22px 40px;
+    padding: 18px 36px;
+    border-radius: 100px;
+}
+
+.quick-entry input:focus {
+    border-color: var(--accent);
+}
+
