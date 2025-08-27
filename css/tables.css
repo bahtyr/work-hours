@@ -2,6 +2,13 @@ table {
     border-collapse: collapse;
 }
 
+table::after {
+    /* extra scroll space */
+    content: "";
+    display: block;
+    height: 20vh;
+}
+
 tr {
     border-bottom: 1px solid var(--line);
 }
