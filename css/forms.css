@@ -60,15 +60,16 @@ button {
     transition: background var(--transition), border-color var(--transition), opacity var(--transition);
 }
 
+button:hover {
+    background: var(--button-hover);
+}
+
+/* disabled */
 button[disabled],
 button[disabled]:hover {
     cursor: default;
     background: var(--button-bg);
-    opacity: 0.8;
-}
-
-button:hover {
-    background: var(--button-hover);
+    opacity: 0.5;
 }
 
 button.primary {
