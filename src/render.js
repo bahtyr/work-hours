@@ -1,6 +1,15 @@
 import {elements} from './elements.js';
 import {getState, saveState, setOpenDay} from './state.js';
-import {escapeHtml, findLast, findTicketNumber, formatDayName, formatMinutes, parseHM, todayKey} from './utils.js';
+import {
+    escapeHtml,
+    findLast,
+    findTicketNumber,
+    formatDayName,
+    formatMinutes,
+    identifyTicketType,
+    parseHM,
+    todayKey
+} from './utils.js';
 
 const state = getState();
 const gapRows = new Map();
@@ -151,15 +160,14 @@ export function createDescriptionCell(entry) {
     input.oninput = () => {
         entry.desc = input.value;
 
-        // set entry type as Ticket if description includes ticket number
-        const ticketMatch = findTicketNumber(entry.desc);
-        if (ticketMatch) {
-            const row = input.closest('tr');
-            const btn = row.querySelector('button.action.type');
-            btn.textContent = types[1].emoji;
-            entry.type = 1;
-            updateDayTotal();
-        }
+        // identify entry type based on description
+        const identifiedType = identifyTicketType(entry.desc);
+        // update entry type and row icon
+        const row = input.closest('tr');
+        const btn = row.querySelector('button.action.type');
+        btn.textContent = types[identifiedType].emoji;
+        entry.type = identifiedType;
+        updateDayTotal();
 
         saveState();
     };

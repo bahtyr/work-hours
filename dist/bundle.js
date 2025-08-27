@@ -115,6 +115,13 @@
     if (!desc) return null;
     return desc.match(/\b[a-zA-Z]+-\d+\b/);
   }
+  function identifyTicketType(desc) {
+    if (!desc) return 0;
+    if (findTicketNumber(desc)) return 1;
+    if (desc.includes("meet")) return 2;
+    if (desc.includes("ara")) return 3;
+    return 0;
+  }
   var pad;
   var init_utils = __esm({
     "src/utils.js"() {
@@ -269,14 +276,12 @@
     input.value = entry.desc || "";
     input.oninput = () => {
       entry.desc = input.value;
-      const ticketMatch = findTicketNumber(entry.desc);
-      if (ticketMatch) {
-        const row = input.closest("tr");
-        const btn = row.querySelector("button.action.type");
-        btn.textContent = types[1].emoji;
-        entry.type = 1;
-        updateDayTotal();
-      }
+      const identifiedType = identifyTicketType(entry.desc);
+      const row = input.closest("tr");
+      const btn = row.querySelector("button.action.type");
+      btn.textContent = types[identifiedType].emoji;
+      entry.type = identifiedType;
+      updateDayTotal();
       saveState();
     };
     td.appendChild(input);
@@ -549,7 +554,7 @@
         timeNow(),
         "",
         desc ?? "",
-        findTicketNumber(desc) ? 1 : 0
+        identifyTicketType(desc)
       )
     );
     saveState();
