@@ -7,6 +7,7 @@ const gapRows = new Map();
 
 
 export function renderAll(scrollBottom = false) {
+    // return
     renderTabs();
     renderTable();
     updateDayTotal();
@@ -335,7 +336,7 @@ export function renderSummary() {
         // find or create group
         let group = grouped.find(g => g.type === entryType && g.key === key);
         if (!group) {
-            group = { type: entryType, key, minutes: 0, descs: new Set() };
+            group = {type: entryType, key, minutes: 0, descs: new Set()};
             grouped.push(group);
         }
 

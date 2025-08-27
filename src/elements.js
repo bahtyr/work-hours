@@ -16,6 +16,10 @@ export const elements = {
     hoursTimelineBreak: document.querySelector('.timeline .break'),
     hoursTimelineMeeting: document.querySelector('.timeline .meeting'),
 
+    quickEntryInput: document.getElementById('quickEntryInput'),
+    quickEntryBtn: document.getElementById('quickEntryBtn'),
+
+
     // buttons
     newBtn: document.getElementById('newBtn'),
     stopBtn: document.getElementById('stopBtn'),

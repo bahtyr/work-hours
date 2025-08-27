@@ -111,5 +111,6 @@ export function escapeHtml(str) {
 export function findTicketNumber(desc) {
     // const match = desc.match(/\b[a-zA-Z]+-\d+\b/);
     // return match ? match[0] : null;
+    if (!desc) return null;
     return desc.match(/\b[a-zA-Z]+-\d+\b/);
 }
