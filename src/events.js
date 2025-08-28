@@ -84,15 +84,18 @@ function startNew() {
 }
 
 function startBreakSinceLast() {
+    // console.log("me")
     const entries = state.days[state.openDay];
     // Check for gap between last entry and now
     const lastEntry = entries[entries.length - 1];
     // create gap entry
     if (lastEntry && lastEntry.end) {
+        // console.log("=1")
         const lastEnd = parseHM(lastEntry.end);
         const nowHM = parseHM(timeNow());
         if (nowHM >= lastEnd) {
-            entries.push(newEntry(lastEntry.end, '', '', 1));
+            // console.log("=2")
+            entries.push(newEntry(lastEntry.end, '', '', 3));
             saveState();
             renderAll(true);
             focusLastDescription();
@@ -108,9 +111,9 @@ export function onDocumentKeyDown(e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
 
     const active = document.activeElement;
-    const focusedOnTime = active && active.tagName === 'INPUT' && active.type === 'time';
-    const focusedOnText = active && active.tagName === 'INPUT' && active.type === 'text';
-
+    const focusedOnInput = active && active.tagName === 'INPUT';
+    const focusedOnTime = focusedOnInput && active.type === 'time';
+    const focusedOnText = focusedOnInput && active.type === 'text';
 
 
     // Handle arrow navigation between inputs
@@ -119,19 +122,19 @@ export function onDocumentKeyDown(e) {
         return;
     }
 
-    if (focusedOnText && (e.key === 'Enter' || e.key === 'Escape')) {
+    if (focusedOnInput && (e.key === 'Enter' || e.key === 'Escape')) {
         active.blur();
         return;
     }
 
-    if (!focusedOnText && e.key === ' ') {
+    if (!focusedOnInput && e.key === ' ') {
         if (!stopLast()) {
             startBreakSinceLast();
             return;
         }
     }
 
-    if (!focusedOnText && e.key === 'Enter') {
+    if (!focusedOnInput && e.key === 'Enter') {
         if (!stopLast()) {
             startNew();
             return;
@@ -162,23 +165,6 @@ function handleArrowNavigation(e, active) {
         e.preventDefault();
     }
 }
-
-let lastEscTime = 0;
-
-function handleDoubleEscape() {
-    const now = Date.now();
-    if (now - lastEscTime < 400) {
-        onDoubleEscape();   // run custom action
-        lastEscTime = 0;    // reset
-    } else {
-        lastEscTime = now;
-    }
-}
-
-function onDoubleEscape() {
-    onStop();
-}
-
 
 // Summary
 

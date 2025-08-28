@@ -156,6 +156,7 @@ export function createDescriptionCell(entry) {
     const td = document.createElement('td');
     const input = document.createElement('input');
     input.type = 'text';
+    // console.log(entry);
     input.placeholder = (entry.type && entry.type === 3) ? 'Break' : 'Description';
     input.value = entry.desc || '';
     input.oninput = () => {
@@ -203,10 +204,13 @@ export function createTypeCell(entry) {
     btn.classList.add('type');
 
     // default type if not set
-    if (typeof entry.type !== "number") {
-        entry.type = 0; // Work
-    }
-
+    // if (typeof entry.type !== "number") {
+    //     entry.type = 0; // Work
+    // }
+    //
+    // if (entry.type === 99) {
+    //     // entry.type = 0;
+    // }
     btn.textContent = types[entry.type].emoji;
 
     // cycle to next type

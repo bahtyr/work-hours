@@ -236,7 +236,7 @@
       const lastEnd = parseHM(lastEntry.end);
       const nowHM = parseHM(timeNow());
       if (nowHM >= lastEnd) {
-        entries.push(newEntry(lastEntry.end, "", "", 1));
+        entries.push(newEntry(lastEntry.end, "", "", 3));
         saveState();
         renderAll(true);
         focusLastDescription();
@@ -246,23 +246,24 @@
   function onDocumentKeyDown(e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const active = document.activeElement;
-    const focusedOnTime = active && active.tagName === "INPUT" && active.type === "time";
-    const focusedOnText = active && active.tagName === "INPUT" && active.type === "text";
+    const focusedOnInput = active && active.tagName === "INPUT";
+    const focusedOnTime = focusedOnInput && active.type === "time";
+    const focusedOnText = focusedOnInput && active.type === "text";
     if (!focusedOnTime && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
       handleArrowNavigation(e, active);
       return;
     }
-    if (focusedOnText && (e.key === "Enter" || e.key === "Escape")) {
+    if (focusedOnInput && (e.key === "Enter" || e.key === "Escape")) {
       active.blur();
       return;
     }
-    if (!focusedOnText && e.key === " ") {
+    if (!focusedOnInput && e.key === " ") {
       if (!stopLast()) {
         startBreakSinceLast();
         return;
       }
     }
-    if (!focusedOnText && e.key === "Enter") {
+    if (!focusedOnInput && e.key === "Enter") {
       if (!stopLast()) {
         startNew();
         return;
@@ -491,9 +492,6 @@
     btn.classList.add("action");
     btn.classList.add("bigger");
     btn.classList.add("type");
-    if (typeof entry.type !== "number") {
-      entry.type = 0;
-    }
     btn.textContent = types[entry.type].emoji;
     btn.onclick = () => {
       entry.type = (entry.type + 1) % types.length;
