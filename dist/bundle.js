@@ -579,6 +579,7 @@
     }
     if (!focusedOnInput && e.key === " ") {
       if (!stopLast()) {
+        e.preventDefault();
         startBreakSinceLast();
         return;
       }
@@ -612,7 +613,6 @@
     "src/events.js"() {
       init_state();
       init_utils();
-      init_elements();
       init_render();
       state3 = getState();
     }

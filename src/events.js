@@ -1,7 +1,6 @@
 import {getState, saveState} from './state.js';
 import {findLast, parseHM, timeNow, uid} from './utils.js';
-import {elements} from './elements.js';
-import {focusLastDescription, renderAll, renderSummary} from './render.js';
+import {focusLastDescription, renderAll} from './render.js';
 
 const state = getState();
 
@@ -85,6 +84,7 @@ export function onDocumentKeyDown(e) {
 
     if (!focusedOnInput && e.key === ' ') {
         if (!stopLast()) {
+            e.preventDefault();
             startBreakSinceLast();
             return;
         }
