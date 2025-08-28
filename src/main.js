@@ -6,16 +6,12 @@ import {
     onDeleteDay,
     onDocumentKeyDown,
     onEditDay,
-    onNew,
     onSaveEditDay,
-    onStop,
     toggleSummary
 } from './events.js';
 
 // Attach listeners
 // Main Buttons
-elements.newBtn.addEventListener('click', onNew);
-elements.stopBtn.addEventListener('click', onStop);
 elements.toggleSummaryBtn.addEventListener('click', toggleSummary);
 // Day Buttons
 elements.addDayBtn.addEventListener('click', onAddDay);

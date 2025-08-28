@@ -31,8 +31,6 @@
         quickEntryInput: document.getElementById("quickEntryInput"),
         quickEntryBtn: document.getElementById("quickEntryBtn"),
         // buttons
-        newBtn: document.getElementById("newBtn"),
-        stopBtn: document.getElementById("stopBtn"),
         toggleSummaryBtn: document.getElementById("toggleSummaryBtn"),
         runningPill: document.getElementById("runningPill"),
         // days
@@ -166,198 +164,6 @@
     }
   });
 
-  // src/events.js
-  function newEntry(start, end, desc, type) {
-    return {
-      id: uid(),
-      start,
-      end,
-      desc,
-      type
-    };
-  }
-  function onNew(desc) {
-    const entries = state2.days[state2.openDay];
-    const running = findLast(entries, (e) => e.start && !e.end);
-    if (running) running.end = timeNow();
-    const lastEntry = entries[entries.length - 1];
-    if (lastEntry && lastEntry.end) {
-      const lastEnd = parseHM(lastEntry.end);
-      const nowHM = parseHM(timeNow());
-      if (nowHM > lastEnd) {
-        entries.push(newEntry(lastEntry.end, timeNow(), "", 3));
-      }
-    }
-    entries.push(
-      newEntry(
-        timeNow(),
-        "",
-        desc ?? "",
-        identifyTicketType(desc)
-      )
-    );
-    saveState();
-    renderAll(true);
-    focusLastDescription();
-  }
-  function onStop() {
-    const entries = state2.days[state2.openDay];
-    const running = findLast(entries, (e) => e.start && !e.end);
-    if (running && !running.end) {
-      running.end = timeNow();
-      entries.push(newEntry(timeNow(), "", "", 3));
-      saveState();
-      renderAll(true);
-      focusLastDescription();
-    }
-  }
-  function stopLast() {
-    const entries = state2.days[state2.openDay];
-    const running = findLast(entries, (e) => e.start && !e.end);
-    if (running && !running.end) {
-      running.end = timeNow();
-      saveState();
-      renderAll(true);
-      return true;
-    }
-    return false;
-  }
-  function startNew() {
-    const entries = state2.days[state2.openDay];
-    entries.push(newEntry(timeNow(), "", "", 0));
-    saveState();
-    renderAll(true);
-    focusLastDescription();
-  }
-  function startBreakSinceLast() {
-    const entries = state2.days[state2.openDay];
-    const lastEntry = entries[entries.length - 1];
-    if (lastEntry && lastEntry.end) {
-      const lastEnd = parseHM(lastEntry.end);
-      const nowHM = parseHM(timeNow());
-      if (nowHM >= lastEnd) {
-        entries.push(newEntry(lastEntry.end, "", "", 3));
-        saveState();
-        renderAll(true);
-        focusLastDescription();
-      }
-    }
-  }
-  function onDocumentKeyDown(e) {
-    if (e.metaKey || e.ctrlKey || e.altKey) return;
-    const active = document.activeElement;
-    const focusedOnInput = active && active.tagName === "INPUT";
-    const focusedOnTime = focusedOnInput && active.type === "time";
-    const focusedOnText = focusedOnInput && active.type === "text";
-    if (!focusedOnTime && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
-      handleArrowNavigation(e, active);
-      return;
-    }
-    if (focusedOnInput && (e.key === "Enter" || e.key === "Escape")) {
-      active.blur();
-      return;
-    }
-    if (!focusedOnInput && e.key === " ") {
-      if (!stopLast()) {
-        startBreakSinceLast();
-        return;
-      }
-    }
-    if (!focusedOnInput && e.key === "Enter") {
-      if (!stopLast()) {
-        startNew();
-        return;
-      }
-    }
-  }
-  function handleArrowNavigation(e, active) {
-    const inputs = Array.from(document.querySelectorAll('input[type="text"]:not([disabled])'));
-    if (inputs.length === 0) return;
-    let index = inputs.indexOf(active);
-    if (index === -1) {
-      inputs[inputs.length - 1].focus();
-      e.preventDefault();
-      return;
-    }
-    if (e.key === "ArrowUp" && index > 0) {
-      inputs[index - 1].focus();
-      e.preventDefault();
-    } else if (e.key === "ArrowDown" && index < inputs.length - 1) {
-      inputs[index + 1].focus();
-      e.preventDefault();
-    }
-  }
-  function toggleSummary() {
-    renderSummary();
-    elements.hoursTable.classList.toggle("hidden");
-    elements.summary.classList.toggle("hidden");
-    elements.newBtn.disabled = !elements.newBtn.disabled;
-    elements.stopBtn.disabled = !elements.stopBtn.disabled;
-  }
-  function onAddDay() {
-    if (elements.addDayInput.value) {
-      setOpenDay(elements.addDayInput.value);
-      elements.addDayInput.value = "";
-    }
-  }
-  function onEditDay() {
-    elements.editDayInput.value = state2.openDay;
-    elements.editDayInput.style.display = "inline-block";
-    elements.saveEditDayBtn.style.display = "inline-block";
-    elements.cancelEditDayBtn.style.display = "inline-block";
-    elements.editDayInput.focus();
-  }
-  function onCancelEditDay() {
-    elements.editDayInput.style.display = "none";
-    elements.saveEditDayBtn.style.display = "none";
-    elements.cancelEditDayBtn.style.display = "none";
-  }
-  function onSaveEditDay() {
-    const newDate = elements.editDayInput.value;
-    const oldDate = state2.openDay;
-    if (!newDate) {
-      alert("Pick a valid date");
-      return;
-    }
-    if (newDate === oldDate) {
-      onCancelEditDay();
-      return;
-    }
-    if (state2.days[newDate]) {
-      if (!confirm("Target day already exists. Merge current entries into that day?")) {
-        return;
-      }
-      state2.days[newDate] = (state2.days[newDate] || []).concat(state2.days[oldDate]);
-    } else {
-      state2.days[newDate] = state2.days[oldDate];
-    }
-    delete state2.days[oldDate];
-    state2.openDay = newDate;
-    saveState();
-    renderAll();
-    onCancelEditDay();
-  }
-  function onDeleteDay() {
-    if (!confirm("Delete all entries for this day? This cannot be undone.")) {
-      return;
-    }
-    delete state2.days[state2.openDay];
-    state2.openDay = todayKey();
-    ensureDay(state2.openDay);
-    saveState();
-    renderAll();
-  }
-  var state2;
-  var init_events = __esm({
-    "src/events.js"() {
-      init_state();
-      init_utils();
-      init_elements();
-      init_render();
-      state2 = getState();
-    }
-  });
-
   // src/render.js
   function renderAll(scrollBottom = false) {
     renderTabs();
@@ -371,14 +177,14 @@
   }
   function renderTabs() {
     const today = todayKey();
-    const allDays = new Set(Object.keys(state3.days || {}));
+    const allDays = new Set(Object.keys(state2.days || {}));
     allDays.add(today);
     const otherDays = Array.from(allDays).filter((d) => d !== today).sort((a, b) => b.localeCompare(a));
     const orderedDays = [today, ...otherDays];
     elements.tabs.innerHTML = "";
     orderedDays.forEach((day) => {
       const tabEl = document.createElement("div");
-      tabEl.className = "tab" + (day === state3.openDay ? " active" : "");
+      tabEl.className = "tab" + (day === state2.openDay ? " active" : "");
       tabEl.textContent = formatDayName(day);
       tabEl.title = day;
       tabEl.addEventListener("click", () => setOpenDay(day));
@@ -386,7 +192,7 @@
     });
   }
   function renderTable() {
-    const entries = state3.days[state3.openDay] || [];
+    const entries = state2.days[state2.openDay] || [];
     const tbody = elements.hoursTableBody;
     tbody.innerHTML = "";
     gapRows.clear();
@@ -434,7 +240,7 @@
       entry[field] = input.value;
       saveState();
       updateDayTotal();
-      const entries = state3.days[state3.openDay] || [];
+      const entries = state2.days[state2.openDay] || [];
       const index = entries.indexOf(entry);
       if (index > 0) updateGapAfter(entries[index - 1]);
       updateGapAfter(entry);
@@ -556,7 +362,7 @@
     return tr;
   }
   function updateGapAfter(prevEntry) {
-    const entries = state3.days[state3.openDay] || [];
+    const entries = state2.days[state2.openDay] || [];
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;
@@ -580,7 +386,7 @@
     }
   }
   function renderSummary() {
-    const entries = state3.days[state3.openDay] || [];
+    const entries = state2.days[state2.openDay] || [];
     const grouped = [];
     for (const entry of entries) {
       const start = parseHM(entry.start);
@@ -664,7 +470,7 @@
     elements.summary.innerHTML = html;
   }
   function updateDayTotal() {
-    const entries = state3.days[state3.openDay] || [];
+    const entries = state2.days[state2.openDay] || [];
     const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
     const uniqueTickets = /* @__PURE__ */ new Set();
     for (const entry of entries) {
@@ -696,7 +502,7 @@
     elements.hoursTimelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
   }
   function updateRunningUI() {
-    const entries = state3.days[state3.openDay] || [];
+    const entries = state2.days[state2.openDay] || [];
     const running = findLast(entries, (e) => e.start && !e.end);
     elements.runningPill.style.display = running ? "inline-flex" : "none";
   }
@@ -706,14 +512,13 @@
       inputs[inputs.length - 1].focus();
     }
   }
-  var state3, gapRows, types;
+  var state2, gapRows, types;
   var init_render = __esm({
     "src/render.js"() {
       init_elements();
       init_state();
       init_utils();
-      init_events();
-      state3 = getState();
+      state2 = getState();
       gapRows = /* @__PURE__ */ new Map();
       types = [
         { label: "Work", emoji: "\u{1F4C4}" },
@@ -724,14 +529,167 @@
     }
   });
 
+  // src/events.js
+  function newEntry(start, end, desc, type) {
+    return {
+      id: uid(),
+      start,
+      end,
+      desc,
+      type
+    };
+  }
+  function stopLast() {
+    const entries = state3.days[state3.openDay];
+    const running = findLast(entries, (e) => e.start && !e.end);
+    if (running && !running.end) {
+      running.end = timeNow();
+      saveState();
+      renderAll(true);
+      return true;
+    }
+    return false;
+  }
+  function startNew() {
+    const entries = state3.days[state3.openDay];
+    entries.push(newEntry(timeNow(), "", "", 0));
+    saveState();
+    renderAll(true);
+    focusLastDescription();
+  }
+  function startBreakSinceLast() {
+    const entries = state3.days[state3.openDay];
+    const lastEntry = entries[entries.length - 1];
+    if (lastEntry && lastEntry.end) {
+      const lastEnd = parseHM(lastEntry.end);
+      const nowHM = parseHM(timeNow());
+      if (nowHM >= lastEnd) {
+        entries.push(newEntry(lastEntry.end, "", "", 3));
+        saveState();
+        renderAll(true);
+        focusLastDescription();
+      }
+    }
+  }
+  function onDocumentKeyDown(e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const active = document.activeElement;
+    const focusedOnInput = active && active.tagName === "INPUT";
+    const focusedOnTime = focusedOnInput && active.type === "time";
+    const focusedOnText = focusedOnInput && active.type === "text";
+    if (!focusedOnTime && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+      handleArrowNavigation(e, active);
+      return;
+    }
+    if (focusedOnInput && (e.key === "Enter" || e.key === "Escape")) {
+      active.blur();
+      return;
+    }
+    if (!focusedOnInput && e.key === " ") {
+      if (!stopLast()) {
+        startBreakSinceLast();
+        return;
+      }
+    }
+    if (!focusedOnInput && e.key === "Enter") {
+      if (!stopLast()) {
+        startNew();
+        return;
+      }
+    }
+  }
+  function handleArrowNavigation(e, active) {
+    const inputs = Array.from(document.querySelectorAll('input[type="text"]:not([disabled])'));
+    if (inputs.length === 0) return;
+    let index = inputs.indexOf(active);
+    if (index === -1) {
+      inputs[inputs.length - 1].focus();
+      e.preventDefault();
+      return;
+    }
+    if (e.key === "ArrowUp" && index > 0) {
+      inputs[index - 1].focus();
+      e.preventDefault();
+    } else if (e.key === "ArrowDown" && index < inputs.length - 1) {
+      inputs[index + 1].focus();
+      e.preventDefault();
+    }
+  }
+  function toggleSummary() {
+    renderSummary();
+    elements.hoursTable.classList.toggle("hidden");
+    elements.summary.classList.toggle("hidden");
+  }
+  function onAddDay() {
+    if (elements.addDayInput.value) {
+      setOpenDay(elements.addDayInput.value);
+      elements.addDayInput.value = "";
+    }
+  }
+  function onEditDay() {
+    elements.editDayInput.value = state3.openDay;
+    elements.editDayInput.style.display = "inline-block";
+    elements.saveEditDayBtn.style.display = "inline-block";
+    elements.cancelEditDayBtn.style.display = "inline-block";
+    elements.editDayInput.focus();
+  }
+  function onCancelEditDay() {
+    elements.editDayInput.style.display = "none";
+    elements.saveEditDayBtn.style.display = "none";
+    elements.cancelEditDayBtn.style.display = "none";
+  }
+  function onSaveEditDay() {
+    const newDate = elements.editDayInput.value;
+    const oldDate = state3.openDay;
+    if (!newDate) {
+      alert("Pick a valid date");
+      return;
+    }
+    if (newDate === oldDate) {
+      onCancelEditDay();
+      return;
+    }
+    if (state3.days[newDate]) {
+      if (!confirm("Target day already exists. Merge current entries into that day?")) {
+        return;
+      }
+      state3.days[newDate] = (state3.days[newDate] || []).concat(state3.days[oldDate]);
+    } else {
+      state3.days[newDate] = state3.days[oldDate];
+    }
+    delete state3.days[oldDate];
+    state3.openDay = newDate;
+    saveState();
+    renderAll();
+    onCancelEditDay();
+  }
+  function onDeleteDay() {
+    if (!confirm("Delete all entries for this day? This cannot be undone.")) {
+      return;
+    }
+    delete state3.days[state3.openDay];
+    state3.openDay = todayKey();
+    ensureDay(state3.openDay);
+    saveState();
+    renderAll();
+  }
+  var state3;
+  var init_events = __esm({
+    "src/events.js"() {
+      init_state();
+      init_utils();
+      init_elements();
+      init_render();
+      state3 = getState();
+    }
+  });
+
   // src/main.js
   var require_main = __commonJS({
     "src/main.js"() {
       init_elements();
       init_render();
       init_events();
-      elements.newBtn.addEventListener("click", onNew);
-      elements.stopBtn.addEventListener("click", onStop);
       elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
       elements.addDayBtn.addEventListener("click", onAddDay);
       elements.editDayBtn.addEventListener("click", onEditDay);

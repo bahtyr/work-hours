@@ -21,8 +21,6 @@ export const elements = {
 
 
     // buttons
-    newBtn: document.getElementById('newBtn'),
-    stopBtn: document.getElementById('stopBtn'),
     toggleSummaryBtn: document.getElementById('toggleSummaryBtn'),
 
 

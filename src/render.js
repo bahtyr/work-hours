@@ -10,7 +10,6 @@ import {
     parseHM,
     todayKey
 } from './utils.js';
-import {onDocumentKeyDown, onNew} from "./events";
 
 const state = getState();
 const gapRows = new Map();

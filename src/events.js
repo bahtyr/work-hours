@@ -17,50 +17,6 @@ function newEntry(start, end, desc, type) {
 
 // Start / Stop
 
-export function onNew(desc) {
-    const entries = state.days[state.openDay];
-    const running = findLast(entries, e => e.start && !e.end);
-
-    if (running) running.end = timeNow();
-
-    // Check for gap between last entry and now
-    const lastEntry = entries[entries.length - 1];
-    // create gap entry
-    if (lastEntry && lastEntry.end) {
-        const lastEnd = parseHM(lastEntry.end);
-        const nowHM = parseHM(timeNow());
-        if (nowHM > lastEnd) {
-            entries.push(newEntry(lastEntry.end, timeNow(), '', 3));
-        }
-    }
-
-    entries.push(newEntry(
-        timeNow(),
-        '',
-        desc ?? '',
-        identifyTicketType(desc))
-    );
-
-    saveState();
-    renderAll(true);
-    focusLastDescription();
-}
-
-export function onStop() {
-    const entries = state.days[state.openDay];
-    const running = findLast(entries, e => e.start && !e.end);
-
-    if (running && !running.end) {
-        // create gap entry
-        running.end = timeNow();
-        entries.push(newEntry(timeNow(), '', '', 3));
-
-        saveState();
-        renderAll(true);
-        focusLastDescription();
-    }
-}
-
 function stopLast() {
     const entries = state.days[state.openDay];
     const running = findLast(entries, e => e.start && !e.end);
@@ -172,8 +128,6 @@ export function toggleSummary() {
     renderSummary();
     elements.hoursTable.classList.toggle('hidden');
     elements.summary.classList.toggle('hidden');
-    elements.newBtn.disabled = !elements.newBtn.disabled;
-    elements.stopBtn.disabled = !elements.stopBtn.disabled;
 }
 
 // Days
