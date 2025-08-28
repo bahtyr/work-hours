@@ -295,10 +295,13 @@
     btn.classList.add("action");
     btn.classList.add("bigger");
     btn.classList.add("type");
+    btn.classList.add("type-" + entry.type);
     btn.textContent = types[entry.type].emoji;
     btn.onclick = () => {
+      btn.classList.remove("type-" + entry.type);
       entry.type = (entry.type + 1) % types.length;
       btn.textContent = types[entry.type].emoji;
+      btn.classList.add("type-" + entry.type);
       saveState();
       updateDayTotal();
     };

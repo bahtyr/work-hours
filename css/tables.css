@@ -11,6 +11,7 @@ table::after {
 
 tr {
     border-bottom: 1px solid var(--line);
+    transition: opacity var(--transition);
 }
 
 th, td {
@@ -53,6 +54,9 @@ table .action.bigger {
     color: var(--warning);
 }
 
+table tr:has(.type-3) {
+    opacity: 0.5;
+}
 
 /* --------- Column Adjustments */
 

@@ -2,7 +2,6 @@ import {elements} from './elements.js';
 import {getState, saveState, setOpenDay} from './state.js';
 import {
     escapeHtml,
-    findLast,
     findTicketNumber,
     formatDayName,
     formatMinutes,
@@ -200,6 +199,7 @@ export function createTypeCell(entry) {
     btn.classList.add('action');
     btn.classList.add('bigger');
     btn.classList.add('type');
+    btn.classList.add('type-' + entry.type);
 
     // default type if not set
     // if (typeof entry.type !== "number") {
@@ -213,8 +213,10 @@ export function createTypeCell(entry) {
 
     // cycle to next type
     btn.onclick = () => {
+        btn.classList.remove('type-' + entry.type);
         entry.type = (entry.type + 1) % types.length;
         btn.textContent = types[entry.type].emoji;
+        btn.classList.add('type-' + entry.type);
         saveState();
         updateDayTotal();
     };
@@ -226,7 +228,7 @@ export function createTypeCell(entry) {
 export function createDeleteCell(index, entries) {
     const td = document.createElement('td');
     const deleteBtn = document.createElement('button');
-    deleteBtn.classList.add('action','delete');
+    deleteBtn.classList.add('action', 'delete');
     deleteBtn.textContent = 'x';
     deleteBtn.onclick = () => {
         if (confirm('Delete this entry?')) {
