@@ -7,7 +7,6 @@ import {
     onDocumentKeyDown,
     onEditDay,
     onNew,
-    onQuickEntry,
     onSaveEditDay,
     onStop,
     toggleSummary
@@ -24,9 +23,7 @@ elements.editDayBtn.addEventListener('click', onEditDay);
 elements.cancelEditDayBtn.addEventListener('click', onCancelEditDay);
 elements.saveEditDayBtn.addEventListener('click', onSaveEditDay);
 elements.deleteDayBtn.addEventListener('click', onDeleteDay);
-// Quick Entry
-elements.quickEntryBtn.addEventListener('click', onQuickEntry);
-elements.quickEntryInput.addEventListener('keydown', onQuickEntry);
+//
 document.addEventListener('keydown', onDocumentKeyDown);
 
 

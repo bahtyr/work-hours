@@ -211,32 +211,23 @@
       focusLastDescription();
     }
   }
-  function onQuickEntry(e) {
-    if (e.key !== "Enter") return;
-    e.preventDefault();
-    const desc = elements.quickEntryInput.value.trim();
-    onNew(desc);
-    elements.quickEntryInput.value = "";
-    elements.quickEntryInput.focus();
-  }
   function onDocumentKeyDown(e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    if (e.key === " ") {
+    const active = document.activeElement;
+    const focusedOnTime = active && active.tagName === "INPUT" && active.type === "time";
+    const focusedOnText = active && active.tagName === "INPUT" && active.type === "text";
+    if (!focusedOnText && e.key === " ") {
       onStop();
       return;
     }
-    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-      handleArrowNavigation(e);
+    if (!focusedOnTime && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+      handleArrowNavigation(e, active);
       return;
     }
   }
-  function handleArrowNavigation(e) {
+  function handleArrowNavigation(e, active) {
     const inputs = Array.from(document.querySelectorAll('input[type="text"]:not([disabled])'));
     if (inputs.length === 0) return;
-    const active = document.activeElement;
-    if (active && active.tagName === "INPUT" && active.type !== "text") {
-      return;
-    }
     let index = inputs.indexOf(active);
     if (index === -1) {
       inputs[inputs.length - 1].focus();
@@ -708,8 +699,6 @@
       elements.cancelEditDayBtn.addEventListener("click", onCancelEditDay);
       elements.saveEditDayBtn.addEventListener("click", onSaveEditDay);
       elements.deleteDayBtn.addEventListener("click", onDeleteDay);
-      elements.quickEntryBtn.addEventListener("click", onQuickEntry);
-      elements.quickEntryInput.addEventListener("keydown", onQuickEntry);
       document.addEventListener("keydown", onDocumentKeyDown);
       renderAll();
     }

@@ -61,20 +61,6 @@ export function onStop() {
     }
 }
 
-export function onQuickEntry(e) {
-    if (e.key !== 'Enter') return;
-    // when enter pressed submit
-    e.preventDefault();
-
-    const desc = elements.quickEntryInput.value.trim();
-
-    onNew(desc);
-
-    // Clear input and focus back
-    elements.quickEntryInput.value = '';
-    elements.quickEntryInput.focus();
-}
-
 /**
  * If no input is focused, redirect keystrokes to quick entry input
  */
@@ -82,29 +68,29 @@ export function onDocumentKeyDown(e) {
     // Ignore modifier keys
     if (e.metaKey || e.ctrlKey || e.altKey) return;
 
+    const active = document.activeElement;
+    const focusedOnTime = active && active.tagName === 'INPUT' && active.type === 'time';
+    const focusedOnText = active && active.tagName === 'INPUT' && active.type === 'text';
+
     // Handle double ESC
-    if (e.key === ' ') {
+    if (!focusedOnText && e.key === ' ') {
         onStop();
         return;
     }
 
     // Handle arrow navigation between inputs
-    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-        handleArrowNavigation(e);
+    if (!focusedOnTime && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        handleArrowNavigation(e, active);
         return;
     }
 
     // Handle global typing when no input focused
 }
 
-function handleArrowNavigation(e) {
+function handleArrowNavigation(e, active) {
     const inputs = Array.from(document.querySelectorAll('input[type="text"]:not([disabled])'));
     if (inputs.length === 0) return;
 
-    const active = document.activeElement;
-    if (active && active.tagName === 'INPUT' && active.type !== 'text') {
-        return;
-    }
     let index = inputs.indexOf(active);
 
     // If nothing valid is focused → pick last input
