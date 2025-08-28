@@ -24,15 +24,13 @@
         breakTime: document.querySelector(".break-time .number"),
         ticketsCount: document.querySelector(".tickets-count .number"),
         ticketsCountLabel: document.querySelector(".tickets-count .label"),
+        // hours-summary timeline
         hoursTimeline: document.querySelector(".timeline .done"),
         hoursTimelineHighlight: document.querySelector(".timeline .highlight"),
         hoursTimelineBreak: document.querySelector(".timeline .break"),
         hoursTimelineMeeting: document.querySelector(".timeline .meeting"),
-        quickEntryInput: document.getElementById("quickEntryInput"),
-        quickEntryBtn: document.getElementById("quickEntryBtn"),
         // buttons
         toggleSummaryBtn: document.getElementById("toggleSummaryBtn"),
-        runningPill: document.getElementById("runningPill"),
         // days
         addDayBtn: document.getElementById("addDayBtn"),
         addDayInput: document.getElementById("addDayInput"),
@@ -170,7 +168,6 @@
     renderTable();
     updateDayTotal();
     renderSummary();
-    updateRunningUI();
     if (scrollBottom) {
       elements.hoursTableBody.parentElement.scrollTop = elements.hoursTableBody.scrollHeight;
     }
@@ -501,11 +498,6 @@
     elements.hoursTimelineBreak.style.width = minutes.break / maxDayMinutes * 100 + "%";
     elements.hoursTimelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
   }
-  function updateRunningUI() {
-    const entries = state2.days[state2.openDay] || [];
-    const running = findLast(entries, (e) => e.start && !e.end);
-    elements.runningPill.style.display = running ? "inline-flex" : "none";
-  }
   function focusLastDescription() {
     const inputs = elements.hoursTableBody.querySelectorAll('input[type="text"]');
     if (inputs.length) {
@@ -615,6 +607,18 @@
       e.preventDefault();
     }
   }
+  var state3;
+  var init_events = __esm({
+    "src/events.js"() {
+      init_state();
+      init_utils();
+      init_elements();
+      init_render();
+      state3 = getState();
+    }
+  });
+
+  // src/events_days.js
   function toggleSummary() {
     renderSummary();
     elements.hoursTable.classList.toggle("hidden");
@@ -627,7 +631,7 @@
     }
   }
   function onEditDay() {
-    elements.editDayInput.value = state3.openDay;
+    elements.editDayInput.value = state4.openDay;
     elements.editDayInput.style.display = "inline-block";
     elements.saveEditDayBtn.style.display = "inline-block";
     elements.cancelEditDayBtn.style.display = "inline-block";
@@ -640,7 +644,7 @@
   }
   function onSaveEditDay() {
     const newDate = elements.editDayInput.value;
-    const oldDate = state3.openDay;
+    const oldDate = state4.openDay;
     if (!newDate) {
       alert("Pick a valid date");
       return;
@@ -649,16 +653,16 @@
       onCancelEditDay();
       return;
     }
-    if (state3.days[newDate]) {
+    if (state4.days[newDate]) {
       if (!confirm("Target day already exists. Merge current entries into that day?")) {
         return;
       }
-      state3.days[newDate] = (state3.days[newDate] || []).concat(state3.days[oldDate]);
+      state4.days[newDate] = (state4.days[newDate] || []).concat(state4.days[oldDate]);
     } else {
-      state3.days[newDate] = state3.days[oldDate];
+      state4.days[newDate] = state4.days[oldDate];
     }
-    delete state3.days[oldDate];
-    state3.openDay = newDate;
+    delete state4.days[oldDate];
+    state4.openDay = newDate;
     saveState();
     renderAll();
     onCancelEditDay();
@@ -667,20 +671,20 @@
     if (!confirm("Delete all entries for this day? This cannot be undone.")) {
       return;
     }
-    delete state3.days[state3.openDay];
-    state3.openDay = todayKey();
-    ensureDay(state3.openDay);
+    delete state4.days[state4.openDay];
+    state4.openDay = todayKey();
+    ensureDay(state4.openDay);
     saveState();
     renderAll();
   }
-  var state3;
-  var init_events = __esm({
-    "src/events.js"() {
-      init_state();
-      init_utils();
+  var state4;
+  var init_events_days = __esm({
+    "src/events_days.js"() {
       init_elements();
+      init_state();
       init_render();
-      state3 = getState();
+      init_utils();
+      state4 = getState();
     }
   });
 
@@ -690,6 +694,7 @@
       init_elements();
       init_render();
       init_events();
+      init_events_days();
       elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
       elements.addDayBtn.addEventListener("click", onAddDay);
       elements.editDayBtn.addEventListener("click", onEditDay);

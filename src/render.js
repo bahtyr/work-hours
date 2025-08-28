@@ -21,7 +21,6 @@ export function renderAll(scrollBottom = false) {
     renderTable();
     updateDayTotal();
     renderSummary();
-    updateRunningUI();
 
     if (scrollBottom) {
         elements.hoursTableBody.parentElement.scrollTop = elements.hoursTableBody.scrollHeight;
@@ -470,12 +469,6 @@ export function updateDayTotal() {
 }
 
 // Other
-
-export function updateRunningUI() {
-    const entries = state.days[state.openDay] || [];
-    const running = findLast(entries, e => e.start && !e.end);
-    elements.runningPill.style.display = running ? 'inline-flex' : 'none';
-}
 
 export function focusLastDescription() {
     const inputs = elements.hoursTableBody.querySelectorAll('input[type="text"]');

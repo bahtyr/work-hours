@@ -1,14 +1,7 @@
 import {elements} from './elements.js';
 import {renderAll} from './render.js';
-import {
-    onAddDay,
-    onCancelEditDay,
-    onDeleteDay,
-    onDocumentKeyDown,
-    onEditDay,
-    onSaveEditDay,
-    toggleSummary
-} from './events.js';
+import {onDocumentKeyDown} from './events.js';
+import {onAddDay, onCancelEditDay, onDeleteDay, onEditDay, onSaveEditDay, toggleSummary} from "./events_days";
 
 // Attach listeners
 // Main Buttons

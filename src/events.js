@@ -1,5 +1,5 @@
-import {ensureDay, getState, saveState, setOpenDay} from './state.js';
-import {findLast, identifyTicketType, parseHM, timeNow, todayKey, uid} from './utils.js';
+import {getState, saveState} from './state.js';
+import {findLast, parseHM, timeNow, uid} from './utils.js';
 import {elements} from './elements.js';
 import {focusLastDescription, renderAll, renderSummary} from './render.js';
 
@@ -100,6 +100,9 @@ export function onDocumentKeyDown(e) {
     // Handle global typing when no input focused
 }
 
+/**
+ * Navigate to other entries
+ */
 function handleArrowNavigation(e, active) {
     const inputs = Array.from(document.querySelectorAll('input[type="text"]:not([disabled])'));
     if (inputs.length === 0) return;
@@ -120,80 +123,4 @@ function handleArrowNavigation(e, active) {
         inputs[index + 1].focus();
         e.preventDefault();
     }
-}
-
-// Summary
-
-export function toggleSummary() {
-    renderSummary();
-    elements.hoursTable.classList.toggle('hidden');
-    elements.summary.classList.toggle('hidden');
-}
-
-// Days
-
-export function onAddDay() {
-    if (elements.addDayInput.value) {
-        setOpenDay(elements.addDayInput.value);
-        elements.addDayInput.value = '';
-    }
-}
-
-export function onEditDay() {
-    elements.editDayInput.value = state.openDay;
-    elements.editDayInput.style.display = 'inline-block';
-    elements.saveEditDayBtn.style.display = 'inline-block';
-    elements.cancelEditDayBtn.style.display = 'inline-block';
-    elements.editDayInput.focus();
-}
-
-export function onCancelEditDay() {
-    elements.editDayInput.style.display = 'none';
-    elements.saveEditDayBtn.style.display = 'none';
-    elements.cancelEditDayBtn.style.display = 'none';
-}
-
-export function onSaveEditDay() {
-    const newDate = elements.editDayInput.value;
-    const oldDate = state.openDay;
-
-    if (!newDate) {
-        alert('Pick a valid date');
-        return;
-    }
-
-    if (newDate === oldDate) {
-        onCancelEditDay();
-        return;
-    }
-
-    // Handle existing target date
-    if (state.days[newDate]) {
-        if (!confirm('Target day already exists. Merge current entries into that day?')) {
-            return;
-        }
-        // Merge entries
-        state.days[newDate] = (state.days[newDate] || []).concat(state.days[oldDate]);
-    } else {
-        // Move entries
-        state.days[newDate] = state.days[oldDate];
-    }
-
-    delete state.days[oldDate];
-    state.openDay = newDate;
-    saveState();
-    renderAll();
-    onCancelEditDay();
-}
-
-export function onDeleteDay() {
-    if (!confirm('Delete all entries for this day? This cannot be undone.')) {
-        return;
-    }
-
-    delete state.days[state.openDay];
-    state.openDay = todayKey();
-    ensureDay(state.openDay);
-    saveState();
-    renderAll();
 }
