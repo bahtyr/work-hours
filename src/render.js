@@ -178,9 +178,9 @@ export function createDescriptionCell(entry) {
             const btn = row.querySelector('button.action.delete');
             btn.click();
         }
-        if (e.key === 'Enter') {
-            onNew();
-        }
+        // if (e.key === 'Enter') {
+        //     onNew();
+        // }
     });
     td.appendChild(input);
     return td;

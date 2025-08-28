@@ -61,6 +61,45 @@ export function onStop() {
     }
 }
 
+function stopLast() {
+    const entries = state.days[state.openDay];
+    const running = findLast(entries, e => e.start && !e.end);
+
+    if (running && !running.end) {
+        running.end = timeNow();
+        saveState();
+        renderAll(true);
+        return true;
+    }
+
+    return false;
+}
+
+function startNew() {
+    const entries = state.days[state.openDay];
+    entries.push(newEntry(timeNow(), '', '', 0));
+    saveState();
+    renderAll(true);
+    focusLastDescription();
+}
+
+function startBreakSinceLast() {
+    const entries = state.days[state.openDay];
+    // Check for gap between last entry and now
+    const lastEntry = entries[entries.length - 1];
+    // create gap entry
+    if (lastEntry && lastEntry.end) {
+        const lastEnd = parseHM(lastEntry.end);
+        const nowHM = parseHM(timeNow());
+        if (nowHM >= lastEnd) {
+            entries.push(newEntry(lastEntry.end, '', '', 1));
+            saveState();
+            renderAll(true);
+            focusLastDescription();
+        }
+    }
+}
+
 /**
  * If no input is focused, redirect keystrokes to quick entry input
  */
@@ -72,16 +111,31 @@ export function onDocumentKeyDown(e) {
     const focusedOnTime = active && active.tagName === 'INPUT' && active.type === 'time';
     const focusedOnText = active && active.tagName === 'INPUT' && active.type === 'text';
 
-    // Handle double ESC
-    if (!focusedOnText && e.key === ' ') {
-        onStop();
-        return;
-    }
+
 
     // Handle arrow navigation between inputs
     if (!focusedOnTime && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
         handleArrowNavigation(e, active);
         return;
+    }
+
+    if (focusedOnText && (e.key === 'Enter' || e.key === 'Escape')) {
+        active.blur();
+        return;
+    }
+
+    if (!focusedOnText && e.key === ' ') {
+        if (!stopLast()) {
+            startBreakSinceLast();
+            return;
+        }
+    }
+
+    if (!focusedOnText && e.key === 'Enter') {
+        if (!stopLast()) {
+            startNew();
+            return;
+        }
     }
 
     // Handle global typing when no input focused

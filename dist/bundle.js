@@ -211,18 +211,62 @@
       focusLastDescription();
     }
   }
+  function stopLast() {
+    const entries = state2.days[state2.openDay];
+    const running = findLast(entries, (e) => e.start && !e.end);
+    if (running && !running.end) {
+      running.end = timeNow();
+      saveState();
+      renderAll(true);
+      return true;
+    }
+    return false;
+  }
+  function startNew() {
+    const entries = state2.days[state2.openDay];
+    entries.push(newEntry(timeNow(), "", "", 0));
+    saveState();
+    renderAll(true);
+    focusLastDescription();
+  }
+  function startBreakSinceLast() {
+    const entries = state2.days[state2.openDay];
+    const lastEntry = entries[entries.length - 1];
+    if (lastEntry && lastEntry.end) {
+      const lastEnd = parseHM(lastEntry.end);
+      const nowHM = parseHM(timeNow());
+      if (nowHM >= lastEnd) {
+        entries.push(newEntry(lastEntry.end, "", "", 1));
+        saveState();
+        renderAll(true);
+        focusLastDescription();
+      }
+    }
+  }
   function onDocumentKeyDown(e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const active = document.activeElement;
     const focusedOnTime = active && active.tagName === "INPUT" && active.type === "time";
     const focusedOnText = active && active.tagName === "INPUT" && active.type === "text";
-    if (!focusedOnText && e.key === " ") {
-      onStop();
-      return;
-    }
     if (!focusedOnTime && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
       handleArrowNavigation(e, active);
       return;
+    }
+    if (focusedOnText && (e.key === "Enter" || e.key === "Escape")) {
+      active.blur();
+      return;
+    }
+    if (!focusedOnText && e.key === " ") {
+      if (!stopLast()) {
+        startBreakSinceLast();
+        return;
+      }
+    }
+    if (!focusedOnText && e.key === "Enter") {
+      if (!stopLast()) {
+        startNew();
+        return;
+      }
     }
   }
   function handleArrowNavigation(e, active) {
@@ -436,9 +480,6 @@
         const row = input.closest("tr");
         const btn = row.querySelector("button.action.delete");
         btn.click();
-      }
-      if (e.key === "Enter") {
-        onNew();
       }
     });
     td.appendChild(input);
