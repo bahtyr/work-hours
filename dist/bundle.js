@@ -234,6 +234,9 @@
     const inputs = Array.from(document.querySelectorAll('input[type="text"]:not([disabled])'));
     if (inputs.length === 0) return;
     const active = document.activeElement;
+    if (active && active.tagName === "INPUT" && active.type !== "text") {
+      return;
+    }
     let index = inputs.indexOf(active);
     if (index === -1) {
       inputs[inputs.length - 1].focus();

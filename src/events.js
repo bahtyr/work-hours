@@ -102,6 +102,9 @@ function handleArrowNavigation(e) {
     if (inputs.length === 0) return;
 
     const active = document.activeElement;
+    if (active && active.tagName === 'INPUT' && active.type !== 'text') {
+        return;
+    }
     let index = inputs.indexOf(active);
 
     // If nothing valid is focused → pick last input
@@ -121,6 +124,7 @@ function handleArrowNavigation(e) {
 }
 
 let lastEscTime = 0;
+
 function handleDoubleEscape() {
     const now = Date.now();
     if (now - lastEscTime < 400) {
