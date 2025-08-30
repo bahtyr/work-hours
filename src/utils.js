@@ -1,5 +1,7 @@
 // Identifiers
 
+import {elements, locators} from "./elements";
+
 export function uid() {
     return 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
@@ -16,6 +18,13 @@ export function findLast(arr, predicate) {
         if (predicate(arr[i])) return arr[i];
     }
     return null;
+}
+
+export function focusLastDescription() {
+    const inputs = elements.hoursTableBody.querySelectorAll(locators.entryDescription);
+    if (inputs.length) {
+        inputs[inputs.length - 1].focus();
+    }
 }
 
 // Time

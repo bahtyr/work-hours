@@ -12,7 +12,7 @@ elements.editDayBtn.addEventListener('click', onEditDay);
 elements.cancelEditDayBtn.addEventListener('click', onCancelEditDay);
 elements.saveEditDayBtn.addEventListener('click', onSaveEditDay);
 elements.deleteDayBtn.addEventListener('click', onDeleteDay);
-//
+// Keys
 document.addEventListener('keydown', onDocumentKeyDown);
 
 

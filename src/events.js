@@ -1,6 +1,7 @@
 import {getState, saveState} from './state.js';
-import {findLast, parseHM, timeNow, uid} from './utils.js';
-import {focusLastDescription, renderAll} from './render.js';
+import {findLast, focusLastDescription, parseHM, timeNow, uid} from './utils.js';
+import {renderAll} from './render.js';
+import {locators} from "./elements";
 
 const state = getState();
 
@@ -104,7 +105,7 @@ export function onDocumentKeyDown(e) {
  * Navigate to other entries
  */
 function handleArrowNavigation(e, active) {
-    const inputs = Array.from(document.querySelectorAll('input[type="text"]:not([disabled])'));
+    const inputs = Array.from(document.querySelectorAll(locators.entryDescription));
     if (inputs.length === 0) return;
 
     let index = inputs.indexOf(active);

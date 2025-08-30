@@ -27,3 +27,8 @@ export const elements = {
     cancelEditDayBtn: document.getElementById('cancelEditDayBtn'),
     deleteDayBtn: document.getElementById('deleteDayBtn')
 };
+export const locators = {
+    entryDescription: '#hoursTable input.description:not([disabled])',
+    entryTypeBtn: 'button.action.type',
+    entryDeleteBtn: 'button.action.delete',
+};

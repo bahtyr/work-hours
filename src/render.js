@@ -1,4 +1,4 @@
-import {elements} from './elements.js';
+import {elements, locators} from './elements.js';
 import {getState, saveState, setOpenDay} from './state.js';
 import {
     escapeHtml,
@@ -152,6 +152,7 @@ export function updateDurationCell(entry, td) {
 export function createDescriptionCell(entry) {
     const td = document.createElement('td');
     const input = document.createElement('input');
+    input.classList.add('description');
     input.type = 'text';
     // console.log(entry);
     input.placeholder = (entry.type && entry.type === 3) ? 'Break' : 'Description';
@@ -163,7 +164,7 @@ export function createDescriptionCell(entry) {
         const identifiedType = identifyTicketType(entry.desc);
         // update entry type and row icon
         const row = input.closest('tr');
-        const btn = row.querySelector('button.action.type');
+        const btn = row.querySelector(locators.entryTypeBtn);
         btn.textContent = types[identifiedType].emoji;
         entry.type = identifiedType;
         updateDayTotal();
@@ -173,7 +174,7 @@ export function createDescriptionCell(entry) {
     input.addEventListener('keydown', e => {
         if ((e.key === 'Backspace' || e.key === 'Delete') && input.value === '') {
             const row = input.closest('tr');
-            const btn = row.querySelector('button.action.delete');
+            const btn = row.querySelector(locators.entryDeleteBtn);
             btn.click();
         }
         // if (e.key === 'Enter') {
@@ -468,13 +469,4 @@ export function updateDayTotal() {
     elements.timelineTicket.style.width = (minutes.ticket / maxDayMinutes) * 100 + '%';
     elements.timelineBreak.style.width = (minutes.break / maxDayMinutes) * 100 + '%';
     elements.timelineMeeting.style.width = (minutes.meeting / maxDayMinutes) * 100 + '%';
-}
-
-// Other
-
-export function focusLastDescription() {
-    const inputs = elements.hoursTableBody.querySelectorAll('input[type="text"]');
-    if (inputs.length) {
-        inputs[inputs.length - 1].focus();
-    }
 }
