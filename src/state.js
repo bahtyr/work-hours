@@ -1,5 +1,4 @@
 import {todayKey} from './utils.js';
-import {renderAll} from "./render";
 
 const STORAGE_KEY = 'simpleTimesheetV3';
 
@@ -8,12 +7,8 @@ let state = loadState();
 if (!state.days) state.days = {};
 if (!state.openDay) state.openDay = todayKey();
 
-ensureDay(state.openDay);
+initDay(state.openDay);
 saveState();
-
-export function getState() {
-    return state;
-}
 
 function loadState() {
     try {
@@ -23,6 +18,10 @@ function loadState() {
     }
 }
 
+export function getState() {
+    return state;
+}
+
 export function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
@@ -30,13 +29,16 @@ export function saveState() {
 /**
  * Initiates the day if it isn't created yet
  */
-export function ensureDay(day) {
+function initDay(day) {
     if (!state.days[day]) state.days[day] = [];
 }
 
+/**
+ * Changes the day, initiates the day, saves this day as current day
+ * @param day
+ */
 export function setOpenDay(day) {
     state.openDay = day;
-    ensureDay(day);
+    initDay(day);
     saveState();
-    renderAll();
 }

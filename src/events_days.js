@@ -1,5 +1,5 @@
 import {elements} from "./elements";
-import {ensureDay, getState, saveState, setOpenDay} from "./state";
+import {getState, saveState, setOpenDay} from "./state";
 import {renderAll, renderSummary} from "./render";
 import {todayKey} from "./utils";
 
@@ -18,6 +18,7 @@ export function toggleSummary() {
 export function onAddDay() {
     if (elements.addDayInput.value) {
         setOpenDay(elements.addDayInput.value);
+        renderAll();
         elements.addDayInput.value = '';
     }
 }
@@ -75,8 +76,6 @@ export function onDeleteDay() {
     }
 
     delete state.days[state.openDay];
-    state.openDay = todayKey();
-    ensureDay(state.openDay);
-    saveState();
+    setOpenDay(todayKey());
     renderAll();
 }

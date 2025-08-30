@@ -45,7 +45,10 @@ export function renderTabs() {
         tabEl.className = 'tab' + (day === state.openDay ? ' active' : '');
         tabEl.textContent = formatDayName(day);
         tabEl.title = day;
-        tabEl.addEventListener('click', () => setOpenDay(day));
+        tabEl.addEventListener('click', () => {
+            setOpenDay(day);
+            renderAll();
+        });
         elements.tabs.appendChild(tabEl);
     });
 }
