@@ -119,7 +119,7 @@
     transition: width var(--transition);
 }
 
-.block.highlight {
+.block.ticket {
     background: var(--accent2);
 }
 
@@ -131,7 +131,7 @@
     background: var(--danger);
 }
 
-.block.done {
+.block.other {
     background: var(--ink);
 }
 

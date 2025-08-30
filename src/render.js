@@ -456,18 +456,18 @@ export function updateDayTotal() {
     // sum total
     minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
     // hours
-    elements.hoursLogged.textContent = formatMinutes(minutes.total - minutes.break);
-    elements.hoursLeft.textContent = formatMinutes((8 * 60) - minutes.total);
+    elements.workTime.textContent = formatMinutes(minutes.total - minutes.break);
+    elements.totalTimeLeft.textContent = formatMinutes((8 * 60) - minutes.total);
     elements.breakTime.textContent = formatMinutes(minutes.break);
     // ticket count
     elements.ticketsCount.textContent = uniqueTickets.size + "";
     elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
     // timeline percentage based on 8 hours
     const maxDayMinutes = 8 * 60;
-    elements.hoursTimeline.style.width = (minutes.other / maxDayMinutes) * 100 + '%';
-    elements.hoursTimelineHighlight.style.width = (minutes.ticket / maxDayMinutes) * 100 + '%';
-    elements.hoursTimelineBreak.style.width = (minutes.break / maxDayMinutes) * 100 + '%';
-    elements.hoursTimelineMeeting.style.width = (minutes.meeting / maxDayMinutes) * 100 + '%';
+    elements.timelineOther.style.width = (minutes.other / maxDayMinutes) * 100 + '%';
+    elements.timelineTicket.style.width = (minutes.ticket / maxDayMinutes) * 100 + '%';
+    elements.timelineBreak.style.width = (minutes.break / maxDayMinutes) * 100 + '%';
+    elements.timelineMeeting.style.width = (minutes.meeting / maxDayMinutes) * 100 + '%';
 }
 
 // Other
