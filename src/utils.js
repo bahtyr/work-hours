@@ -1,4 +1,4 @@
-import {elements, locators} from "./elements";
+import {elements, locators} from './elements';
 
 // Identifiers
 
@@ -127,7 +127,7 @@ export function findTicketNumber(desc) {
 export function identifyTicketType(desc) {
     if (!desc) return 0;
     if (findTicketNumber(desc)) return 1;
-    if (desc.includes("meet")) return 2;
-    if (desc.includes("ara")) return 3;
+    if (desc.includes('meet')) return 2;
+    if (desc.includes('ara')) return 3;
     return 0;
 }

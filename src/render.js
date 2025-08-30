@@ -13,10 +13,10 @@ import {
 const state = getState();
 const gapRows = new Map();
 const types = [
-    {label: "Work", emoji: "📄"},
-    {label: "Ticket", emoji: "📘️"},
-    {label: "Meeting", emoji: "📞"},
-    {label: "Break", emoji: "🧋"},
+    {label: 'Work', emoji: '📄'},
+    {label: 'Ticket', emoji: '📘️'},
+    {label: 'Meeting', emoji: '📞'},
+    {label: 'Break', emoji: '🧋'},
 ];
 
 export function renderAll(scrollBottom = false) {
@@ -73,7 +73,7 @@ function updateDayTotal() {
             const duration = end - start;
             const ticketMatch = findTicketNumber(entry.desc);
             if (entry.type === 1 || ticketMatch) {
-                uniqueTickets.add(ticketMatch ? ticketMatch[0] : "(no ticket number)");
+                uniqueTickets.add(ticketMatch ? ticketMatch[0] : '(no ticket number)');
                 minutes.ticket += duration;
             } else if (entry.type === 2)
                 minutes.meeting += duration;
@@ -90,8 +90,8 @@ function updateDayTotal() {
     elements.totalTimeLeft.textContent = formatMinutes((8 * 60) - minutes.total);
     elements.breakTime.textContent = formatMinutes(minutes.break);
     // ticket count
-    elements.ticketsCount.textContent = uniqueTickets.size + "";
-    elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
+    elements.ticketsCount.textContent = uniqueTickets.size + '';
+    elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? 'ticket' : 'tickets';
     // timeline percentage based on 8 hours
     const maxDayMinutes = 8 * 60;
     elements.timelineOther.style.width = (minutes.other / maxDayMinutes) * 100 + '%';
@@ -114,7 +114,7 @@ export function renderSummary() {
         if (start === null || end === null || end < start) continue;
 
         const minutes = end - start;
-        const entryDesc = entry.desc || "(no description)";
+        const entryDesc = entry.desc || '(no description)';
         const entryType = entry.type ?? 0;
 
         // Try to detect a Jira ticket key, e.g. "TUE-250"
@@ -126,7 +126,7 @@ export function renderSummary() {
             desc = null;
         } else {
             const ticketKey = ticketMatch[0].toUpperCase();
-            const ticketDesc = entryDesc.replace(ticketMatch[0], "").trim();
+            const ticketDesc = entryDesc.replace(ticketMatch[0], '').trim();
             key = ticketKey;
             desc = ticketDesc || null;
         }
@@ -184,7 +184,7 @@ export function renderSummary() {
     for (const g of grouped) {
         let description = g.key;
         if (g.descs.size > 0) {
-            description += " - " + [...g.descs].join(", ");
+            description += ' - ' + [...g.descs].join(', ');
         }
 
         html += `
@@ -316,7 +316,7 @@ function createTypeCell(entry) {
     btn.classList.add('type-' + entry.type);
 
     // default type if not set
-    // if (typeof entry.type !== "number") {
+    // if (typeof entry.type !== 'number') {
     //     entry.type = 0; // Work
     // }
     //

@@ -1,7 +1,7 @@
-import {elements} from "./elements";
-import {getState, saveState, setOpenDay} from "./state";
-import {renderAll, renderSummary} from "./render";
-import {todayKey} from "./utils";
+import {elements} from './elements';
+import {getState, saveState, setOpenDay} from './state';
+import {renderAll, renderSummary} from './render';
+import {todayKey} from './utils';
 
 const state = getState();
 

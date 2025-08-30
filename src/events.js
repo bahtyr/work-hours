@@ -1,7 +1,7 @@
 import {getState, saveState} from './state';
 import {findLast, focusLastDescription, parseHM, timeNow, uid} from './utils';
 import {renderAll} from './render';
-import {locators} from "./elements";
+import {locators} from './elements';
 
 const state = getState();
 
