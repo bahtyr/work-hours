@@ -13,7 +13,6 @@ import {
 const state = getState();
 const gapRows = new Map();
 
-
 export function renderAll(scrollBottom = false) {
     // return
     renderTabs();
