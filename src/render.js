@@ -456,7 +456,7 @@ export function updateDayTotal() {
     // sum total
     minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
     // hours
-    elements.hoursLogged.textContent = formatMinutes(minutes.total);
+    elements.hoursLogged.textContent = formatMinutes(minutes.total - minutes.break);
     elements.hoursLeft.textContent = formatMinutes((8 * 60) - minutes.total);
     elements.breakTime.textContent = formatMinutes(minutes.break);
     // ticket count
