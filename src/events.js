@@ -1,6 +1,6 @@
-import {getState, saveState} from './state.js';
-import {findLast, focusLastDescription, parseHM, timeNow, uid} from './utils.js';
-import {renderAll} from './render.js';
+import {getState, saveState} from './state';
+import {findLast, focusLastDescription, parseHM, timeNow, uid} from './utils';
+import {renderAll} from './render';
 import {locators} from "./elements";
 
 const state = getState();

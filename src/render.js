@@ -1,5 +1,5 @@
-import {elements, locators} from './elements.js';
-import {getState, saveState, setOpenDay} from './state.js';
+import {elements, locators} from './elements';
+import {getState, saveState, setOpenDay} from './state';
 import {
     escapeHtml,
     findTicketNumber,
@@ -8,7 +8,7 @@ import {
     identifyTicketType,
     parseHM,
     todayKey
-} from './utils.js';
+} from './utils';
 
 const state = getState();
 const gapRows = new Map();
@@ -27,7 +27,7 @@ export function renderAll(scrollBottom = false) {
 
 // Tabs
 
-export function renderTabs() {
+function renderTabs() {
     const today = todayKey();
     const allDays = new Set(Object.keys(state.days || {}));
     allDays.add(today);
@@ -55,7 +55,7 @@ export function renderTabs() {
 
 // Table
 
-export function renderTable() {
+function renderTable() {
     const entries = state.days[state.openDay] || [];
     const tbody = elements.hoursTableBody;
     tbody.innerHTML = '';
@@ -70,7 +70,7 @@ export function renderTable() {
     });
 }
 
-export function createTableRow(entry, index, entries) {
+function createTableRow(entry, index, entries) {
     const tr = document.createElement('tr');
     tr.dataset.entryId = entry.id;
 
@@ -107,7 +107,7 @@ export function createTableRow(entry, index, entries) {
     return tr;
 }
 
-export function createTimeCell(entry, field, onChange) {
+function createTimeCell(entry, field, onChange) {
     const td = document.createElement('td');
     const input = document.createElement('input');
     input.type = 'time';
@@ -132,13 +132,13 @@ export function createTimeCell(entry, field, onChange) {
     return td;
 }
 
-export function createDurationCell() {
+function createDurationCell() {
     const td = document.createElement('td');
     td.textContent = '-'; // default
     return td;
 }
 
-export function updateDurationCell(entry, td) {
+function updateDurationCell(entry, td) {
     if (entry.start && entry.end) {
         const start = parseHM(entry.start);
         const end = parseHM(entry.end);
@@ -151,7 +151,7 @@ export function updateDurationCell(entry, td) {
     }
 }
 
-export function createDescriptionCell(entry) {
+function createDescriptionCell(entry) {
     const td = document.createElement('td');
     const input = document.createElement('input');
     input.classList.add('description');
@@ -196,7 +196,7 @@ const types = [
     {label: "Break", emoji: "🧋"},
 ];
 
-export function createTypeCell(entry) {
+function createTypeCell(entry) {
     const td = document.createElement('td');
     const btn = document.createElement('button');
     btn.classList.add('action');
@@ -228,7 +228,7 @@ export function createTypeCell(entry) {
     return td;
 }
 
-export function createDeleteCell(index, entries) {
+function createDeleteCell(index, entries) {
     const td = document.createElement('td');
     const deleteBtn = document.createElement('button');
     deleteBtn.classList.add('action', 'delete');
@@ -245,7 +245,7 @@ export function createDeleteCell(index, entries) {
     return td;
 }
 
-export function createDragHandleCell(index) {
+function createDragHandleCell(index) {
     const td = document.createElement('td');
     const handle = document.createElement('span');
     handle.classList.add('action');
@@ -273,9 +273,9 @@ export function createDragHandleCell(index) {
     return td;
 }
 
-// Table Row Gap
+// Gap Row
 
-export function createGapRow(minutes, isOverlap = false) {
+function createGapRow(minutes, isOverlap = false) {
     const tr = document.createElement('tr');
     tr.classList.add('gap-row');
     tr.appendChild(document.createElement('td'));
@@ -297,7 +297,7 @@ export function createGapRow(minutes, isOverlap = false) {
     return tr;
 }
 
-export function updateGapAfter(prevEntry) {
+function updateGapAfter(prevEntry) {
     const entries = state.days[state.openDay] || [];
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
@@ -432,7 +432,7 @@ export function renderSummary() {
     elements.summary.innerHTML = html;
 }
 
-export function updateDayTotal() {
+function updateDayTotal() {
     const entries = state.days[state.openDay] || [];
     const minutes = {ticket: 0, meeting: 0, break: 0, other: 0, total: 0};
     const uniqueTickets = new Set();

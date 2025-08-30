@@ -1,4 +1,4 @@
-import {todayKey} from './utils.js';
+import {todayKey} from './utils';
 
 const STORAGE_KEY = 'simpleTimesheetV3';
 
