@@ -127,7 +127,15 @@ export function findTicketNumber(desc) {
 export function identifyTicketType(desc) {
     if (!desc) return 0;
     if (findTicketNumber(desc)) return 1;
+
     if (desc.includes('meet')) return 2;
+    if (desc.includes('call')) return 2;
+    if (desc.includes('ask')) return 2;
+    if (desc.includes('msg')) return 2;
+    if (desc.includes('message')) return 2;
+
     if (desc.includes('ara')) return 3;
+    if (desc.includes('break')) return 3;
+    if (desc.includes('lunch')) return 3;
     return 0;
 }

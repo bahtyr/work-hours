@@ -8,7 +8,7 @@
   };
 
   // src/elements.js
-  var elements;
+  var elements, locators;
   var init_elements = __esm({
     "src/elements.js"() {
       elements = {
@@ -19,16 +19,16 @@
         hoursTableBody: document.getElementById("hoursTableBody"),
         summary: document.getElementById("summary"),
         // hours-summary
-        hoursLogged: document.querySelector(".hours-logged .number"),
-        hoursLeft: document.querySelector(".hours-left .number"),
+        workTime: document.querySelector(".work-time .number"),
         breakTime: document.querySelector(".break-time .number"),
+        totalTimeLeft: document.querySelector(".total-time-left .number"),
         ticketsCount: document.querySelector(".tickets-count .number"),
         ticketsCountLabel: document.querySelector(".tickets-count .label"),
         // hours-summary timeline
-        hoursTimeline: document.querySelector(".timeline .done"),
-        hoursTimelineHighlight: document.querySelector(".timeline .highlight"),
-        hoursTimelineBreak: document.querySelector(".timeline .break"),
-        hoursTimelineMeeting: document.querySelector(".timeline .meeting"),
+        timelineOther: document.querySelector(".timeline .other"),
+        timelineTicket: document.querySelector(".timeline .ticket"),
+        timelineBreak: document.querySelector(".timeline .break"),
+        timelineMeeting: document.querySelector(".timeline .meeting"),
         // buttons
         toggleSummaryBtn: document.getElementById("toggleSummaryBtn"),
         // days
@@ -39,6 +39,11 @@
         saveEditDayBtn: document.getElementById("saveEditDayBtn"),
         cancelEditDayBtn: document.getElementById("cancelEditDayBtn"),
         deleteDayBtn: document.getElementById("deleteDayBtn")
+      };
+      locators = {
+        entryDescription: "#hoursTable input.description:not([disabled])",
+        entryTypeBtn: "button.action.type",
+        entryDeleteBtn: "button.action.delete"
       };
     }
   });
@@ -56,6 +61,12 @@
       if (predicate(arr[i])) return arr[i];
     }
     return null;
+  }
+  function focusLastDescription() {
+    const inputs = elements.hoursTableBody.querySelectorAll(locators.entryDescription);
+    if (inputs.length) {
+      inputs[inputs.length - 1].focus();
+    }
   }
   function timeNow() {
     const d = /* @__PURE__ */ new Date();
@@ -115,20 +126,24 @@
     if (!desc) return 0;
     if (findTicketNumber(desc)) return 1;
     if (desc.includes("meet")) return 2;
+    if (desc.includes("call")) return 2;
+    if (desc.includes("ask")) return 2;
+    if (desc.includes("msg")) return 2;
+    if (desc.includes("message")) return 2;
     if (desc.includes("ara")) return 3;
+    if (desc.includes("break")) return 3;
+    if (desc.includes("lunch")) return 3;
     return 0;
   }
   var pad;
   var init_utils = __esm({
     "src/utils.js"() {
+      init_elements();
       pad = (n) => String(n).padStart(2, "0");
     }
   });
 
   // src/state.js
-  function getState() {
-    return state;
-  }
   function loadState() {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
@@ -136,28 +151,29 @@
       return {};
     }
   }
+  function getState() {
+    return state;
+  }
   function saveState() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
-  function ensureDay(day) {
+  function initDay(day) {
     if (!state.days[day]) state.days[day] = [];
   }
   function setOpenDay(day) {
     state.openDay = day;
-    ensureDay(day);
+    initDay(day);
     saveState();
-    renderAll();
   }
   var STORAGE_KEY, state;
   var init_state = __esm({
     "src/state.js"() {
       init_utils();
-      init_render();
       STORAGE_KEY = "simpleTimesheetV3";
       state = loadState();
       if (!state.days) state.days = {};
       if (!state.openDay) state.openDay = todayKey();
-      ensureDay(state.openDay);
+      initDay(state.openDay);
       saveState();
     }
   });
@@ -165,7 +181,7 @@
   // src/render.js
   function renderAll(scrollBottom = false) {
     renderTabs();
-    renderTable();
+    renderHoursTable();
     updateDayTotal();
     renderSummary();
     if (scrollBottom) {
@@ -184,206 +200,44 @@
       tabEl.className = "tab" + (day === state2.openDay ? " active" : "");
       tabEl.textContent = formatDayName(day);
       tabEl.title = day;
-      tabEl.addEventListener("click", () => setOpenDay(day));
+      tabEl.addEventListener("click", () => {
+        setOpenDay(day);
+        renderAll();
+      });
       elements.tabs.appendChild(tabEl);
     });
   }
-  function renderTable() {
+  function updateDayTotal() {
     const entries = state2.days[state2.openDay] || [];
-    const tbody = elements.hoursTableBody;
-    tbody.innerHTML = "";
-    gapRows.clear();
-    entries.forEach((entry, index) => {
-      const row = createTableRow(entry, index, entries);
-      tbody.appendChild(row);
-      if (index > 0) updateGapAfter(entries[index - 1]);
-    });
-  }
-  function createTableRow(entry, index, entries) {
-    const tr = document.createElement("tr");
-    tr.dataset.entryId = entry.id;
-    tr.ondragover = (ev) => ev.preventDefault();
-    tr.ondrop = (ev) => {
-      ev.preventDefault();
-      const from = +ev.dataTransfer.getData("text/plain");
-      const to = index;
-      if (from !== to) {
-        const item = entries.splice(from, 1)[0];
-        entries.splice(to, 0, item);
-        saveState();
-        renderAll();
-      }
-    };
-    const durationCell = createDurationCell();
-    const startCell = createTimeCell(entry, "start", () => updateDurationCell(entry, durationCell));
-    const endCell = createTimeCell(entry, "end", () => updateDurationCell(entry, durationCell));
-    tr.appendChild(startCell);
-    tr.appendChild(endCell);
-    tr.appendChild(durationCell);
-    tr.appendChild(createTypeCell(entry));
-    tr.appendChild(createDescriptionCell(entry));
-    tr.appendChild(createDeleteCell(index, entries));
-    tr.appendChild(createDragHandleCell(index));
-    updateDurationCell(entry, durationCell);
-    return tr;
-  }
-  function createTimeCell(entry, field, onChange) {
-    const td = document.createElement("td");
-    const input = document.createElement("input");
-    input.type = "time";
-    input.step = 60;
-    input.value = entry[field] || "";
-    input.oninput = () => {
-      entry[field] = input.value;
-      saveState();
-      updateDayTotal();
-      const entries = state2.days[state2.openDay] || [];
-      const index = entries.indexOf(entry);
-      if (index > 0) updateGapAfter(entries[index - 1]);
-      updateGapAfter(entry);
-      if (onChange) onChange();
-    };
-    td.appendChild(input);
-    return td;
-  }
-  function createDurationCell() {
-    const td = document.createElement("td");
-    td.textContent = "-";
-    return td;
-  }
-  function updateDurationCell(entry, td) {
-    if (entry.start && entry.end) {
+    const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
+    const uniqueTickets = /* @__PURE__ */ new Set();
+    for (const entry of entries) {
       const start = parseHM(entry.start);
       const end = parseHM(entry.end);
-      const minutes = end - start;
-      if (minutes === 0)
-        td.textContent = "";
-      else td.textContent = formatMinutes(minutes);
-    } else {
-      td.textContent = "";
-    }
-  }
-  function createDescriptionCell(entry) {
-    const td = document.createElement("td");
-    const input = document.createElement("input");
-    input.type = "text";
-    input.placeholder = entry.type && entry.type === 3 ? "Break" : "Description";
-    input.value = entry.desc || "";
-    input.oninput = () => {
-      entry.desc = input.value;
-      const identifiedType = identifyTicketType(entry.desc);
-      const row = input.closest("tr");
-      const btn = row.querySelector("button.action.type");
-      btn.textContent = types[identifiedType].emoji;
-      entry.type = identifiedType;
-      updateDayTotal();
-      saveState();
-    };
-    input.addEventListener("keydown", (e) => {
-      if ((e.key === "Backspace" || e.key === "Delete") && input.value === "") {
-        const row = input.closest("tr");
-        const btn = row.querySelector("button.action.delete");
-        btn.click();
-      }
-    });
-    td.appendChild(input);
-    return td;
-  }
-  function createTypeCell(entry) {
-    const td = document.createElement("td");
-    const btn = document.createElement("button");
-    btn.classList.add("action");
-    btn.classList.add("bigger");
-    btn.classList.add("type");
-    btn.classList.add("type-" + entry.type);
-    btn.textContent = types[entry.type].emoji;
-    btn.onclick = () => {
-      btn.classList.remove("type-" + entry.type);
-      entry.type = (entry.type + 1) % types.length;
-      btn.textContent = types[entry.type].emoji;
-      btn.classList.add("type-" + entry.type);
-      saveState();
-      updateDayTotal();
-    };
-    td.appendChild(btn);
-    return td;
-  }
-  function createDeleteCell(index, entries) {
-    const td = document.createElement("td");
-    const deleteBtn = document.createElement("button");
-    deleteBtn.classList.add("action", "delete");
-    deleteBtn.textContent = "x";
-    deleteBtn.onclick = () => {
-      if (confirm("Delete this entry?")) {
-        entries.splice(index, 1);
-        saveState();
-        renderAll();
-      }
-    };
-    td.appendChild(deleteBtn);
-    return td;
-  }
-  function createDragHandleCell(index) {
-    const td = document.createElement("td");
-    const handle = document.createElement("span");
-    handle.classList.add("action");
-    handle.textContent = "\u2630";
-    handle.draggable = true;
-    handle.ondragstart = (ev) => {
-      ev.dataTransfer.setData("text/plain", index);
-      const tr = handle.closest("tr");
-      const dragClone = tr.cloneNode(true);
-      dragClone.style.position = "absolute";
-      dragClone.style.top = "-9999px";
-      document.body.appendChild(dragClone);
-      ev.dataTransfer.setDragImage(dragClone, 0, 0);
-      setTimeout(() => document.body.removeChild(dragClone), 0);
-    };
-    td.appendChild(handle);
-    return td;
-  }
-  function createGapRow(minutes, isOverlap = false) {
-    const tr = document.createElement("tr");
-    tr.classList.add("gap-row");
-    tr.appendChild(document.createElement("td"));
-    tr.appendChild(document.createElement("td"));
-    const duration = document.createElement("td");
-    duration.textContent = `${formatMinutes(minutes)}`;
-    tr.appendChild(duration);
-    tr.appendChild(document.createElement("td"));
-    const desc = document.createElement("td");
-    const descInput = document.createElement("input");
-    desc.colSpan = 3;
-    descInput.type = "text";
-    descInput.value = `${isOverlap ? "Overlap" : "Gap"}`;
-    descInput.disabled = true;
-    desc.appendChild(descInput);
-    tr.appendChild(desc);
-    return tr;
-  }
-  function updateGapAfter(prevEntry) {
-    const entries = state2.days[state2.openDay] || [];
-    const tbody = elements.hoursTableBody;
-    const index = entries.indexOf(prevEntry);
-    if (index === -1) return;
-    const nextEntry = entries[index + 1];
-    if (gapRows.has(prevEntry.id)) {
-      gapRows.get(prevEntry.id).remove();
-      gapRows.delete(prevEntry.id);
-    }
-    if (nextEntry && prevEntry.end && nextEntry.start) {
-      const prevEnd = parseHM(prevEntry.end);
-      const nextStart = parseHM(nextEntry.start);
-      const diff = nextStart - prevEnd;
-      if (diff !== 0) {
-        const gapRow = createGapRow(Math.abs(diff), diff < 0);
-        gapRows.set(prevEntry.id, gapRow);
-        const prevRow = tbody.querySelector(`tr[data-entry-id="${prevEntry.id}"]`);
-        if (prevRow) {
-          tbody.insertBefore(gapRow, prevRow.nextSibling);
-        }
+      if (start !== null && end !== null && end >= start) {
+        const duration = end - start;
+        const ticketMatch = findTicketNumber(entry.desc);
+        if (entry.type === 1 || ticketMatch) {
+          uniqueTickets.add(ticketMatch ? ticketMatch[0] : "(no ticket number)");
+          minutes.ticket += duration;
+        } else if (entry.type === 2)
+          minutes.meeting += duration;
+        else if (entry.type === 3)
+          minutes.break += duration;
+        else minutes.other += duration;
       }
     }
+    minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
+    elements.workTime.textContent = formatMinutes(minutes.total - minutes.break);
+    elements.totalTimeLeft.textContent = formatMinutes(8 * 60 - minutes.total);
+    elements.breakTime.textContent = formatMinutes(minutes.break);
+    elements.ticketsCount.textContent = uniqueTickets.size + "";
+    elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
+    const maxDayMinutes = 8 * 60;
+    elements.timelineOther.style.width = minutes.other / maxDayMinutes * 100 + "%";
+    elements.timelineTicket.style.width = minutes.ticket / maxDayMinutes * 100 + "%";
+    elements.timelineBreak.style.width = minutes.break / maxDayMinutes * 100 + "%";
+    elements.timelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
   }
   function renderSummary() {
     const entries = state2.days[state2.openDay] || [];
@@ -469,42 +323,202 @@
     html += "</tbody></table>";
     elements.summary.innerHTML = html;
   }
-  function updateDayTotal() {
+  function renderHoursTable() {
     const entries = state2.days[state2.openDay] || [];
-    const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
-    const uniqueTickets = /* @__PURE__ */ new Set();
-    for (const entry of entries) {
+    const tbody = elements.hoursTableBody;
+    tbody.innerHTML = "";
+    gapRows.clear();
+    entries.forEach((entry, index) => {
+      const row = createTableRow(entry, index, entries);
+      tbody.appendChild(row);
+      if (index > 0) updateGapAfter(entries[index - 1]);
+    });
+  }
+  function createTableRow(entry, index, entries) {
+    const tr = document.createElement("tr");
+    tr.dataset.entryId = entry.id;
+    tr.ondragover = (ev) => ev.preventDefault();
+    tr.ondrop = (ev) => {
+      ev.preventDefault();
+      const from = +ev.dataTransfer.getData("text/plain");
+      const to = index;
+      if (from !== to) {
+        const item = entries.splice(from, 1)[0];
+        entries.splice(to, 0, item);
+        saveState();
+        renderAll();
+      }
+    };
+    const durationCell = createDurationCell();
+    const startCell = createTimeCell(entry, "start", () => updateDurationCell(entry, durationCell));
+    const endCell = createTimeCell(entry, "end", () => updateDurationCell(entry, durationCell));
+    tr.appendChild(startCell);
+    tr.appendChild(endCell);
+    tr.appendChild(durationCell);
+    tr.appendChild(createTypeCell(entry));
+    tr.appendChild(createDescriptionCell(entry));
+    tr.appendChild(createDeleteCell(index, entries));
+    tr.appendChild(createDragHandleCell(index));
+    updateDurationCell(entry, durationCell);
+    return tr;
+  }
+  function createTimeCell(entry, field, onChange) {
+    const td = document.createElement("td");
+    const input = document.createElement("input");
+    input.type = "time";
+    input.step = 60;
+    input.value = entry[field] || "";
+    input.oninput = () => {
+      entry[field] = input.value;
+      saveState();
+      updateDayTotal();
+      const entries = state2.days[state2.openDay] || [];
+      const index = entries.indexOf(entry);
+      if (index > 0) updateGapAfter(entries[index - 1]);
+      updateGapAfter(entry);
+      if (onChange) onChange();
+    };
+    td.appendChild(input);
+    return td;
+  }
+  function createDurationCell() {
+    const td = document.createElement("td");
+    td.textContent = "-";
+    return td;
+  }
+  function updateDurationCell(entry, td) {
+    if (entry.start && entry.end) {
       const start = parseHM(entry.start);
       const end = parseHM(entry.end);
-      if (start !== null && end !== null && end >= start) {
-        const duration = end - start;
-        const ticketMatch = findTicketNumber(entry.desc);
-        if (entry.type === 1 || ticketMatch) {
-          uniqueTickets.add(ticketMatch ? ticketMatch[0] : "(no ticket number)");
-          minutes.ticket += duration;
-        } else if (entry.type === 2)
-          minutes.meeting += duration;
-        else if (entry.type === 3)
-          minutes.break += duration;
-        else minutes.other += duration;
-      }
+      const minutes = end - start;
+      if (minutes === 0)
+        td.textContent = "";
+      else td.textContent = formatMinutes(minutes);
+    } else {
+      td.textContent = "";
     }
-    minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
-    elements.hoursLogged.textContent = formatMinutes(minutes.total - minutes.break);
-    elements.hoursLeft.textContent = formatMinutes(8 * 60 - minutes.total);
-    elements.breakTime.textContent = formatMinutes(minutes.break);
-    elements.ticketsCount.textContent = uniqueTickets.size + "";
-    elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
-    const maxDayMinutes = 8 * 60;
-    elements.hoursTimeline.style.width = minutes.other / maxDayMinutes * 100 + "%";
-    elements.hoursTimelineHighlight.style.width = minutes.ticket / maxDayMinutes * 100 + "%";
-    elements.hoursTimelineBreak.style.width = minutes.break / maxDayMinutes * 100 + "%";
-    elements.hoursTimelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
   }
-  function focusLastDescription() {
-    const inputs = elements.hoursTableBody.querySelectorAll('input[type="text"]');
-    if (inputs.length) {
-      inputs[inputs.length - 1].focus();
+  function createTypeCell(entry) {
+    const td = document.createElement("td");
+    const btn = document.createElement("button");
+    btn.classList.add("action");
+    btn.classList.add("bigger");
+    btn.classList.add("type");
+    btn.classList.add("type-" + entry.type);
+    btn.textContent = types[entry.type].emoji;
+    btn.onclick = () => {
+      btn.classList.remove("type-" + entry.type);
+      entry.type = (entry.type + 1) % types.length;
+      btn.textContent = types[entry.type].emoji;
+      btn.classList.add("type-" + entry.type);
+      saveState();
+      updateDayTotal();
+    };
+    td.appendChild(btn);
+    return td;
+  }
+  function createDescriptionCell(entry) {
+    const td = document.createElement("td");
+    const input = document.createElement("input");
+    input.classList.add("description");
+    input.type = "text";
+    input.placeholder = entry.type && entry.type === 3 ? "Break" : "Description";
+    input.value = entry.desc || "";
+    input.oninput = () => {
+      entry.desc = input.value;
+      const identifiedType = identifyTicketType(entry.desc);
+      const row = input.closest("tr");
+      const btn = row.querySelector(locators.entryTypeBtn);
+      btn.textContent = types[identifiedType].emoji;
+      entry.type = identifiedType;
+      updateDayTotal();
+      saveState();
+    };
+    input.addEventListener("keydown", (e) => {
+      if ((e.key === "Backspace" || e.key === "Delete") && input.value === "") {
+        const row = input.closest("tr");
+        const btn = row.querySelector(locators.entryDeleteBtn);
+        btn.click();
+      }
+    });
+    td.appendChild(input);
+    return td;
+  }
+  function createDeleteCell(index, entries) {
+    const td = document.createElement("td");
+    const deleteBtn = document.createElement("button");
+    deleteBtn.classList.add("action", "delete");
+    deleteBtn.textContent = "x";
+    deleteBtn.onclick = () => {
+      if (confirm("Delete this entry?")) {
+        entries.splice(index, 1);
+        saveState();
+        renderAll();
+      }
+    };
+    td.appendChild(deleteBtn);
+    return td;
+  }
+  function createDragHandleCell(index) {
+    const td = document.createElement("td");
+    const handle = document.createElement("span");
+    handle.classList.add("action");
+    handle.textContent = "\u2630";
+    handle.draggable = true;
+    handle.ondragstart = (ev) => {
+      ev.dataTransfer.setData("text/plain", index);
+      const tr = handle.closest("tr");
+      const dragClone = tr.cloneNode(true);
+      dragClone.style.position = "absolute";
+      dragClone.style.top = "-9999px";
+      document.body.appendChild(dragClone);
+      ev.dataTransfer.setDragImage(dragClone, 0, 0);
+      setTimeout(() => document.body.removeChild(dragClone), 0);
+    };
+    td.appendChild(handle);
+    return td;
+  }
+  function createGapRow(minutes, isOverlap = false) {
+    const tr = document.createElement("tr");
+    tr.classList.add("gap-row");
+    tr.appendChild(document.createElement("td"));
+    tr.appendChild(document.createElement("td"));
+    const duration = document.createElement("td");
+    duration.textContent = `${formatMinutes(minutes)}`;
+    tr.appendChild(duration);
+    tr.appendChild(document.createElement("td"));
+    const desc = document.createElement("td");
+    const descInput = document.createElement("input");
+    desc.colSpan = 3;
+    descInput.type = "text";
+    descInput.value = `${isOverlap ? "Overlap" : "Gap"}`;
+    descInput.disabled = true;
+    desc.appendChild(descInput);
+    tr.appendChild(desc);
+    return tr;
+  }
+  function updateGapAfter(prevEntry) {
+    const entries = state2.days[state2.openDay] || [];
+    const tbody = elements.hoursTableBody;
+    const index = entries.indexOf(prevEntry);
+    if (index === -1) return;
+    const nextEntry = entries[index + 1];
+    if (gapRows.has(prevEntry.id)) {
+      gapRows.get(prevEntry.id).remove();
+      gapRows.delete(prevEntry.id);
+    }
+    if (nextEntry && prevEntry.end && nextEntry.start) {
+      const prevEnd = parseHM(prevEntry.end);
+      const nextStart = parseHM(nextEntry.start);
+      const diff = nextStart - prevEnd;
+      if (diff !== 0) {
+        const gapRow = createGapRow(Math.abs(diff), diff < 0);
+        gapRows.set(prevEntry.id, gapRow);
+        const prevRow = tbody.querySelector(`tr[data-entry-id="${prevEntry.id}"]`);
+        if (prevRow) {
+          tbody.insertBefore(gapRow, prevRow.nextSibling);
+        }
+      }
     }
   }
   var state2, gapRows, types;
@@ -534,25 +548,14 @@
       type
     };
   }
-  function stopLast() {
-    const entries = state3.days[state3.openDay];
-    const running = findLast(entries, (e) => e.start && !e.end);
-    if (running && !running.end) {
-      running.end = timeNow();
-      saveState();
-      renderAll(true);
-      return true;
-    }
-    return false;
-  }
-  function startNew() {
+  function startNow() {
     const entries = state3.days[state3.openDay];
     entries.push(newEntry(timeNow(), "", "", 0));
     saveState();
     renderAll(true);
     focusLastDescription();
   }
-  function startBreakSinceLast() {
+  function startSinceLast() {
     const entries = state3.days[state3.openDay];
     const lastEntry = entries[entries.length - 1];
     if (lastEntry && lastEntry.end) {
@@ -564,6 +567,34 @@
         renderAll(true);
         focusLastDescription();
       }
+    }
+  }
+  function stopLast() {
+    const entries = state3.days[state3.openDay];
+    const running = findLast(entries, (e) => e.start && !e.end);
+    if (running && !running.end) {
+      running.end = timeNow();
+      saveState();
+      renderAll(true);
+      return true;
+    }
+    return false;
+  }
+  function handleArrowNavigation(e, active) {
+    const inputs = Array.from(document.querySelectorAll(locators.entryDescription));
+    if (inputs.length === 0) return;
+    let index = inputs.indexOf(active);
+    if (index === -1) {
+      inputs[inputs.length - 1].focus();
+      e.preventDefault();
+      return;
+    }
+    if (e.key === "ArrowUp" && index > 0) {
+      inputs[index - 1].focus();
+      e.preventDefault();
+    } else if (e.key === "ArrowDown" && index < inputs.length - 1) {
+      inputs[index + 1].focus();
+      e.preventDefault();
     }
   }
   function onDocumentKeyDown(e) {
@@ -583,32 +614,15 @@
     if (!focusedOnInput && e.key === " ") {
       if (!stopLast()) {
         e.preventDefault();
-        startBreakSinceLast();
+        startSinceLast();
         return;
       }
     }
     if (!focusedOnInput && e.key === "Enter") {
       if (!stopLast()) {
-        startNew();
+        startNow();
         return;
       }
-    }
-  }
-  function handleArrowNavigation(e, active) {
-    const inputs = Array.from(document.querySelectorAll('input[type="text"]:not([disabled])'));
-    if (inputs.length === 0) return;
-    let index = inputs.indexOf(active);
-    if (index === -1) {
-      inputs[inputs.length - 1].focus();
-      e.preventDefault();
-      return;
-    }
-    if (e.key === "ArrowUp" && index > 0) {
-      inputs[index - 1].focus();
-      e.preventDefault();
-    } else if (e.key === "ArrowDown" && index < inputs.length - 1) {
-      inputs[index + 1].focus();
-      e.preventDefault();
     }
   }
   var state3;
@@ -617,6 +631,7 @@
       init_state();
       init_utils();
       init_render();
+      init_elements();
       state3 = getState();
     }
   });
@@ -630,6 +645,7 @@
   function onAddDay() {
     if (elements.addDayInput.value) {
       setOpenDay(elements.addDayInput.value);
+      renderAll();
       elements.addDayInput.value = "";
     }
   }
@@ -675,9 +691,7 @@
       return;
     }
     delete state4.days[state4.openDay];
-    state4.openDay = todayKey();
-    ensureDay(state4.openDay);
-    saveState();
+    setOpenDay(todayKey());
     renderAll();
   }
   var state4;
