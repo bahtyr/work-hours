@@ -80,7 +80,7 @@ function handleArrowNavigation(e, active) {
 }
 
 export function onDocumentKeyDown(e) {
-    // Ignore if modifier keys are pressed (Cmd, Ctrl, Alt)
+    // ignore modifier keys
     if (e.metaKey || e.ctrlKey || e.altKey) return;
 
     const active = document.activeElement;
