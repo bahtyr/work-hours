@@ -603,6 +603,14 @@
     const focusedOnInput = active && active.tagName === "INPUT";
     const focusedOnTime = focusedOnInput && active.type === "time";
     const focusedOnText = focusedOnInput && active.type === "text";
+    if (focusedOnTime && e.key === "Backspace") {
+      console.log(active.value);
+      if (active.value.trim() === "") {
+        active.value = "";
+        active.blur();
+        active.focus();
+      }
+    }
     if (!focusedOnTime && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
       handleArrowNavigation(e, active);
       return;
