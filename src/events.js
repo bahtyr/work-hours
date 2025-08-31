@@ -88,29 +88,21 @@ export function onDocumentKeyDown(e) {
     const focusedOnTime = focusedOnInput && active.type === 'time';
     const focusedOnText = focusedOnInput && active.type === 'text';
 
-    // Backspace on empty <time> input clears value and resets focus
-    if (focusedOnTime && e.key === 'Backspace') {
-        if (active.value.trim() === '') {
-            e.preventDefault();
-            active.value = '';
-            active.blur();
-            active.focus();
-        }
-    }
-
-    // Arrow keys move focus to previous/next entry (except in <time> input)
-    if (!focusedOnTime && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
-        handleArrowNavigation(e, active);
-        return;
-    }
-
-    // Enter or Escape commits/unfocuses an active input
+    // commit/unfocus an active input
     if (focusedOnInput && (e.key === 'Enter' || e.key === 'Escape')) {
         active.blur();
         return;
     }
 
-    // Space stops the last entry or starts a new one since the last end time
+    // stop the last entry or start a new one from now
+    if (!focusedOnInput && e.key === 'Enter') {
+        if (!stopLast()) {
+            startNow();
+            return;
+        }
+    }
+
+    // stops the last entry or starts a new one since the last end time
     if (!focusedOnInput && e.key === ' ') {
         if (!stopLast()) {
             e.preventDefault();
@@ -119,11 +111,19 @@ export function onDocumentKeyDown(e) {
         }
     }
 
-    // Enter stops the last entry or starts a new one from now
-    if (!focusedOnInput && e.key === 'Enter') {
-        if (!stopLast()) {
-            startNow();
-            return;
+    // focus to previous/next entry description
+    if (!focusedOnTime && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        handleArrowNavigation(e, active);
+        return;
+    }
+
+    // clear time and resets focus
+    if (focusedOnTime && e.key === 'Backspace') {
+        if (active.value.trim() === '') {
+            e.preventDefault();
+            active.value = '';
+            active.blur();
+            active.focus();
         }
     }
 }
