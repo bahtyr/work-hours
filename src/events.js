@@ -79,6 +79,35 @@ function handleArrowNavigation(e, active) {
     }
 }
 
+
+/**
+ * Navigate between time inputs with Tab / Shift+Tab
+ */
+function handleTimeNavigation(e, active) {
+    const inputs = Array.from(document.querySelectorAll(locators.entryTime));
+    if (inputs.length === 0) return;
+
+    let index = inputs.indexOf(active);
+
+    if (index === -1) {
+        inputs[0].focus();
+        e.preventDefault();
+        return;
+    }
+
+    const movePrev = e.shiftKey && e.key === 'Tab';
+    const moveNext = !e.shiftKey && e.key === 'Tab';
+
+    if (movePrev && index > 0) {
+        inputs[index - 1].focus();
+        e.preventDefault();
+    } else if (moveNext && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+        e.preventDefault();
+    }
+}
+
+
 export function onDocumentKeyDown(e) {
     // ignore modifier keys
     if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -114,6 +143,13 @@ export function onDocumentKeyDown(e) {
     // focus to previous/next entry description
     if (!focusedOnTime && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
         handleArrowNavigation(e, active);
+        return;
+    }
+
+    // navigate time fields
+    if (focusedOnTime && e.key === 'Tab') {
+        console.log("asdf")
+        handleTimeNavigation(e, active);
         return;
     }
 

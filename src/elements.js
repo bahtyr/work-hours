@@ -28,6 +28,7 @@ export const elements = {
     deleteDayBtn: document.getElementById('deleteDayBtn')
 };
 export const locators = {
+    entryTime: '#hoursTable input[type="time"]',
     entryDescription: '#hoursTable input.description:not([disabled])',
     entryTypeBtn: 'button.action.type',
     entryDeleteBtn: 'button.action.delete',

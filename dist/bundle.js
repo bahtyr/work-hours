@@ -41,6 +41,7 @@
         deleteDayBtn: document.getElementById("deleteDayBtn")
       };
       locators = {
+        entryTime: '#hoursTable input[type="time"]',
         entryDescription: "#hoursTable input.description:not([disabled])",
         entryTypeBtn: "button.action.type",
         entryDeleteBtn: "button.action.delete"
@@ -597,27 +598,40 @@
       e.preventDefault();
     }
   }
+  function handleTimeNavigation(e, active) {
+    const inputs = Array.from(document.querySelectorAll(locators.entryTime));
+    if (inputs.length === 0) return;
+    let index = inputs.indexOf(active);
+    if (index === -1) {
+      inputs[0].focus();
+      e.preventDefault();
+      return;
+    }
+    const movePrev = e.shiftKey && e.key === "Tab";
+    const moveNext = !e.shiftKey && e.key === "Tab";
+    if (movePrev && index > 0) {
+      inputs[index - 1].focus();
+      e.preventDefault();
+    } else if (moveNext && index < inputs.length - 1) {
+      inputs[index + 1].focus();
+      e.preventDefault();
+    }
+  }
   function onDocumentKeyDown(e) {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     const active = document.activeElement;
     const focusedOnInput = active && active.tagName === "INPUT";
     const focusedOnTime = focusedOnInput && active.type === "time";
     const focusedOnText = focusedOnInput && active.type === "text";
-    if (focusedOnTime && e.key === "Backspace") {
-      console.log(active.value);
-      if (active.value.trim() === "") {
-        active.value = "";
-        active.blur();
-        active.focus();
-      }
-    }
-    if (!focusedOnTime && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
-      handleArrowNavigation(e, active);
-      return;
-    }
     if (focusedOnInput && (e.key === "Enter" || e.key === "Escape")) {
       active.blur();
       return;
+    }
+    if (!focusedOnInput && e.key === "Enter") {
+      if (!stopLast()) {
+        startNow();
+        return;
+      }
     }
     if (!focusedOnInput && e.key === " ") {
       if (!stopLast()) {
@@ -626,10 +640,21 @@
         return;
       }
     }
-    if (!focusedOnInput && e.key === "Enter") {
-      if (!stopLast()) {
-        startNow();
-        return;
+    if (!focusedOnTime && (e.key === "ArrowUp" || e.key === "ArrowDown")) {
+      handleArrowNavigation(e, active);
+      return;
+    }
+    if (focusedOnTime && e.key === "Tab") {
+      console.log("asdf");
+      handleTimeNavigation(e, active);
+      return;
+    }
+    if (focusedOnTime && e.key === "Backspace") {
+      if (active.value.trim() === "") {
+        e.preventDefault();
+        active.value = "";
+        active.blur();
+        active.focus();
       }
     }
   }
