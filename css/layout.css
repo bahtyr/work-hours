@@ -19,6 +19,10 @@
     padding: 16px 0;
 }
 
+.footer {
+    padding-bottom: 0;
+}
+
 
 /* ============== CARD ============== */
 
@@ -142,8 +146,8 @@
 .main-controls {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 16px;
+    /*gap: 16px;*/
+    /*margin-bottom: 16px;*/
 }
 
 .quick-entry {

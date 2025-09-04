@@ -87,7 +87,8 @@ button.danger {
 .main-controls button {
     letter-spacing: 1px;
     font-size: 0.75rem;
-    padding: 22px 40px;
+    /*padding: 22px 40px;*/
+    padding:16px 32px;
     border-radius: 32px;
     color: rgba(255, 255, 255, 0.75);
 }
