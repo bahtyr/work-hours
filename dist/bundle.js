@@ -179,6 +179,75 @@
     }
   });
 
+  // src/events_days.js
+  function toggleSummary() {
+    renderSummary();
+    elements.hoursTable.classList.toggle("hidden");
+    elements.summary.classList.toggle("hidden");
+  }
+  function onAddDay() {
+    if (elements.addDayInput.value) {
+      setOpenDay(elements.addDayInput.value);
+      renderAll();
+      elements.addDayInput.value = "";
+    }
+  }
+  function onEditDay() {
+    elements.editDayInput.value = state2.openDay;
+    elements.editDayInput.style.display = "inline-block";
+    elements.saveEditDayBtn.style.display = "inline-block";
+    elements.cancelEditDayBtn.style.display = "inline-block";
+    elements.editDayInput.focus();
+  }
+  function onCancelEditDay() {
+    elements.editDayInput.style.display = "none";
+    elements.saveEditDayBtn.style.display = "none";
+    elements.cancelEditDayBtn.style.display = "none";
+  }
+  function onSaveEditDay() {
+    const newDate = elements.editDayInput.value;
+    const oldDate = state2.openDay;
+    if (!newDate) {
+      alert("Pick a valid date");
+      return;
+    }
+    if (newDate === oldDate) {
+      onCancelEditDay();
+      return;
+    }
+    if (state2.days[newDate]) {
+      if (!confirm("Target day already exists. Merge current entries into that day?")) {
+        return;
+      }
+      state2.days[newDate] = (state2.days[newDate] || []).concat(state2.days[oldDate]);
+    } else {
+      state2.days[newDate] = state2.days[oldDate];
+    }
+    delete state2.days[oldDate];
+    state2.openDay = newDate;
+    saveState();
+    renderAll();
+    onCancelEditDay();
+  }
+  function onDeleteDay() {
+    if (!confirm("Delete all entries for this day? This cannot be undone.")) {
+      return;
+    }
+    delete state2.days[state2.openDay];
+    setOpenDay(todayKey());
+    renderAll();
+  }
+  var state2;
+  var init_events_days = __esm({
+    "src/events_days.js"() {
+      init_elements();
+      init_state();
+      init_render();
+      init_utils();
+      state2 = getState();
+    }
+  });
+
   // src/render.js
   function renderAll(scrollBottom = false) {
     renderTabs();
@@ -191,16 +260,26 @@
   }
   function renderTabs() {
     const today = todayKey();
-    const allDays = new Set(Object.keys(state2.days || {}));
+    const allDays = new Set(Object.keys(state3.days || {}));
     allDays.add(today);
     const otherDays = Array.from(allDays).filter((d) => d !== today).sort((a, b) => b.localeCompare(a));
     const orderedDays = [today, ...otherDays];
     elements.tabs.innerHTML = "";
     orderedDays.forEach((day) => {
       const tabEl = document.createElement("div");
-      tabEl.className = "tab" + (day === state2.openDay ? " active" : "");
-      tabEl.textContent = formatDayName(day);
+      tabEl.className = "tab" + (day === state3.openDay ? " active" : "");
       tabEl.title = day;
+      const textEl = document.createElement("span");
+      textEl.textContent = formatDayName(day);
+      tabEl.appendChild(textEl);
+      const deleteBtn = document.createElement("span");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.textContent = "\xD7";
+      deleteBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onDeleteDay(day);
+      });
+      tabEl.appendChild(deleteBtn);
       tabEl.addEventListener("click", () => {
         setOpenDay(day);
         renderAll();
@@ -209,7 +288,7 @@
     });
   }
   function updateDayTotal() {
-    const entries = state2.days[state2.openDay] || [];
+    const entries = state3.days[state3.openDay] || [];
     const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
     const uniqueTickets = /* @__PURE__ */ new Set();
     for (const entry of entries) {
@@ -241,7 +320,7 @@
     elements.timelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
   }
   function renderSummary() {
-    const entries = state2.days[state2.openDay] || [];
+    const entries = state3.days[state3.openDay] || [];
     const grouped = [];
     for (const entry of entries) {
       const start = parseHM(entry.start);
@@ -325,7 +404,7 @@
     elements.summary.innerHTML = html;
   }
   function renderHoursTable() {
-    const entries = state2.days[state2.openDay] || [];
+    const entries = state3.days[state3.openDay] || [];
     const tbody = elements.hoursTableBody;
     tbody.innerHTML = "";
     gapRows.clear();
@@ -374,7 +453,7 @@
       entry[field] = input.value;
       saveState();
       updateDayTotal();
-      const entries = state2.days[state2.openDay] || [];
+      const entries = state3.days[state3.openDay] || [];
       const index = entries.indexOf(entry);
       if (index > 0) updateGapAfter(entries[index - 1]);
       updateGapAfter(entry);
@@ -634,7 +713,7 @@
     return tr;
   }
   function updateGapAfter(prevEntry) {
-    const entries = state2.days[state2.openDay] || [];
+    const entries = state3.days[state3.openDay] || [];
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;
@@ -657,13 +736,14 @@
       }
     }
   }
-  var state2, gapRows, types;
+  var state3, gapRows, types;
   var init_render = __esm({
     "src/render.js"() {
       init_elements();
       init_state();
       init_utils();
-      state2 = getState();
+      init_events_days();
+      state3 = getState();
       gapRows = /* @__PURE__ */ new Map();
       types = [
         { label: "Work", emoji: "\u{1F4C4}" },
@@ -685,14 +765,14 @@
     };
   }
   function startNow() {
-    const entries = state3.days[state3.openDay];
+    const entries = state4.days[state4.openDay];
     entries.push(newEntry(timeNow(), "", "", 0));
     saveState();
     renderAll(true);
     focusLastDescription();
   }
   function startSinceLast() {
-    const entries = state3.days[state3.openDay];
+    const entries = state4.days[state4.openDay];
     const lastEntry = entries[entries.length - 1];
     if (lastEntry && lastEntry.end) {
       const lastEnd = parseHM(lastEntry.end);
@@ -706,7 +786,7 @@
     }
   }
   function stopLast() {
-    const entries = state3.days[state3.openDay];
+    const entries = state4.days[state4.openDay];
     const running = findLast(entries, (e) => e.start && !e.end);
     if (running && !running.end) {
       running.end = timeNow();
@@ -793,82 +873,13 @@
       }
     }
   }
-  var state3;
+  var state4;
   var init_events = __esm({
     "src/events.js"() {
       init_state();
       init_utils();
       init_render();
       init_elements();
-      state3 = getState();
-    }
-  });
-
-  // src/events_days.js
-  function toggleSummary() {
-    renderSummary();
-    elements.hoursTable.classList.toggle("hidden");
-    elements.summary.classList.toggle("hidden");
-  }
-  function onAddDay() {
-    if (elements.addDayInput.value) {
-      setOpenDay(elements.addDayInput.value);
-      renderAll();
-      elements.addDayInput.value = "";
-    }
-  }
-  function onEditDay() {
-    elements.editDayInput.value = state4.openDay;
-    elements.editDayInput.style.display = "inline-block";
-    elements.saveEditDayBtn.style.display = "inline-block";
-    elements.cancelEditDayBtn.style.display = "inline-block";
-    elements.editDayInput.focus();
-  }
-  function onCancelEditDay() {
-    elements.editDayInput.style.display = "none";
-    elements.saveEditDayBtn.style.display = "none";
-    elements.cancelEditDayBtn.style.display = "none";
-  }
-  function onSaveEditDay() {
-    const newDate = elements.editDayInput.value;
-    const oldDate = state4.openDay;
-    if (!newDate) {
-      alert("Pick a valid date");
-      return;
-    }
-    if (newDate === oldDate) {
-      onCancelEditDay();
-      return;
-    }
-    if (state4.days[newDate]) {
-      if (!confirm("Target day already exists. Merge current entries into that day?")) {
-        return;
-      }
-      state4.days[newDate] = (state4.days[newDate] || []).concat(state4.days[oldDate]);
-    } else {
-      state4.days[newDate] = state4.days[oldDate];
-    }
-    delete state4.days[oldDate];
-    state4.openDay = newDate;
-    saveState();
-    renderAll();
-    onCancelEditDay();
-  }
-  function onDeleteDay() {
-    if (!confirm("Delete all entries for this day? This cannot be undone.")) {
-      return;
-    }
-    delete state4.days[state4.openDay];
-    setOpenDay(todayKey());
-    renderAll();
-  }
-  var state4;
-  var init_events_days = __esm({
-    "src/events_days.js"() {
-      init_elements();
-      init_state();
-      init_render();
-      init_utils();
       state4 = getState();
     }
   });

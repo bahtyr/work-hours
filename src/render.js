@@ -9,6 +9,7 @@ import {
     parseHM,
     todayKey
 } from './utils';
+import {onDeleteDay} from "./events_days";
 
 const state = getState();
 const gapRows = new Map();
@@ -38,7 +39,6 @@ function renderTabs() {
     const allDays = new Set(Object.keys(state.days || {}));
     allDays.add(today);
 
-    // Order: today first, then others newest to oldest
     const otherDays = Array.from(allDays)
         .filter(d => d !== today)
         .sort((a, b) => b.localeCompare(a));
@@ -49,12 +49,26 @@ function renderTabs() {
     orderedDays.forEach(day => {
         const tabEl = document.createElement('div');
         tabEl.className = 'tab' + (day === state.openDay ? ' active' : '');
-        tabEl.textContent = formatDayName(day);
         tabEl.title = day;
+
+        const textEl = document.createElement('span');
+        textEl.textContent = formatDayName(day);
+        tabEl.appendChild(textEl);
+
+        const deleteBtn = document.createElement('span');
+        deleteBtn.className = 'delete-btn';
+        deleteBtn.textContent = '×';
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // prevent tab click
+            onDeleteDay(day);
+        });
+        tabEl.appendChild(deleteBtn);
+
         tabEl.addEventListener('click', () => {
             setOpenDay(day);
             renderAll();
         });
+
         elements.tabs.appendChild(tabEl);
     });
 }
