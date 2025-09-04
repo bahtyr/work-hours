@@ -132,3 +132,25 @@ table tr > *:nth-child(7) {
 #hoursTable::before:hover {
     /*opacity: 0;*/
 }
+
+
+/* --------- Keyboard Hints Row */
+
+.hint-row {
+    text-align: center;
+    color: var(--placeholder);
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    line-height: 24px;
+    margin-bottom: 12px;
+}
+
+kbd {
+    background-color: var(--button-bg);
+    border-radius: 4px;
+    padding: 2px 6px;
+    /*color: var(--muted);*/
+    font-family: monospace;
+    text-transform: lowercase;
+}
