@@ -127,10 +127,48 @@
     color: var(--muted);
 }
 
+.hours-summary-info div {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    padding: 4px;
+}
+
 .hours-summary-info .number {
     /*font-size: 14px;*/
     color: var(--ink);
     font-size: 18px;
+}
+
+.hours-summary-info .dot {
+    display: inline-block;
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    color: var(--danger-text);
+    align-self: center;
+    margin-top: 2px;
+    display: none;
+}
+
+.work-time .dot {
+    background-color: var(--ink);
+}
+.break-time .dot {
+    background-color: var(--break);
+}
+.tickets-count .dot {
+    background-color: var(--accent2);
+}
+
+.work-time {
+    /*border-bottom: 2px solid var(--ink);*/
+}
+.break-time {
+    /*border-bottom: 2px solid var(--break);*/
+}
+.tickets-count {
+    /*border-bottom: 2px solid var(--accent2);*/
 }
 
 /* Timeline */
