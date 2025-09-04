@@ -334,6 +334,7 @@
       tbody.appendChild(row);
       if (index > 0) updateGapAfter(entries[index - 1]);
     });
+    initSmoothRowDnD(tbody, entries);
   }
   function createTableRow(entry, index, entries) {
     const tr = document.createElement("tr");
@@ -359,7 +360,7 @@
     tr.appendChild(createTypeCell(entry));
     tr.appendChild(createDescriptionCell(entry));
     tr.appendChild(createDeleteCell(index, entries));
-    tr.appendChild(createDragHandleCell(index));
+    tr.appendChild(createDragHandleCell());
     updateDurationCell(entry, durationCell);
     return tr;
   }
@@ -460,24 +461,158 @@
     td.appendChild(deleteBtn);
     return td;
   }
-  function createDragHandleCell(index) {
+  function createDragHandleCell() {
     const td = document.createElement("td");
     const handle = document.createElement("span");
-    handle.classList.add("action");
+    handle.classList.add("action", "drag-handle");
     handle.textContent = "\u2630";
-    handle.draggable = true;
-    handle.ondragstart = (ev) => {
-      ev.dataTransfer.setData("text/plain", index);
-      const tr = handle.closest("tr");
-      const dragClone = tr.cloneNode(true);
-      dragClone.style.position = "absolute";
-      dragClone.style.top = "-9999px";
-      document.body.appendChild(dragClone);
-      ev.dataTransfer.setDragImage(dragClone, 0, 0);
-      setTimeout(() => document.body.removeChild(dragClone), 0);
-    };
+    handle.title = "Drag to reorder";
+    handle.style.cursor = "grab";
     td.appendChild(handle);
     return td;
+  }
+  function initSmoothRowDnD(tbody, entries) {
+    const scrollContainer = tbody.parentElement;
+    const getEntryRows = () => [...tbody.querySelectorAll("tr:not(.gap-row)")];
+    getEntryRows().forEach((tr) => {
+      const handle = tr.querySelector(".drag-handle");
+      if (!handle) return;
+      let startY, startX, startIndex;
+      let dragEl = null;
+      let placeholder = null;
+      let draggingRow = null;
+      let rafId = null;
+      const onPointerMove = (e) => {
+        if (!dragEl) return;
+        const dy = e.clientY - startY;
+        const dx = e.clientX - startX;
+        dragEl.style.transform = `translate(${dx}px, ${dy}px)`;
+        maybeAutoScroll(e);
+        movePlaceholder(e.clientY);
+      };
+      const onPointerUp = () => {
+        if (!dragEl) return;
+        const nonGapRows = getEntryRows();
+        const finalIndex = nonGapRows.indexOf(placeholder);
+        cleanup();
+        if (finalIndex !== -1 && finalIndex !== startIndex) {
+          const item = entries.splice(startIndex, 1)[0];
+          entries.splice(finalIndex, 0, item);
+          saveState();
+          renderAll();
+        } else {
+          renderAll();
+        }
+      };
+      const onPointerDown = (e) => {
+        if (e.button !== 0) return;
+        e.preventDefault();
+        draggingRow = tr;
+        startIndex = getEntryRows().indexOf(tr);
+        const rect = tr.getBoundingClientRect();
+        startY = e.clientY;
+        startX = e.clientX;
+        dragEl = tr.cloneNode(true);
+        dragEl.style.position = "fixed";
+        dragEl.style.left = rect.left + "px";
+        dragEl.style.top = rect.top + "px";
+        dragEl.style.width = rect.width + "px";
+        dragEl.style.pointerEvents = "none";
+        dragEl.style.zIndex = 9999;
+        dragEl.style.transform = "translate(0,0)";
+        dragEl.style.boxShadow = "0 8px 24px rgba(0,0,0,.18)";
+        dragEl.style.borderRadius = "6px";
+        dragEl.style.opacity = "0.98";
+        dragEl.style.willChange = "transform";
+        dragEl.classList.add("drag-floating");
+        document.body.appendChild(dragEl);
+        placeholder = document.createElement("tr");
+        placeholder.className = "drag-placeholder";
+        placeholder.style.height = rect.height + "px";
+        const colCount = tr.children.length;
+        for (let c = 0; c < colCount; c++) {
+          placeholder.appendChild(document.createElement("td"));
+        }
+        tbody.insertBefore(placeholder, tr);
+        tbody.removeChild(tr);
+        document.addEventListener("pointermove", onPointerMove);
+        document.addEventListener("pointerup", onPointerUp, { once: true });
+      };
+      handle.addEventListener("pointerdown", onPointerDown);
+      function cleanup() {
+        cancelAnimationFrame(rafId);
+        if (dragEl && dragEl.parentNode) dragEl.parentNode.removeChild(dragEl);
+        dragEl = null;
+        if (placeholder && placeholder.parentNode) {
+          placeholder.parentNode.insertBefore(draggingRow, placeholder);
+          placeholder.parentNode.removeChild(placeholder);
+        }
+        placeholder = null;
+        draggingRow = null;
+        document.removeEventListener("pointermove", onPointerMove);
+      }
+      function movePlaceholder(pointerClientY) {
+        const entryRows = getEntryRows().filter((r) => r !== draggingRow);
+        const firstRects = new Map(entryRows.map((r) => [r, r.getBoundingClientRect()]));
+        let target = null;
+        for (const r of entryRows) {
+          const rrect = r.getBoundingClientRect();
+          const midpoint = rrect.top + rrect.height / 2;
+          if (pointerClientY < midpoint) {
+            target = r;
+            break;
+          }
+        }
+        if (target) {
+          if (placeholder.nextSibling !== target) {
+            tbody.insertBefore(placeholder, target);
+          }
+        } else {
+          if (placeholder !== tbody.lastElementChild) {
+            tbody.appendChild(placeholder);
+          }
+        }
+        const lastRects = new Map(entryRows.map((r) => [r, r.getBoundingClientRect()]));
+        animateReorder(entryRows, firstRects, lastRects);
+      }
+      function maybeAutoScroll(e) {
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const threshold = 36;
+        const maxStep = 18;
+        let delta = 0;
+        if (e.clientY < containerRect.top + threshold) {
+          delta = -maxStep * ((containerRect.top + threshold - e.clientY) / threshold);
+        } else if (e.clientY > containerRect.bottom - threshold) {
+          delta = maxStep * ((e.clientY - (containerRect.bottom - threshold)) / threshold);
+        }
+        if (delta !== 0) {
+          cancelAnimationFrame(rafId);
+          const tick = () => {
+            scrollContainer.scrollTop += delta;
+            rafId = requestAnimationFrame(tick);
+          };
+          rafId = requestAnimationFrame(tick);
+        } else {
+          cancelAnimationFrame(rafId);
+        }
+      }
+      function animateReorder(rows, firstRects, lastRects) {
+        rows.forEach((r) => {
+          const first = firstRects.get(r);
+          const last = lastRects.get(r);
+          if (!first || !last) return;
+          const dx = first.left - last.left;
+          const dy = first.top - last.top;
+          if (dx || dy) {
+            r.style.transform = `translate(${dx}px, ${dy}px)`;
+            r.style.transition = "none";
+            r.offsetHeight;
+            r.style.transform = "";
+            r.style.transition = "transform 150ms ease";
+          }
+        });
+      }
+    });
   }
   function createGapRow(minutes, isOverlap = false) {
     const tr = document.createElement("tr");

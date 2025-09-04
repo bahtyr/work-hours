@@ -220,6 +220,8 @@ function renderHoursTable() {
         // Create gap after previous entry
         if (index > 0) updateGapAfter(entries[index - 1]);
     });
+
+    initSmoothRowDnD(tbody, entries);
 }
 
 function createTableRow(entry, index, entries) {
@@ -251,7 +253,7 @@ function createTableRow(entry, index, entries) {
     tr.appendChild(createTypeCell(entry));
     tr.appendChild(createDescriptionCell(entry));
     tr.appendChild(createDeleteCell(index, entries));
-    tr.appendChild(createDragHandleCell(index));
+    tr.appendChild(createDragHandleCell());
 
     // Initialize duration immediately
     updateDurationCell(entry, durationCell);
@@ -394,33 +396,209 @@ function createDeleteCell(index, entries) {
     return td;
 }
 
-function createDragHandleCell(index) {
+function createDragHandleCell() {
     const td = document.createElement('td');
     const handle = document.createElement('span');
-    handle.classList.add('action');
-    handle.textContent = '☰'; // you can replace with an SVG/icon
-    handle.draggable = true;
-
-    handle.ondragstart = (ev) => {
-        ev.dataTransfer.setData('text/plain', index);
-
-        // Create a temporary clone of the row for drag image
-        const tr = handle.closest('tr');
-        const dragClone = tr.cloneNode(true);
-        dragClone.style.position = 'absolute';
-        dragClone.style.top = '-9999px'; // hide offscreen
-        document.body.appendChild(dragClone);
-
-        // Use the clone as the drag image
-        ev.dataTransfer.setDragImage(dragClone, 0, 0);
-
-        // Remove it shortly after
-        setTimeout(() => document.body.removeChild(dragClone), 0);
-    };
-
+    handle.classList.add('action', 'drag-handle');
+    handle.textContent = '☰';
+    handle.title = 'Drag to reorder';
+    handle.style.cursor = 'grab';
     td.appendChild(handle);
     return td;
 }
+
+function initSmoothRowDnD(tbody, entries) {
+    const scrollContainer = tbody.parentElement; // the scrollable wrapper
+
+    // helper to get current entry rows (not gap rows)
+    const getEntryRows = () => [...tbody.querySelectorAll('tr:not(.gap-row)')];
+
+    getEntryRows().forEach((tr) => {
+        const handle = tr.querySelector('.drag-handle');
+        if (!handle) return;
+
+        let startY, startX, startIndex;
+        let dragEl = null;
+        let placeholder = null;
+        let draggingRow = null;
+        let rafId = null;
+
+        const onPointerMove = (e) => {
+            if (!dragEl) return;
+            const dy = e.clientY - startY;
+            const dx = e.clientX - startX;
+            dragEl.style.transform = `translate(${dx}px, ${dy}px)`;
+            maybeAutoScroll(e);
+            movePlaceholder(e.clientY);
+        };
+
+        const onPointerUp = (/*e*/) => {
+            if (!dragEl) return;
+
+            // compute final index as index of placeholder among entry rows
+            const nonGapRows = getEntryRows();
+            const finalIndex = nonGapRows.indexOf(placeholder);
+
+            cleanup();
+
+            if (finalIndex !== -1 && finalIndex !== startIndex) {
+                const item = entries.splice(startIndex, 1)[0];
+                entries.splice(finalIndex, 0, item);
+                saveState();
+                renderAll();
+            } else {
+                // unchanged -> just re-render to restore UI/gaps
+                renderAll();
+            }
+        };
+
+        const onPointerDown = (e) => {
+            // only primary button
+            if (e.button !== 0) return;
+            e.preventDefault();
+
+            draggingRow = tr;
+            // compute start index among current entry rows
+            startIndex = getEntryRows().indexOf(tr);
+
+            const rect = tr.getBoundingClientRect();
+            startY = e.clientY;
+            startX = e.clientX;
+
+            // create floating clone
+            dragEl = tr.cloneNode(true);
+            dragEl.style.position = 'fixed';
+            dragEl.style.left = rect.left + 'px';
+            dragEl.style.top = rect.top + 'px';
+            dragEl.style.width = rect.width + 'px';
+            dragEl.style.pointerEvents = 'none';
+            dragEl.style.zIndex = 9999;
+            dragEl.style.transform = 'translate(0,0)';
+            dragEl.style.boxShadow = '0 8px 24px rgba(0,0,0,.18)';
+            dragEl.style.borderRadius = '6px';
+            dragEl.style.opacity = '0.98';
+            dragEl.style.willChange = 'transform';
+            dragEl.classList.add('drag-floating');
+            document.body.appendChild(dragEl);
+
+            // create placeholder row with same height and same number of cells
+            placeholder = document.createElement('tr');
+            placeholder.className = 'drag-placeholder';
+            placeholder.style.height = rect.height + 'px';
+            const colCount = tr.children.length;
+            for (let c = 0; c < colCount; c++) {
+                placeholder.appendChild(document.createElement('td'));
+            }
+
+            // insert placeholder where the row was, then remove the real row
+            tbody.insertBefore(placeholder, tr);
+            tbody.removeChild(tr);
+
+            // global listeners
+            document.addEventListener('pointermove', onPointerMove);
+            document.addEventListener('pointerup', onPointerUp, { once: true });
+        };
+
+        handle.addEventListener('pointerdown', onPointerDown);
+
+        function cleanup() {
+            // stop autoscroll RAF if any
+            cancelAnimationFrame(rafId);
+
+            // remove floating clone
+            if (dragEl && dragEl.parentNode) dragEl.parentNode.removeChild(dragEl);
+            dragEl = null;
+
+            // restore the original row before removing placeholder
+            if (placeholder && placeholder.parentNode) {
+                placeholder.parentNode.insertBefore(draggingRow, placeholder);
+                placeholder.parentNode.removeChild(placeholder);
+            }
+            placeholder = null;
+
+            // clear references
+            draggingRow = null;
+
+            // remove pointermove if still attached (safe)
+            document.removeEventListener('pointermove', onPointerMove);
+        }
+
+        function movePlaceholder(pointerClientY) {
+            const entryRows = getEntryRows().filter(r => r !== draggingRow);
+
+            // take BEFORE positions
+            const firstRects = new Map(entryRows.map(r => [r, r.getBoundingClientRect()]));
+
+            let target = null;
+            for (const r of entryRows) {
+                const rrect = r.getBoundingClientRect();
+                const midpoint = rrect.top + rrect.height / 2;
+                if (pointerClientY < midpoint) {
+                    target = r;
+                    break;
+                }
+            }
+
+            if (target) {
+                if (placeholder.nextSibling !== target) {
+                    tbody.insertBefore(placeholder, target);
+                }
+            } else {
+                if (placeholder !== tbody.lastElementChild) {
+                    tbody.appendChild(placeholder);
+                }
+            }
+
+            // take AFTER positions
+            const lastRects = new Map(entryRows.map(r => [r, r.getBoundingClientRect()]));
+
+            animateReorder(entryRows, firstRects, lastRects);
+        }
+
+        function maybeAutoScroll(e) {
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const threshold = 36;
+            const maxStep = 18;
+            let delta = 0;
+            if (e.clientY < containerRect.top + threshold) {
+                delta = -maxStep * ((containerRect.top + threshold - e.clientY) / threshold);
+            } else if (e.clientY > containerRect.bottom - threshold) {
+                delta = maxStep * ((e.clientY - (containerRect.bottom - threshold)) / threshold);
+            }
+
+            if (delta !== 0) {
+                cancelAnimationFrame(rafId);
+                const tick = () => {
+                    scrollContainer.scrollTop += delta;
+                    rafId = requestAnimationFrame(tick);
+                };
+                rafId = requestAnimationFrame(tick);
+            } else {
+                cancelAnimationFrame(rafId);
+            }
+        }
+
+        function animateReorder(rows, firstRects, lastRects) {
+            rows.forEach(r => {
+                const first = firstRects.get(r);
+                const last = lastRects.get(r);
+                if (!first || !last) return;
+
+                const dx = first.left - last.left;
+                const dy = first.top - last.top;
+
+                if (dx || dy) {
+                    r.style.transform = `translate(${dx}px, ${dy}px)`;
+                    r.style.transition = 'none';
+                    r.offsetHeight; // force reflow
+                    r.style.transform = '';
+                    r.style.transition = 'transform 150ms ease';
+                }
+            });
+        }
+    });
+}
+
 
 // Gap Row
 
