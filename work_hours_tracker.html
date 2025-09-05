@@ -10,82 +10,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
     <!-- CSS -->
     <link type="text/css" rel="stylesheet" href="css/base.css"/>
-    <link type="text/css" rel="stylesheet" href="css/forms.css"/>
     <link type="text/css" rel="stylesheet" href="css/layout.css"/>
-    <link type="text/css" rel="stylesheet" href="css/tables.css"/>
-    <link type="text/css" rel="stylesheet" href="css/utilities.css"/>
+    <link type="text/css" rel="stylesheet" href="css/sections/buttons.css"/>
+    <link type="text/css" rel="stylesheet" href="css/sections/day_tabs.css"/>
+    <link type="text/css" rel="stylesheet" href="css/sections/hint_row.css"/>
+    <link type="text/css" rel="stylesheet" href="css/sections/inputs.css"/>
+    <link type="text/css" rel="stylesheet" href="css/sections/tables.css"/>
+    <link type="text/css" rel="stylesheet" href="css/sections/timeline.css"/>
+    <link type="text/css" rel="stylesheet" href="css/sections/utilities.css"/>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,
     <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>⌛</text></svg>">
 </head>
 <body class="">
-<div class="wrap">
 
-    <div id="tabs" class="tabs header"></div>
-
-    <div id="hours-summary">
-        <div class="hours-summary-info">
-            <div class="work-time"><span class="dot"></span><span class="number">0</span>work</div>
-            <div class="break-time"><span class="dot"></span><span class="number">0</span>break</div>
-            <div class="tickets-count"><span class="dot"></span><span class="number">0</span><span class="label">tickets</span></div>
-            <div class="total-time-left" style="margin-left: auto"><span class="number">0h</span>left</div>
+<div class="header">
+    <div class="wrapper">
+        <!-- Days Tabs -->
+        <div id="tabs" class="tabs"></div>
+        <!-- Daily Hours Summary -->
+        <div id="hours-summary">
+            <div class="hours-summary-info">
+                <div class="work-time"><span class="dot"></span><span class="number">0</span>work</div>
+                <div class="break-time"><span class="dot"></span><span class="number">0</span>break</div>
+                <div class="tickets-count"><span class="dot"></span><span class="number">0</span><span
+                        class="label">tickets</span>
+                </div>
+                <div class="total-time-left" style="margin-left: auto"><span class="number">0h</span>left</div>
+            </div>
+            <div class="timeline">
+                <div class="block other" style="width: 0"></div>
+                <div class="block ticket" style="width: 0"></div>
+                <div class="block meeting" style="width: 0"></div>
+                <div class="block break" style="width: 0"></div>
+            </div>
         </div>
-        <div class="timeline">
-            <div class="block other" style="width: 0"></div>
-            <div class="block ticket" style="width: 0"></div>
-            <div class="block meeting" style="width: 0"></div>
-            <div class="block break" style="width: 0"></div>
-        </div>
-    </div>
-
-    <div class="main-controls footer">
+        <!-- View Summary Toggle -->
         <button id="toggleSummaryBtn" class="primary">View Summary</button>
     </div>
-
-
-    <div class="card">
-        <table id="hoursTable">
-            <thead>
-            <tr>
-                <th style="width:110px;">Start</th>
-                <th style="width:110px;">End</th>
-                <th style="width:64px;">Duration</th>
-                <th style="width:14px;">Type</th>
-                <th>Description</th>
-                <th style="width:64px;">Delete</th>
-                <th style="width:64px;"></th>
-            </tr>
-            </thead>
-            <tbody id="hoursTableBody"></tbody>
-        </table>
-        <div id="summary" class="summary hidden"></div>
-    </div>
-
-    <div class="hint-row">
-        <span>Press <kbd>Enter</kbd> to start a new entry</span>
-        <span> | Press <kbd>Space</kbd> to continue from last end time</span></br>
-        <span>Use <kbd>↑</kbd> / <kbd>↓</kbd> to move between entries</span>
-    </div>
-
-
-
-    <div class="days hidden">
-        <div class="inline-form" style=>
-            <input type="date" id="addDayInput" title="Pick a date to create/open"/>
-            <button id="addDayBtn" class="small">Add / Open Day</button>
-        </div>
-
-        <div class="inline-form" style="margin-left:8px;">
-            <button id="editDayBtn" class="small">Edit Day</button>
-            <input type="date" id="editDayInput"/>
-            <button id="saveEditDayBtn" class="small">Save</button>
-            <button id="cancelEditDayBtn" class="small">Cancel</button>
-        </div>
-
-        <button id="deleteDayBtn" class="danger small" style="margin-left:auto;">Delete Day</button>
-    </div>
-
 </div>
+
+<div class="body">
+    <table id="hoursTable">
+        <thead>
+        <tr>
+            <th style="width:110px;">Start</th>
+            <th style="width:110px;">End</th>
+            <th style="width:64px;">Duration</th>
+            <th style="width:14px;">Type</th>
+            <th>Description</th>
+            <th style="width:64px;">Delete</th>
+            <th style="width:64px;"></th>
+        </tr>
+        </thead>
+        <tbody id="hoursTableBody"></tbody>
+    </table>
+    <div id="summary" class="summary hidden"></div>
+</div>
+
+<div class="footer hint-row">
+    <span>Press <kbd>Enter</kbd> to start a new entry.</span>
+    <span>Press <kbd>Space</kbd> to continue from last end time</span></br>
+    <span>Use <kbd>↑</kbd> / <kbd>↓</kbd> to move between entries</span>
+</div>
+
 <!-- Javascript -->
 <script src="dist/bundle.js"></script>
 </body>

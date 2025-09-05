@@ -1,0 +1,43 @@
+input[type="time"] {
+    text-align: center;
+    cursor: text;
+}
+
+input[type="time"],
+input[type="text"],
+input[type="date"] {
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 14px;
+    border: 1px solid var(--bg);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--ink);
+    transition: border-color var(--transition), background var(--transition);
+}
+
+input::placeholder {
+    color: var(--placeholder);
+}
+
+input:not([disabled]):hover {
+    outline: none;
+    border-color: var(--accent3);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--accent) !important;
+}
+
+
+/* Hide input clock icon */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+    cursor: default;
+}
+
+input[type="time"]::-moz-calendar-picker-indicator {
+    display: none;
+}

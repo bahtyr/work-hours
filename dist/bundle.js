@@ -30,15 +30,7 @@
         timelineBreak: document.querySelector(".timeline .break"),
         timelineMeeting: document.querySelector(".timeline .meeting"),
         // buttons
-        toggleSummaryBtn: document.getElementById("toggleSummaryBtn"),
-        // days
-        addDayBtn: document.getElementById("addDayBtn"),
-        addDayInput: document.getElementById("addDayInput"),
-        editDayBtn: document.getElementById("editDayBtn"),
-        editDayInput: document.getElementById("editDayInput"),
-        saveEditDayBtn: document.getElementById("saveEditDayBtn"),
-        cancelEditDayBtn: document.getElementById("cancelEditDayBtn"),
-        deleteDayBtn: document.getElementById("deleteDayBtn")
+        toggleSummaryBtn: document.getElementById("toggleSummaryBtn")
       };
       locators = {
         entryTime: '#hoursTable input[type="time"]',
@@ -185,51 +177,7 @@
     elements.hoursTable.classList.toggle("hidden");
     elements.summary.classList.toggle("hidden");
   }
-  function onAddDay() {
-    if (elements.addDayInput.value) {
-      setOpenDay(elements.addDayInput.value);
-      renderAll();
-      elements.addDayInput.value = "";
-    }
-  }
-  function onEditDay() {
-    elements.editDayInput.value = state2.openDay;
-    elements.editDayInput.style.display = "inline-block";
-    elements.saveEditDayBtn.style.display = "inline-block";
-    elements.cancelEditDayBtn.style.display = "inline-block";
-    elements.editDayInput.focus();
-  }
-  function onCancelEditDay() {
-    elements.editDayInput.style.display = "none";
-    elements.saveEditDayBtn.style.display = "none";
-    elements.cancelEditDayBtn.style.display = "none";
-  }
-  function onSaveEditDay() {
-    const newDate = elements.editDayInput.value;
-    const oldDate = state2.openDay;
-    if (!newDate) {
-      alert("Pick a valid date");
-      return;
-    }
-    if (newDate === oldDate) {
-      onCancelEditDay();
-      return;
-    }
-    if (state2.days[newDate]) {
-      if (!confirm("Target day already exists. Merge current entries into that day?")) {
-        return;
-      }
-      state2.days[newDate] = (state2.days[newDate] || []).concat(state2.days[oldDate]);
-    } else {
-      state2.days[newDate] = state2.days[oldDate];
-    }
-    delete state2.days[oldDate];
-    state2.openDay = newDate;
-    saveState();
-    renderAll();
-    onCancelEditDay();
-  }
-  function onDeleteDay() {
+  function deleteOpenDay() {
     if (!confirm("Delete all entries for this day? This cannot be undone.")) {
       return;
     }
@@ -277,7 +225,7 @@
       deleteBtn.textContent = "\xD7";
       deleteBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        onDeleteDay(day);
+        deleteOpenDay();
       });
       tabEl.appendChild(deleteBtn);
       tabEl.addEventListener("click", () => {
@@ -892,11 +840,6 @@
       init_events();
       init_events_days();
       elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
-      elements.addDayBtn.addEventListener("click", onAddDay);
-      elements.editDayBtn.addEventListener("click", onEditDay);
-      elements.cancelEditDayBtn.addEventListener("click", onCancelEditDay);
-      elements.saveEditDayBtn.addEventListener("click", onSaveEditDay);
-      elements.deleteDayBtn.addEventListener("click", onDeleteDay);
       document.addEventListener("keydown", onDocumentKeyDown);
       renderAll();
     }

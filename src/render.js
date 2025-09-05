@@ -9,7 +9,7 @@ import {
     parseHM,
     todayKey
 } from './utils';
-import {onDeleteDay} from "./events_days";
+import {deleteOpenDay} from "./events_days";
 
 const state = getState();
 const gapRows = new Map();
@@ -60,7 +60,7 @@ function renderTabs() {
         deleteBtn.textContent = '×';
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation(); // prevent tab click
-            onDeleteDay(day);
+            deleteOpenDay();
         });
         tabEl.appendChild(deleteBtn);
 

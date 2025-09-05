@@ -27,37 +27,6 @@ th {
 }
 
 
-/* --------- Action Buttons */
-
-table .action {
-    user-select: none;
-    background: none;
-    border: none;
-    opacity: 0.6;
-    transition: opacity var(--transition);
-}
-
-table .action:hover {
-    background: none;
-    opacity: 1;
-}
-
-table .action.bigger {
-    font-size: 18px;
-    padding: 6px;
-}
-
-/* --------- Gap Row */
-
-.gap-row,
-.gap-row input {
-    color: var(--warning);
-}
-
-table tr:has(.type-3) {
-    opacity: 0.5;
-}
-
 /* --------- Column Adjustments */
 
 table tr > *:nth-child(1),
@@ -134,23 +103,59 @@ table tr > *:nth-child(7) {
 }
 
 
-/* --------- Keyboard Hints Row */
+/* --------- Action Buttons */
 
-.hint-row {
-    text-align: center;
-    color: var(--placeholder);
-    width: 100%;
-    padding: 8px 12px;
-    font-size: 14px;
-    line-height: 24px;
-    margin-bottom: 12px;
+table .action {
+    user-select: none;
+    background: none;
+    border: none;
+    opacity: 0.6;
+    transition: opacity var(--transition);
 }
 
-kbd {
-    background-color: var(--button-bg);
-    border-radius: 4px;
-    padding: 2px 6px;
-    /*color: var(--muted);*/
-    font-family: monospace;
-    text-transform: lowercase;
+table .action:hover {
+    background: none;
+    opacity: 1;
+}
+
+table .action.bigger {
+    font-size: 18px;
+    padding: 6px;
+}
+
+
+/* --------- Gap Row */
+
+.gap-row,
+.gap-row input {
+    color: var(--warning);
+}
+
+table tr:has(.type-3) {
+    opacity: 0.5;
+}
+
+
+/* --------- Drag */
+
+.drag-handle {
+    cursor: grab;
+    user-select: none;
+    touch-action: none; /* improves pointer drag on touch */
+}
+
+.drag-floating {
+    cursor: grabbing;
+}
+
+.drag-placeholder td {
+    padding: 0;
+    border: 0;
+    height: inherit; /* keep height stable */
+}
+
+/* Optional: animate rows as placeholder moves around */
+#hoursTableBody tr {
+    transition: transform 1s ease;
+    will-change: transform;
 }

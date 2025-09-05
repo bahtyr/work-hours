@@ -16,29 +16,16 @@ export function toggleSummary() {
 // Days
 
 export function onAddDay() {
-    if (elements.addDayInput.value) {
-        setOpenDay(elements.addDayInput.value);
+    let newDate = ''; //elements.addDayInput.value;
+    if (newDate) {
+        setOpenDay(newDate);
         renderAll();
-        elements.addDayInput.value = '';
+        newDate = '';
     }
 }
 
-export function onEditDay() {
-    elements.editDayInput.value = state.openDay;
-    elements.editDayInput.style.display = 'inline-block';
-    elements.saveEditDayBtn.style.display = 'inline-block';
-    elements.cancelEditDayBtn.style.display = 'inline-block';
-    elements.editDayInput.focus();
-}
-
-export function onCancelEditDay() {
-    elements.editDayInput.style.display = 'none';
-    elements.saveEditDayBtn.style.display = 'none';
-    elements.cancelEditDayBtn.style.display = 'none';
-}
-
 export function onSaveEditDay() {
-    const newDate = elements.editDayInput.value;
+    const newDate = ''; //elements.editDayInput.value;
     const oldDate = state.openDay;
 
     if (!newDate) {
@@ -47,7 +34,7 @@ export function onSaveEditDay() {
     }
 
     if (newDate === oldDate) {
-        onCancelEditDay();
+        // cancel
         return;
     }
 
@@ -67,10 +54,10 @@ export function onSaveEditDay() {
     state.openDay = newDate;
     saveState();
     renderAll();
-    onCancelEditDay();
+    // cancel
 }
 
-export function onDeleteDay() {
+export function deleteOpenDay() {
     if (!confirm('Delete all entries for this day? This cannot be undone.')) {
         return;
     }

@@ -1,233 +1,64 @@
-.wrap {
+/* ============== LAYOUT ============== */
+
+body {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 0 16px;
+    user-select: none;
 }
-
-/* ============== WRAPPER ============== */
-
-.header {
-    margin-top: 48px;
-}
-
 
 .header, .footer {
     flex-shrink: 0;
-    padding: 16px 0;
 }
 
-.footer {
-    padding-bottom: 0;
-}
-
-
-/* ============== CARD ============== */
-
-
-.card {
+.body {
     flex: 1;
-    overflow-y: auto;
-    /*background: var(--card);*/
-    /*border: 1px solid var(--line);*/
-    /*border-radius: 12px;*/
-    padding: 16px;
-    transition: background var(--transition);
+    user-select: text;
 }
 
-.card table {
+/* ============== HEADER ============== */
+
+.header {
+    background: var(--card);
+    border: 1px solid var(--line);
+}
+
+.header > .wrapper {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 16px;
+    padding-bottom: 12px;
+    padding-top: 48px;
+}
+
+/* ============== BODY ============== */
+
+.body {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 16px;
+    padding-top: 22px;
+    overflow-y: auto;
+}
+
+.body table {
     width: 100%;
 }
 
 /* Hide scrollbar */
-.card {
+.body {
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
 
-.card::-webkit-scrollbar {
+.body::-webkit-scrollbar {
     display: none;
 }
-
-
-/* ============== HEADER / TABS ============== */
-
-
-.tabs {
-    display: flex;
-    gap: 4px;
-    overflow-x: auto;
-    padding-bottom: 4px;
-    margin-bottom: 8px;
-    align-items: baseline;
-}
-
-.tab {
-    position: relative; /* needed for absolute positioning of delete button */
-    padding: 8px 12px;
-    color: var(--muted);
-    cursor: pointer;
-    white-space: nowrap;
-    font-size: 1.5rem;
-    transition: color var(--transition);
-}
-
-.tab:hover {
-    color: var(--ink);
-}
-
-.tab.active {
-    color: var(--ink);
-    font-weight: 500;
-    font-size: 1.75rem;
-}
-
-.tab .delete-btn {
-    display: none;
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 18px;
-    height: 18px;
-    font-size: 12px;
-    line-height: 18px;
-    text-align: center;
-    border-radius: 50%;
-    text-transform: uppercase;
-    background-color: var(--danger-gradient-to);
-    color: var(--danger-text);
-    cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.tab.active:hover .delete-btn {
-    display: block;
-}
-
-.tab .delete-btn:hover {
-    background-color: var(--danger-gradient-from);
-}
-
-
-/* ============== HEADER SUMMARY ============== */
-
-#hours-summary {
-    padding: 0 12px;
-    margin-top: 8px;
-    margin-bottom: 4px;
-}
-
-.hours-summary-info {
-    display: flex;
-    gap: 22px;
-    padding: 0 4px;
-    /*font-size: 12px;*/
-    color: var(--muted);
-}
-
-.hours-summary-info div {
-    display: flex;
-    gap: 6px;
-    align-items: baseline;
-    padding: 4px;
-}
-
-.hours-summary-info .number {
-    /*font-size: 14px;*/
-    color: var(--ink);
-    font-size: 18px;
-}
-
-.hours-summary-info .dot {
-    display: inline-block;
-    height: 8px;
-    width: 8px;
-    border-radius: 50%;
-    color: var(--danger-text);
-    align-self: center;
-    margin-top: 2px;
-    display: none;
-}
-
-.work-time .dot {
-    background-color: var(--ink);
-}
-.break-time .dot {
-    background-color: var(--break);
-}
-.tickets-count .dot {
-    background-color: var(--accent2);
-}
-
-.work-time {
-    /*border-bottom: 2px solid var(--ink);*/
-}
-.break-time {
-    /*border-bottom: 2px solid var(--break);*/
-}
-.tickets-count {
-    /*border-bottom: 2px solid var(--accent2);*/
-}
-
-/* Timeline */
-
-.timeline {
-    overflow: hidden;
-    border-radius: 4px;
-    height: 6px;
-    margin-top: 16px;
-    margin-bottom: 4px;
-    background: var(--card-light);
-    display: flex;
-}
-
-.block {
-    height: 100%;
-    transition: width var(--transition);
-}
-
-.block.ticket {
-    background: var(--accent2);
-}
-
-.block.break {
-    background: var(--break);
-}
-
-.block.meeting {
-    background: var(--danger);
-}
-
-.block.other {
-    background: var(--ink);
-}
-
 
 /* ============== FOOTER ============== */
 
-
-.main-controls {
-    display: flex;
-    flex-wrap: wrap;
-    /*gap: 16px;*/
-    /*margin-bottom: 16px;*/
+.footer {
+    padding: 8px 12px;
+    padding-bottom: 24px;
 }
-
-.quick-entry {
-}
-
-.quick-entry input {
-    /*background: var(--button-hover);*/
-    border: 1px solid var(--button-border);
-    font-size: 18px;
-    padding: 22px 40px;
-    padding: 18px 36px;
-    border-radius: 100px;
-}
-
-.quick-entry input:focus {
-    border-color: var(--accent);
-}
-

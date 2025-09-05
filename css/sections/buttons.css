@@ -1,0 +1,50 @@
+button {
+    cursor: pointer;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: var(--button-bg);
+    color: var(--button-text);
+    border: 1px solid var(--button-border);
+    font-weight: 700;
+    font-size: 14px;
+    transition: background var(--transition), border-color var(--transition), opacity var(--transition);
+}
+
+button:hover {
+    background: var(--button-hover);
+}
+
+/* disabled */
+button[disabled],
+button[disabled]:hover {
+    cursor: default;
+    background: var(--button-bg);
+    opacity: 0.5;
+}
+
+button.primary {
+    /*background: var(--accent);*/
+    /*color: var(--bg);*/
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+    /*padding: 22px 40px;*/
+    padding:16px 32px;
+    border-radius: 32px;
+    color: rgba(255, 255, 255, 0.75);
+    width: 100%;
+}
+
+button.danger {
+    background: linear-gradient(180deg, var(--danger-gradient-from), var(--danger-gradient-to));
+    color: var(--danger-text);
+    border-color: var(--danger-border);
+}
+
+#toggleSummaryBtn {
+    margin-top: 16px;
+    background: var(--card);
+}
+
+#toggleSummaryBtn:hover {
+    background: var(--card-light);
+}

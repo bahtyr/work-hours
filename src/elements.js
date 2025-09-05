@@ -18,14 +18,6 @@ export const elements = {
     timelineMeeting: document.querySelector('.timeline .meeting'),
     // buttons
     toggleSummaryBtn: document.getElementById('toggleSummaryBtn'),
-    // days
-    addDayBtn: document.getElementById('addDayBtn'),
-    addDayInput: document.getElementById('addDayInput'),
-    editDayBtn: document.getElementById('editDayBtn'),
-    editDayInput: document.getElementById('editDayInput'),
-    saveEditDayBtn: document.getElementById('saveEditDayBtn'),
-    cancelEditDayBtn: document.getElementById('cancelEditDayBtn'),
-    deleteDayBtn: document.getElementById('deleteDayBtn')
 };
 export const locators = {
     entryTime: '#hoursTable input[type="time"]',
