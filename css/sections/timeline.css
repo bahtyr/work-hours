@@ -1,23 +1,17 @@
-#day-summary {
-    padding: 0 12px;
-    margin-top: 8px;
-    margin-bottom: 4px;
-}
-
 /* ============== HOURS ============== */
 
 .hours-info {
     display: flex;
+    /* gap between each info */
     gap: 22px;
-    padding: 0 4px;
     color: var(--muted);
 }
 
 .hours-info .info {
     display: flex;
+    /* gap between number and label */
     gap: 6px;
     align-items: baseline;
-    padding: 4px;
 }
 
 .hours-info .number {
