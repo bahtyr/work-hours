@@ -1,31 +1,44 @@
+/* ================= BASE ================= */
 :root {
-    --bg: #0f1115;
-    --bg-transparent: rgba(15, 17, 21, 0);
-    --card: hsl(222, 18%, 11%);
-    --card-light: hsl(222, 18%, 17%);
-    --card-lighter: hsl(222, 18%, 27%);
-    --line: #262a33;
-    --ink: #e8e8e8;
-    --muted: #a7a7a7;
-    --accent: #82cfff;
-    --accent2: #549dcb;
-    --accent3: rgba(84, 157, 203, 0.55);
-    --break: hsl(35 86% 71% / 1);;
-    --warning: hsl(40deg 94% 77% / 76%);
-    --danger: #ff4d4d;
+    /* ===== Base ===== */
+    --color-bg: hsl(220 20% 6%);
+    --color-surface: hsl(220 18% 11%);
+    --color-surface-hover: hsl(220 18% 17%);
+    --color-surface-active: hsl(220 18% 27%);
+    --color-border: hsl(220 10% 18% / 1);
 
-    /* new variables for inputs and placeholder */
-    --input-bg: #0f1218;
-    --placeholder: #6c7280;
-    --button-text: var(--ink);
-    --button-bg: var(--card);
-    --button-border: var(--line);
-    --button-hover: var(--card-light);
-    --danger-text: #fff;
-    --danger-border: #501515;
-    --danger-gradient-from: #7b2222;
-    --danger-gradient-to: #501515;
+    /* ===== Text ===== */
+    --color-text: hsl(0 0% 91%);
+    --color-text-muted: hsl(0 0% 65%);
+    --color-text-placeholder: hsl(220 6% 45%);
 
+    /* ===== Accent (UI) ===== */
+    --color-accent: hsl(200 100% 75%);
+    --color-accent-hover: hsl(200 55% 55%);
+    --color-accent-subtle: hsl(200 55% 55% / 0.55);
+
+    /* ===== Infographics ===== */
+    --color-work: hsl(200 55% 55%);
+    --color-break: hsl(35 86% 71%);
+    --color-meeting: hsl(0 100% 64%);
+    --color-other: hsl(0 0% 91%);
+
+    /* ===== Semantic ===== */
+    --color-warning: hsl(40 94% 77% / 0.76);
+    --color-danger: hsl(0 100% 64%);
+    --color-danger-text: hsl(0 0% 100%);
+    --color-danger-border: hsl(0 55% 20%);
+    --color-danger-gradient-from: hsl(0 55% 30%);
+    --color-danger-gradient-to: hsl(0 55% 20%);
+
+    /* ===== Inputs / Buttons ===== */
+    --color-input-bg: hsl(220 20% 7%);
+    --color-button-bg: var(--color-surface);
+    --color-button-text: var(--color-text);
+    --color-button-border: var(--color-border);
+    --color-button-hover: var(--color-surface-hover);
+
+    /* ===== Transitions ===== */
     --transition: 0.2s ease-in-out;
 }
 
@@ -38,6 +51,6 @@
 html, body {
     height: 100%;
     font-family: "Fredoka", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
+    background: var(--color-bg);
+    color: var(--color-text);
 }

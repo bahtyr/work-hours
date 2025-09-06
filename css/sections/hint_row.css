@@ -1,15 +1,18 @@
 .hint-row {
     text-align: center;
-    color: var(--placeholder);
+    color: var(--color-text-muted);
     width: 100%;
     font-size: 14px;
     line-height: 24px;
 }
 
 kbd {
-    background-color: var(--button-bg);
+    background-color: var(--color-surface);
     border-radius: 4px;
     padding: 2px 6px;
     font-family: monospace;
     text-transform: lowercase;
+    /* ??? */
+    color: var(--color-accent);
+    font-weight: 600;
 }

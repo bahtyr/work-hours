@@ -10,7 +10,7 @@ table::after {
 }
 
 tr {
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--color-border);
     transition: opacity var(--transition);
 }
 
@@ -20,12 +20,11 @@ th, td {
 }
 
 th {
-    color: var(--muted);
+    color: var(--color-text-muted);
     font-weight: 600;
     font-size: 12px;
     letter-spacing: 0.3px;
 }
-
 
 /* --------- Column Adjustments */
 
@@ -76,13 +75,10 @@ table tr > *:nth-child(7) {
     pointer-events: none; /* "allow mouse clicks passthrough" so that other text can be selected */
 }
 
-
 /* --------- Dark Overlay */
 
 #hoursTable {
     position: relative;
-    /*overflow-y: auto;*/
-    /*max-height: 500px; !* adjust to your layout *!*/
 }
 
 #hoursTable::before {
@@ -91,8 +87,8 @@ table tr > *:nth-child(7) {
     top: 0;
     left: 0;
     right: 0;
-    height: 100%; /* how much fade you want */
-    pointer-events: none; /* very important: allow clicks through */
+    height: 100%;
+    pointer-events: none;
     /*background: linear-gradient(to bottom, rgba(15, 17, 21, 0.8), var(--bg-transparent));*/
     z-index: 5;
     transition: opacity 0.5s ease;
@@ -123,18 +119,16 @@ table .action.bigger {
     padding: 6px;
 }
 
-
 /* --------- Gap Row */
 
 .gap-row,
 .gap-row input {
-    color: var(--warning);
+    color: var(--color-warning);
 }
 
 table tr:has(.type-3) {
     opacity: 0.5;
 }
-
 
 /* --------- Drag */
 

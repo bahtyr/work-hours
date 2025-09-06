@@ -11,19 +11,28 @@
 
 .tab {
     position: relative;
-    color: var(--muted);
+    color: var(--color-text-muted);
     cursor: pointer;
     white-space: nowrap;
     font-size: 1.5rem;
     transition: color var(--transition);
+    /* ??? */
+    background: transparent;
+    border-bottom: 2px solid transparent;
+    padding: 4px 8px;
 }
 
 .tab:hover {
-    color: var(--ink);
+    color: var(--color-text);
+    /* ??? */
+    background: var(--color-surface-hover);
 }
 
 .tab.active {
-    color: var(--ink);
+    color: var(--color-text);
+    /* ??? */
+    background: var(--color-surface);
+    border-bottom-color: var(--color-accent);
     font-weight: 500;
     font-size: 1.75rem;
 }
@@ -42,10 +51,10 @@
     text-align: center;
     border-radius: 50%;
     text-transform: uppercase;
-    background-color: var(--danger-gradient-to);
-    color: var(--danger-text);
+    background-color: var(--color-danger-gradient-to);
+    color: var(--color-danger-text);
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color var(--transition), color var(--transition);
 }
 
 .tab.active:hover .delete-btn {
@@ -54,5 +63,5 @@
 }
 
 .tab .delete-btn:hover {
-    background-color: var(--danger-gradient-from);
+    background-color: var(--color-danger-gradient-from);
 }
