@@ -1,8 +1,8 @@
 /* ================= BASE ================= */
 :root {
     /* ===== Base ===== */
-    --color-bg: hsl(220 20% 6%);
-    --color-surface: hsl(220 18% 11%);
+    --color-bg: hsl(220 17% 7%);
+    --color-surface: hsl(220 18% 10%);
     --color-surface-hover: hsl(220 18% 17%);
     --color-surface-active: hsl(220 18% 27%);
     --color-border: hsl(220 10% 18% / 1);
@@ -32,9 +32,11 @@
     --color-danger-gradient-to: hsl(0 55% 20%);
 
     /* ===== Inputs / Buttons ===== */
-    --color-input-bg: hsl(220 20% 7%);
+    /*--color-input-bg: hsl(220 20% 7%);*/
+    --color-input-bg: transparent;
+    --color-input-border: transparent;
     --color-button-bg: var(--color-surface);
-    --color-button-text: var(--color-text);
+    --color-button-text: var(--color-text-muted);
     --color-button-border: var(--color-border);
     --color-button-hover: var(--color-surface-hover);
 

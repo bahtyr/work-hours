@@ -16,23 +16,14 @@
     white-space: nowrap;
     font-size: 1.5rem;
     transition: color var(--transition);
-    /* ??? */
-    background: transparent;
-    border-bottom: 2px solid transparent;
-    padding: 4px 8px;
 }
 
 .tab:hover {
     color: var(--color-text);
-    /* ??? */
-    background: var(--color-surface-hover);
 }
 
 .tab.active {
     color: var(--color-text);
-    /* ??? */
-    background: var(--color-surface);
-    border-bottom-color: var(--color-accent);
     font-weight: 500;
     font-size: 1.75rem;
 }
