@@ -14,7 +14,24 @@ button:hover {
     background: var(--button-hover);
 }
 
-/* disabled */
+/* --------- Primary */
+
+button.primary {
+    background: var(--card);
+    letter-spacing: 1px;
+    font-size: 0.75rem;
+    padding: 16px 32px;
+    border-radius: 32px;
+    color: rgba(255, 255, 255, 0.75);
+    width: 100%;
+}
+
+button.primary:hover {
+    background: var(--card-light);
+}
+
+/* --------- Disabled */
+
 button[disabled],
 button[disabled]:hover {
     cursor: default;
@@ -22,29 +39,8 @@ button[disabled]:hover {
     opacity: 0.5;
 }
 
-button.primary {
-    /*background: var(--accent);*/
-    /*color: var(--bg);*/
-    letter-spacing: 1px;
-    font-size: 0.75rem;
-    /*padding: 22px 40px;*/
-    padding:16px 32px;
-    border-radius: 32px;
-    color: rgba(255, 255, 255, 0.75);
-    width: 100%;
-}
-
-button.danger {
-    background: linear-gradient(180deg, var(--danger-gradient-from), var(--danger-gradient-to));
-    color: var(--danger-text);
-    border-color: var(--danger-border);
-}
+/* ============== ADJUSTMENTS ============== */
 
 #toggleSummaryBtn {
     margin-top: 16px;
-    background: var(--card);
-}
-
-#toggleSummaryBtn:hover {
-    background: var(--card-light);
 }

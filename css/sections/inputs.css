@@ -1,8 +1,3 @@
-input[type="time"] {
-    text-align: center;
-    cursor: text;
-}
-
 input[type="time"],
 input[type="text"],
 input[type="date"] {
@@ -15,6 +10,13 @@ input[type="date"] {
     color: var(--ink);
     transition: border-color var(--transition), background var(--transition);
 }
+
+input[type="time"] {
+    text-align: center;
+    cursor: text;
+}
+
+/* --------- States */
 
 input::placeholder {
     color: var(--placeholder);
@@ -30,8 +32,8 @@ input:focus {
     border-color: var(--accent) !important;
 }
 
+/* --------- Hide input clock icon */
 
-/* Hide input clock icon */
 input[type="time"]::-webkit-calendar-picker-indicator {
     display: none;
     -webkit-appearance: none;
