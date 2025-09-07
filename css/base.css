@@ -3,14 +3,14 @@
     /* ===== Base ===== */
     --color-bg: hsl(220 17% 7%);
     --color-surface: hsl(220 18% 10%);
-    --color-surface-hover: hsl(220 18% 17%);
     --color-surface-active: hsl(220 18% 27%);
+    --color-surface-hover: hsl(220 18% 17%);
     --color-border: hsl(220 10% 18% / 1);
 
     /* ===== Text ===== */
-    --color-text: hsl(0 0% 91%);
-    --color-text-muted: hsl(0 0% 65%);
-    --color-text-placeholder: hsl(220 6% 45%);
+    --color-text: hsl(0 0% 100% / 0.75);
+    --color-text-muted: hsl(0 0% 100% / 0.50);
+    --color-text-placeholder: hsl(0 0% 100% / 0.50);
 
     /* ===== Accent (UI) ===== */
     --color-accent: hsl(200 100% 75%);
@@ -36,12 +36,17 @@
     --color-input-bg: transparent;
     --color-input-border: transparent;
     --color-button-bg: var(--color-surface);
-    --color-button-text: var(--color-text-muted);
+    --color-button-text: var(--color-text);
     --color-button-border: var(--color-border);
     --color-button-hover: var(--color-surface-hover);
 
     /* ===== Transitions ===== */
     --transition: 0.2s ease-in-out;
+
+    /* ===== Font Size ===== */
+    --font-size-small: 12px;
+    --font-size-regular: 14px;
+    --font-size-big: 18px;
 }
 
 * {

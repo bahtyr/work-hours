@@ -21,8 +21,8 @@ th, td {
 
 th {
     color: var(--color-text-muted);
-    font-weight: 600;
-    font-size: 12px;
+    font-weight: 400;
+    font-size: var(--font-size-small);
     letter-spacing: 0.3px;
 }
 
@@ -42,7 +42,7 @@ table tr > th:nth-child(3) {
 table tr > td:nth-child(3) {
     /* duration row */
     text-align: right;
-    font-size: 14px;
+    font-size: var(--font-size-regular);
     font-family: monospace;
     cursor: default;
 }
@@ -115,7 +115,7 @@ table .action:hover {
 }
 
 table .action.bigger {
-    font-size: 18px;
+    font-size: var(--font-size-big);
     padding: 6px;
 }
 
