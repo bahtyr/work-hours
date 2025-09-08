@@ -33,6 +33,10 @@ input:focus {
     /*box-shadow: 0 0 0 2px var(--color-accent-subtle);*/
 }
 
+tr:has(input:focus) td {
+    background-color: hsl(220 17% 9%);
+}
+
 /* --------- Hide input clock icon */
 
 input[type="time"]::-webkit-calendar-picker-indicator {
