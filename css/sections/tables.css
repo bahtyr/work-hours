@@ -102,7 +102,7 @@ table tr > *:nth-child(7) {
 
 /* --------- Action Buttons */
 
-table .action {
+tr .action {
     user-select: none;
     background: none;
     border: none;
@@ -110,12 +110,12 @@ table .action {
     transition: opacity var(--transition);
 }
 
-table .action:hover {
+tr .action:hover {
     background: none;
     opacity: 1;
 }
 
-table .action.bigger {
+tr .action.bigger {
     font-size: var(--font-size-big);
     padding: 6px;
 }
@@ -150,6 +150,7 @@ table tr:has(.type-3) {
 }
 
 /* Optional: animate rows as placeholder moves around */
+
 #hoursTableBody tr {
     transition: transform 1s ease;
     will-change: transform;
