@@ -50,16 +50,17 @@ body {
 /* ============== BODY ============== */
 
 .body {
-    width: 100%;
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 16px;
-    padding-top: 22px;
     overflow-y: auto;
 }
 
 .body table {
     width: 100%;
+    max-width: calc(960px - 32px);
+    margin: 0 auto;
+}
+
+.body table th {
+    padding-top: 24px;
 }
 
 /* Hide scrollbar */
@@ -75,6 +76,5 @@ body {
 /* ============== FOOTER ============== */
 
 .footer {
-    padding: 8px 12px;
-    padding-bottom: 24px;
+    padding: 12px;
 }

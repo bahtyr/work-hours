@@ -451,7 +451,7 @@
     const input = document.createElement("input");
     input.classList.add("description");
     input.type = "text";
-    input.placeholder = entry.type && entry.type === 3 ? "Break" : "Description";
+    input.placeholder = "Description";
     input.value = entry.desc || "";
     input.oninput = () => {
       entry.desc = input.value;

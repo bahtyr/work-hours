@@ -19,6 +19,7 @@ export const elements = {
     // buttons
     toggleSummaryBtn: document.getElementById('toggleSummaryBtn'),
 };
+
 export const locators = {
     entryTime: '#hoursTable input[type="time"]',
     entryDescription: '#hoursTable input.description:not([disabled])',

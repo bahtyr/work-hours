@@ -361,7 +361,7 @@ function createDescriptionCell(entry) {
     input.classList.add('description');
     input.type = 'text';
     // console.log(entry);
-    input.placeholder = (entry.type && entry.type === 3) ? 'Break' : 'Description';
+    input.placeholder = 'Description';
     input.value = entry.desc || '';
     input.oninput = () => {
         entry.desc = input.value;
@@ -510,7 +510,7 @@ function initSmoothRowDnD(tbody, entries) {
 
             // global listeners
             document.addEventListener('pointermove', onPointerMove);
-            document.addEventListener('pointerup', onPointerUp, { once: true });
+            document.addEventListener('pointerup', onPointerUp, {once: true});
         };
 
         handle.addEventListener('pointerdown', onPointerDown);
@@ -612,7 +612,6 @@ function initSmoothRowDnD(tbody, entries) {
         }
     });
 }
-
 
 // Gap Row
 
