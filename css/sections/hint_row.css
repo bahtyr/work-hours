@@ -1,9 +1,15 @@
 .hint-row {
-    font-size: var(--font-size-regular);
-    line-height: 24px;
-    color: var(--color-text-muted);
     width: 100%;
     text-align: center;
+    font-size: var(--font-size-regular);
+    line-height: calc(var(--font-size-regular) * 1.75);
+    /*color: var(--color-text-muted);*/
+    opacity: .25;
+    transition: opacity var(--transition);
+}
+
+.hint-row:hover {
+    opacity: .50;
 }
 
 kbd {

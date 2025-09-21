@@ -1,8 +1,8 @@
 /* ============== LAYOUT ============== */
 
 body {
-    display: flex;
-    flex-direction: column;
+    /*display: flex;*/
+    /*flex-direction: column;*/
     user-select: none;
 }
 
@@ -18,23 +18,31 @@ body {
 /* ============== HEADER ============== */
 
 .header {
-    background: var(--color-surface);
+    background: var(--color-bg);
     border: 1px solid var(--color-surface-border);
+
+    position: sticky;
+    top: -62px;
+    top: 0;
+    z-index: 1;
 }
 
 .header > .wrapper {
     width: 100%;
     display: flex;
-    flex-direction: column;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: center;
     /* max width margins */
     max-width: 980px;
     margin: 0 auto;
     /* content padding */
     padding: 16px;
-    padding-bottom: 12px;
-    padding-top: 42px;
+    /*padding-bottom: 12px;*/
+    /*padding-top: 42px;*/
+    padding-top: 8px;
     /* contents gap between each other */
-    gap: 8px;
+    gap: 4px;
 }
 
 /* --------- Align Header Contents */
@@ -44,7 +52,12 @@ body {
 }
 
 #day-summary {
+    flex-basis: 100%;
     padding: 0 14px;
+
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 /* ============== BODY ============== */
@@ -64,12 +77,12 @@ body {
 }
 
 /* Hide scrollbar */
-.body {
+* {
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
 
-.body::-webkit-scrollbar {
+*::-webkit-scrollbar {
     display: none;
 }
 

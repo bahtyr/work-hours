@@ -40,6 +40,19 @@ button.secondary:hover {
     background: var(--color-surface-hover);
 }
 
+/* --------- Text */
+
+button.text {
+    background: transparent;
+    color: var(--color-text-muted);
+    border-radius: 100px;
+    border: none;
+}
+
+button.text:hover {
+    background: var(--color-surface-hover);
+}
+
 /* --------- Danger */
 
 button.danger {
