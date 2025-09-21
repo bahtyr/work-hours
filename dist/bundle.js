@@ -297,8 +297,6 @@
       if (desc) group.descs.add(desc);
     }
     if (grouped.length === 0) {
-      elements.summary.innerHTML = '<div class="muted">Summary will appear here for completed entries.</div>';
-      return;
     }
     const typeOrder = {
       0: 2,

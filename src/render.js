@@ -158,9 +158,6 @@ export function renderSummary() {
 
     // No table
     if (grouped.length === 0) {
-        elements.summary.innerHTML =
-            '<div class="muted">Summary will appear here for completed entries.</div>';
-        return;
     }
 
     // Sort: first by type, then by key alphabetically
