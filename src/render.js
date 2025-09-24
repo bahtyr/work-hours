@@ -14,7 +14,7 @@ import {deleteOpenDay} from "./events_days";
 const state = getState();
 const gapRows = new Map();
 const types = [
-    {label: 'Work', emoji: '📄'},
+    {label: 'Work', emoji: '⠀\n'},
     {label: 'Ticket', emoji: '📘️'},
     {label: 'Meeting', emoji: '📞'},
     {label: 'Break', emoji: '🧋'},
@@ -179,13 +179,13 @@ export function renderSummary() {
         <table id="summaryTable">
             <thead>
                 <tr>
-                    <th style="width:110px;"></th>
-                    <th style="width:110px;"></th>
-                    <th style="width:64px;">Duration</th>
-                    <th style="width:14px;">Type</th>
-                    <th>Description</th>
-                    <th style="width:64px;"></th>
-                    <th style="width:64px;"></th>
+                    <th class="duration" style="width:100px;">Duration</th>
+                    <th class="actions" style="width:14px;">Type</th>
+                    <th class="description">Description</th>
+                    <th class="time" style="width:70px;"></th>
+                    <th class="time" style="width:70px;"></th>
+                    <th class="actions" style="width:64px;"></th>
+                    <th class="actions" style="width:64px;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -200,13 +200,13 @@ export function renderSummary() {
 
         html += `
             <tr disabled="true">
-                <td><input type="time" step="60" style="visibility: hidden"></td>
-                <td><input type="time" step="60" style="visibility: hidden"></td>
-                <td>${formatMinutes(g.minutes)}</td>
-                <td><button class="action bigger type" disabled>${types[g.type]?.emoji || ""}</button></td>
-                <td><input type="text" value="${escapeHtml(description)}" disabled/></td>
-                <td></td>
-                <td></td>
+                <td class="duration">${formatMinutes(g.minutes)}</td>
+                <td class="actions"><button class="action bigger type type-${g.type}" disabled>${types[g.type]?.emoji || ""}</button></td>
+                <td class="description"><input type="text" value="${escapeHtml(description)}" disabled/></td>
+                <td class="time"><input type="time" step="60" style="visibility: hidden"></td>
+                <td class="time"><input type="time" step="60" style="visibility: hidden"></td>
+                <td class="actions"></td>
+                <td class="actions"></td>
             </tr>
         `;
     }
@@ -258,11 +258,11 @@ function createTableRow(entry, index, entries) {
     const startCell = createTimeCell(entry, 'start', () => updateDurationCell(entry, durationCell));
     const endCell = createTimeCell(entry, 'end', () => updateDurationCell(entry, durationCell));
 
-    tr.appendChild(startCell);
-    tr.appendChild(endCell);
     tr.appendChild(durationCell);
     tr.appendChild(createTypeCell(entry));
     tr.appendChild(createDescriptionCell(entry));
+    tr.appendChild(startCell);
+    tr.appendChild(endCell);
     tr.appendChild(createDeleteCell(index, entries));
     tr.appendChild(createDragHandleCell());
 
@@ -277,6 +277,7 @@ function createTableRow(entry, index, entries) {
 function createTimeCell(entry, field, onChange) {
     const td = document.createElement('td');
     const input = document.createElement('input');
+    td.classList.add('time');
     input.type = 'time';
     input.step = 60;
     input.value = entry[field] || '';
@@ -301,6 +302,7 @@ function createTimeCell(entry, field, onChange) {
 
 function createDurationCell() {
     const td = document.createElement('td');
+    td.classList.add('duration');
     td.textContent = '-'; // default
     return td;
 }
@@ -323,6 +325,7 @@ function updateDurationCell(entry, td) {
 function createTypeCell(entry) {
     const td = document.createElement('td');
     const btn = document.createElement('button');
+    btn.classList.add('actions');
     btn.classList.add('action');
     btn.classList.add('bigger');
     btn.classList.add('type');
@@ -393,6 +396,7 @@ function createDescriptionCell(entry) {
 function createDeleteCell(index, entries) {
     const td = document.createElement('td');
     const deleteBtn = document.createElement('button');
+    td.classList.add('actions');
     deleteBtn.classList.add('action', 'delete');
     deleteBtn.textContent = 'x';
     deleteBtn.onclick = () => {
@@ -410,6 +414,7 @@ function createDeleteCell(index, entries) {
 function createDragHandleCell() {
     const td = document.createElement('td');
     const handle = document.createElement('span');
+    td.classList.add('actions');
     handle.classList.add('action', 'drag-handle');
     handle.textContent = '☰';
     handle.title = 'Drag to reorder';
@@ -618,16 +623,11 @@ function createGapRow(minutes, isOverlap = false) {
     tr.appendChild(document.createElement('td'));
     tr.appendChild(document.createElement('td'));
 
-    const duration = document.createElement('td');
-    duration.textContent = `${formatMinutes(minutes)}`;
-    tr.appendChild(duration);
-    tr.appendChild(document.createElement('td'));
-
     const desc = document.createElement('td');
     const descInput = document.createElement('input');
-    desc.colSpan = 3;
+    desc.colSpan = 5;
     descInput.type = 'text';
-    descInput.value = `${isOverlap ? 'Overlap' : 'Gap'}`;
+    descInput.value = `${formatMinutes(minutes)} ${isOverlap ? 'overlap' : 'gap'}`;
     descInput.disabled = true;
     desc.appendChild(descInput);
     tr.appendChild(desc);

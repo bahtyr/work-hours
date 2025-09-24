@@ -20,7 +20,7 @@ tr:nth-child(even) {
 }
 
 th, td {
-    padding: 4px 8px;
+    padding: 4px 4px;
     text-align: left;
 }
 
@@ -33,51 +33,45 @@ th {
 
 /* --------- Column Adjustments */
 
-table tr > *:nth-child(1),
-table tr > *:nth-child(2) {
+table tr > .time {
     /* hours */
     text-align: center;
 }
 
-table tr > th:nth-child(3) {
-    /* duration heading */
-    text-align: center;
+table tr > td.time,
+table tr > td.duration {
+    /* hours */
+    opacity: .50;
 }
 
-table tr > td:nth-child(3) {
+table tr > th.duration {
+    /* duration heading */
+    text-align: center;
+    text-align: right;
+    padding-right: 16px;
+}
+
+table tr > td.duration {
     /* duration row */
     text-align: right;
     font-size: var(--font-size-regular);
     font-family: monospace;
     cursor: default;
+    padding-right: 16px;
 }
 
-table tr > *:nth-child(4) {
-    /* type icon */
-    text-align: center;
-}
-
-table tr > th:nth-child(5) {
+table tr > th.description {
     padding-left: 20px;
 }
 
-table tr > *:nth-child(5) {
+table tr > .description {
     /* description */
     text-align: left;
 }
 
-table tr > *:nth-child(6),
-table tr > *:nth-child(7) {
+table tr > .actions {
     /* actions */
     text-align: center;
-    user-select: none;
-}
-
-/* summary */
-#summary tr > *:nth-child(3),
-#summary tr > *:nth-child(4) {
-    user-select: none;
-    pointer-events: none; /* "allow mouse clicks passthrough" so that other text can be selected */
 }
 
 /* --------- Dark Overlay */
@@ -126,13 +120,20 @@ tr .action.bigger {
 
 /* --------- Gap Row */
 
-.gap-row,
+.gap-row input[type='text'],
+table tr:has(.type-3)  input[type='text'] {
+    opacity: .5;
+}
+
 .gap-row input {
     color: var(--color-warning);
 }
 
-table tr:has(.type-3) {
-    opacity: 0.5;
+table tr:has(.type-3),
+table tr:has(.type-3) input,
+table tr:has(.type-3) button,
+table tr:has(.type-3) input::placeholder {
+    color: var(--color-warning) !important;
 }
 
 /* --------- Drag */

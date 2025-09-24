@@ -29,20 +29,21 @@
         <!-- Days Tabs -->
         <div id="tabs" class="tabs"></div>
         <!-- View Summary Toggle -->
-        <button id="toggleSummaryBtn" class="text" >View Summary</button>
+        <button id="toggleSummaryBtn" class="text">View Summary</button>
         <!-- Daily Hours Summary -->
         <div id="day-summary">
             <div class="hours-info">
-                <div class="info work-time">
-                    <span class="dot"></span><span class="number">0</span><span class="label">work</span>
+                <div class="info total-time-left">
+                    <span class="number">0h</span><span class="label">left</span>
                 </div>
                 <div class="info break-time">
-                    <span class="dot"></span><span class="number">0</span><span class="label">break</span></div>
+                    <span class="dot"></span><span class="number">0</span><span class="label">break</span>
+                </div>
+                <div class="info work-time" style="margin-left: auto">
+                    <span class="dot"></span><span class="number">0</span><span class="label">work</span>
+                </div>
                 <div class="info tickets-count">
                     <span class="dot"></span><span class="number">0</span><span class="label">tickets</span>
-                </div>
-                <div class="info total-time-left" style="margin-left: auto">
-                    <span class="number">0h</span><span class="label">left</span>
                 </div>
             </div>
             <div class="timeline">
@@ -59,13 +60,13 @@
     <table id="hoursTable">
         <thead>
         <tr>
-            <th style="width:110px;">Start</th>
-            <th style="width:110px;">End</th>
-            <th style="width:64px;">Duration</th>
-            <th style="width:14px;">Type</th>
-            <th>Description</th>
-            <th style="width:64px;">Delete</th>
-            <th style="width:64px;"></th>
+            <th class="duration" style="width:100px;">Duration</th>
+            <th class="actions" style="width:14px;">Type</th>
+            <th class="description">Description</th>
+            <th class="time" style="width:70px;">Start</th>
+            <th class="time" style="width:70px;">End</th>
+            <th class="actions" style="width:64px;">Delete</th>
+            <th class="actions" style="width:64px;"></th>
         </tr>
         </thead>
         <tbody id="hoursTableBody"></tbody>

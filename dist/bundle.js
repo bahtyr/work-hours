@@ -318,13 +318,13 @@
         <table id="summaryTable">
             <thead>
                 <tr>
-                    <th style="width:110px;"></th>
-                    <th style="width:110px;"></th>
-                    <th style="width:64px;">Duration</th>
-                    <th style="width:14px;">Type</th>
-                    <th>Description</th>
-                    <th style="width:64px;"></th>
-                    <th style="width:64px;"></th>
+                    <th class="duration" style="width:100px;">Duration</th>
+                    <th class="actions" style="width:14px;">Type</th>
+                    <th class="description">Description</th>
+                    <th class="time" style="width:70px;"></th>
+                    <th class="time" style="width:70px;"></th>
+                    <th class="actions" style="width:64px;"></th>
+                    <th class="actions" style="width:64px;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -336,13 +336,13 @@
       }
       html += `
             <tr disabled="true">
-                <td><input type="time" step="60" style="visibility: hidden"></td>
-                <td><input type="time" step="60" style="visibility: hidden"></td>
-                <td>${formatMinutes(g.minutes)}</td>
-                <td><button class="action bigger type" disabled>${types[g.type]?.emoji || ""}</button></td>
-                <td><input type="text" value="${escapeHtml(description)}" disabled/></td>
-                <td></td>
-                <td></td>
+                <td class="duration">${formatMinutes(g.minutes)}</td>
+                <td class="actions"><button class="action bigger type type-${g.type}" disabled>${types[g.type]?.emoji || ""}</button></td>
+                <td class="description"><input type="text" value="${escapeHtml(description)}" disabled/></td>
+                <td class="time"><input type="time" step="60" style="visibility: hidden"></td>
+                <td class="time"><input type="time" step="60" style="visibility: hidden"></td>
+                <td class="actions"></td>
+                <td class="actions"></td>
             </tr>
         `;
     }
@@ -379,11 +379,11 @@
     const durationCell = createDurationCell();
     const startCell = createTimeCell(entry, "start", () => updateDurationCell(entry, durationCell));
     const endCell = createTimeCell(entry, "end", () => updateDurationCell(entry, durationCell));
-    tr.appendChild(startCell);
-    tr.appendChild(endCell);
     tr.appendChild(durationCell);
     tr.appendChild(createTypeCell(entry));
     tr.appendChild(createDescriptionCell(entry));
+    tr.appendChild(startCell);
+    tr.appendChild(endCell);
     tr.appendChild(createDeleteCell(index, entries));
     tr.appendChild(createDragHandleCell());
     updateDurationCell(entry, durationCell);
@@ -392,6 +392,7 @@
   function createTimeCell(entry, field, onChange) {
     const td = document.createElement("td");
     const input = document.createElement("input");
+    td.classList.add("time");
     input.type = "time";
     input.step = 60;
     input.value = entry[field] || "";
@@ -410,6 +411,7 @@
   }
   function createDurationCell() {
     const td = document.createElement("td");
+    td.classList.add("duration");
     td.textContent = "-";
     return td;
   }
@@ -428,6 +430,7 @@
   function createTypeCell(entry) {
     const td = document.createElement("td");
     const btn = document.createElement("button");
+    btn.classList.add("actions");
     btn.classList.add("action");
     btn.classList.add("bigger");
     btn.classList.add("type");
@@ -474,6 +477,7 @@
   function createDeleteCell(index, entries) {
     const td = document.createElement("td");
     const deleteBtn = document.createElement("button");
+    td.classList.add("actions");
     deleteBtn.classList.add("action", "delete");
     deleteBtn.textContent = "x";
     deleteBtn.onclick = () => {
@@ -489,6 +493,7 @@
   function createDragHandleCell() {
     const td = document.createElement("td");
     const handle = document.createElement("span");
+    td.classList.add("actions");
     handle.classList.add("action", "drag-handle");
     handle.textContent = "\u2630";
     handle.title = "Drag to reorder";
@@ -644,15 +649,11 @@
     tr.classList.add("gap-row");
     tr.appendChild(document.createElement("td"));
     tr.appendChild(document.createElement("td"));
-    const duration = document.createElement("td");
-    duration.textContent = `${formatMinutes(minutes)}`;
-    tr.appendChild(duration);
-    tr.appendChild(document.createElement("td"));
     const desc = document.createElement("td");
     const descInput = document.createElement("input");
-    desc.colSpan = 3;
+    desc.colSpan = 5;
     descInput.type = "text";
-    descInput.value = `${isOverlap ? "Overlap" : "Gap"}`;
+    descInput.value = `${formatMinutes(minutes)} ${isOverlap ? "overlap" : "gap"}`;
     descInput.disabled = true;
     desc.appendChild(descInput);
     tr.appendChild(desc);
@@ -692,7 +693,7 @@
       state3 = getState();
       gapRows = /* @__PURE__ */ new Map();
       types = [
-        { label: "Work", emoji: "\u{1F4C4}" },
+        { label: "Work", emoji: "\u2800\n" },
         { label: "Ticket", emoji: "\u{1F4D8}\uFE0F" },
         { label: "Meeting", emoji: "\u{1F4DE}" },
         { label: "Break", emoji: "\u{1F9CB}" }
