@@ -41,6 +41,31 @@ export function parseHM(time) {
     return h * 60 + m;
 }
 
+/**
+ * Round to nearest 5 minutes (300s)
+ */
+export function roundHM(value) {
+    // value is "HH:MM" or "HH:MM:SS"
+    if (!value) return value;
+
+    const stepSeconds = 300
+    const parts = value.split(":").map(Number);
+    let [h, m, s = 0] = parts;
+
+    let totalSeconds = h * 3600 + m * 60 + s;
+    let rounded = Math.round(totalSeconds / stepSeconds) * stepSeconds;
+
+    // clamp back to 24h
+    rounded = Math.max(0, Math.min(24 * 3600 - 1, rounded));
+
+    const hh = String(Math.floor(rounded / 3600)).padStart(2, "0");
+    const mm = String(Math.floor((rounded % 3600) / 60)).padStart(2, "0");
+    const ss = String(rounded % 60).padStart(2, "0");
+
+    return stepSeconds >= 60 ? `${hh}:${mm}` : `${hh}:${mm}:${ss}`;
+}
+
+
 // Format Time
 
 export const pad = (n) => String(n).padStart(2, '0');

@@ -6,7 +6,7 @@ import {
     formatDayName,
     formatMinutes,
     identifyTicketType,
-    parseHM,
+    parseHM, roundHM,
     todayKey
 } from './utils';
 import {deleteOpenDay} from "./events_days";
@@ -282,8 +282,19 @@ function createTimeCell(entry, field, onChange) {
     input.step = 60;
     input.value = entry[field] || '';
 
+    input.onblur = () => {
+        if (input.value) {
+            input.value = roundHM(input.value);
+            update(input.value)
+        }
+    };
+
     input.oninput = () => {
-        entry[field] = input.value;
+        update(input.value)
+    };
+
+    function update(value) {
+        entry[field] = value;
         saveState();
         updateDayTotal();
 
@@ -294,7 +305,7 @@ function createTimeCell(entry, field, onChange) {
         updateGapAfter(entry);
 
         if (onChange) onChange();
-    };
+    }
 
     td.appendChild(input);
     return td;

@@ -71,6 +71,19 @@
     if (h > 23 || m > 59) return null;
     return h * 60 + m;
   }
+  function roundHM(value) {
+    if (!value) return value;
+    const stepSeconds = 300;
+    const parts = value.split(":").map(Number);
+    let [h, m, s = 0] = parts;
+    let totalSeconds = h * 3600 + m * 60 + s;
+    let rounded = Math.round(totalSeconds / stepSeconds) * stepSeconds;
+    rounded = Math.max(0, Math.min(24 * 3600 - 1, rounded));
+    const hh = String(Math.floor(rounded / 3600)).padStart(2, "0");
+    const mm = String(Math.floor(rounded % 3600 / 60)).padStart(2, "0");
+    const ss = String(rounded % 60).padStart(2, "0");
+    return stepSeconds >= 60 ? `${hh}:${mm}` : `${hh}:${mm}:${ss}`;
+  }
   function formatMinutes(minutes) {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
@@ -396,8 +409,17 @@
     input.type = "time";
     input.step = 60;
     input.value = entry[field] || "";
+    input.onblur = () => {
+      if (input.value) {
+        input.value = roundHM(input.value);
+        update(input.value);
+      }
+    };
     input.oninput = () => {
-      entry[field] = input.value;
+      update(input.value);
+    };
+    function update(value) {
+      entry[field] = value;
       saveState();
       updateDayTotal();
       const entries = state3.days[state3.openDay] || [];
@@ -405,7 +427,7 @@
       if (index > 0) updateGapAfter(entries[index - 1]);
       updateGapAfter(entry);
       if (onChange) onChange();
-    };
+    }
     td.appendChild(input);
     return td;
   }
@@ -705,8 +727,8 @@
   function newEntry(start, end, desc, type) {
     return {
       id: uid(),
-      start,
-      end,
+      start: roundHM(start),
+      end: roundHM(end),
       desc,
       type
     };
@@ -736,7 +758,7 @@
     const entries = state4.days[state4.openDay];
     const running = findLast(entries, (e) => e.start && !e.end);
     if (running && !running.end) {
-      running.end = timeNow();
+      running.end = roundHM(timeNow());
       saveState();
       renderAll(true);
       return true;

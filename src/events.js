@@ -1,5 +1,5 @@
 import {getState, saveState} from './state';
-import {findLast, focusLastDescription, parseHM, timeNow, uid} from './utils';
+import {findLast, focusLastDescription, parseHM, roundHM, timeNow, uid} from './utils';
 import {renderAll} from './render';
 import {locators} from './elements';
 
@@ -8,8 +8,8 @@ const state = getState();
 function newEntry(start, end, desc, type) {
     return {
         id: uid(),
-        start: start,
-        end: end,
+        start: roundHM(start),
+        end: roundHM(end),
         desc: desc,
         type: type,
     };
@@ -45,7 +45,7 @@ function stopLast() {
     const running = findLast(entries, e => e.start && !e.end);
 
     if (running && !running.end) {
-        running.end = timeNow();
+        running.end = roundHM(timeNow());
         saveState();
         renderAll(true);
         return true;
@@ -79,7 +79,6 @@ function handleArrowNavigation(e, active) {
     }
 }
 
-
 /**
  * Navigate between time inputs with Tab / Shift+Tab
  */
@@ -106,7 +105,6 @@ function handleTimeNavigation(e, active) {
         e.preventDefault();
     }
 }
-
 
 export function onDocumentKeyDown(e) {
     // ignore modifier keys
