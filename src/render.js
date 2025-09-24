@@ -6,7 +6,8 @@ import {
     formatDayName,
     formatMinutes,
     identifyTicketType,
-    parseHM, roundHM,
+    parseHM,
+    roundHM,
     todayKey
 } from './utils';
 import {deleteOpenDay} from "./events_days";
@@ -281,26 +282,52 @@ function createTimeCell(entry, field, onChange) {
     input.type = 'time';
     input.step = 60;
     input.value = entry[field] || '';
+    input.dataset.field = field;
 
     input.onblur = () => {
         if (input.value) {
             input.value = roundHM(input.value);
-            update(input.value)
+            update(input.value);
         }
     };
 
     input.oninput = () => {
-        update(input.value)
+        update(input.value);
     };
 
     function update(value) {
+        let initialValue = entry[field];
         entry[field] = value;
         saveState();
         updateDayTotal();
 
-        // Update gap after this entry and gap after previous entry
         const entries = state.days[state.openDay] || [];
         const index = entries.indexOf(entry);
+
+        // --- SNAP LOGIC ---
+        // update next entry’s input as well
+        if (field === "end" && index < entries.length - 1) {
+            const next = entries[index + 1];
+            if (next.start === initialValue) {
+                const nextCell = document.querySelector(`tr[data-entry-id="${next.id}"] input[data-field="start"]`);
+                nextCell.value = value;
+                next.start = value;
+            }
+        }
+
+        // update previous entry’s input as well
+        if (field === "start" && index > 0) {
+            const prev = entries[index - 1];
+            if (prev.end === initialValue) {
+                const prevCell = document.querySelector(`tr[data-entry-id="${prev.id}"] input[data-field="end"]`);
+                if (prevCell) {
+                    prevCell.value = value;
+                    prev.end = value;
+                }
+            }
+        }
+
+        // update gaps
         if (index > 0) updateGapAfter(entries[index - 1]);
         updateGapAfter(entry);
 

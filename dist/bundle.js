@@ -409,6 +409,7 @@
     input.type = "time";
     input.step = 60;
     input.value = entry[field] || "";
+    input.dataset.field = field;
     input.onblur = () => {
       if (input.value) {
         input.value = roundHM(input.value);
@@ -419,11 +420,30 @@
       update(input.value);
     };
     function update(value) {
+      let initialValue = entry[field];
       entry[field] = value;
       saveState();
       updateDayTotal();
       const entries = state3.days[state3.openDay] || [];
       const index = entries.indexOf(entry);
+      if (field === "end" && index < entries.length - 1) {
+        const next = entries[index + 1];
+        if (next.start === initialValue) {
+          const nextCell = document.querySelector(`tr[data-entry-id="${next.id}"] input[data-field="start"]`);
+          nextCell.value = value;
+          next.start = value;
+        }
+      }
+      if (field === "start" && index > 0) {
+        const prev = entries[index - 1];
+        if (prev.end === initialValue) {
+          const prevCell = document.querySelector(`tr[data-entry-id="${prev.id}"] input[data-field="end"]`);
+          if (prevCell) {
+            prevCell.value = value;
+            prev.end = value;
+          }
+        }
+      }
       if (index > 0) updateGapAfter(entries[index - 1]);
       updateGapAfter(entry);
       if (onChange) onChange();
