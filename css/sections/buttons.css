@@ -43,6 +43,8 @@ button.secondary:hover {
 /* --------- Text */
 
 button.text {
+    font-weight: 700;
+    font-weight: normal;
     background: transparent;
     color: var(--color-text-muted);
     border-radius: 100px;

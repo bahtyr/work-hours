@@ -15,6 +15,10 @@ tr {
     transition: opacity var(--transition) background-color var(--transition);
 }
 
+tr:nth-child(even) {
+    background-color: var(--color-bg-even);
+}
+
 th, td {
     padding: 4px 8px;
     text-align: left;
