@@ -6,9 +6,9 @@ input[type="date"] {
     font-size: var(--font-size-regular);
     border: 1px solid var(--color-input-border);
     border-radius: 6px;
-    background: var(--color-input-bg);
+    background: transparent;
     color: var(--color-text);
-    transition: border-color var(--transition), background var(--transition);
+    transition: border-color var(--transition);
 }
 
 input[type="time"] {
@@ -31,10 +31,6 @@ input:focus {
     outline: none;
     border-color: var(--color-accent) !important;
     /*box-shadow: 0 0 0 2px var(--color-accent-subtle);*/
-}
-
-tr:has(input:focus) td {
-    background-color: hsl(220 17% 9%);
 }
 
 /* --------- Hide input clock icon */
