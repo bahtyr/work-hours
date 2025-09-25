@@ -22,7 +22,7 @@ export const elements = {
 
 export const locators = {
     entryTime: '#hoursTable input[type="time"]',
-    entryDescription: '#hoursTable input.description:not([disabled])',
+    entryDescription: '#hoursTable input.description',
     entryTypeBtn: 'button.action.type',
     entryDeleteBtn: 'button.action.delete',
 };

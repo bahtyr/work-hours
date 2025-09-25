@@ -663,12 +663,16 @@ function createGapRow(minutes, isOverlap = false) {
 
     const desc = document.createElement('td');
     const descInput = document.createElement('input');
-    desc.colSpan = 5;
     descInput.type = 'text';
     descInput.value = `${formatMinutes(minutes)} ${isOverlap ? 'overlap' : 'gap'}`;
-    descInput.disabled = true;
+    descInput.readOnly = true;
+    descInput.classList.add('description');
     desc.appendChild(descInput);
     tr.appendChild(desc);
+    tr.appendChild(document.createElement('td'));
+    tr.appendChild(document.createElement('td'));
+    tr.appendChild(document.createElement('td'));
+    tr.appendChild(document.createElement('td'));
     return tr;
 }
 

@@ -34,7 +34,7 @@
       };
       locators = {
         entryTime: '#hoursTable input[type="time"]',
-        entryDescription: "#hoursTable input.description:not([disabled])",
+        entryDescription: "#hoursTable input.description",
         entryTypeBtn: "button.action.type",
         entryDeleteBtn: "button.action.delete"
       };
@@ -693,12 +693,16 @@
     tr.appendChild(document.createElement("td"));
     const desc = document.createElement("td");
     const descInput = document.createElement("input");
-    desc.colSpan = 5;
     descInput.type = "text";
     descInput.value = `${formatMinutes(minutes)} ${isOverlap ? "overlap" : "gap"}`;
-    descInput.disabled = true;
+    descInput.readOnly = true;
+    descInput.classList.add("description");
     desc.appendChild(descInput);
     tr.appendChild(desc);
+    tr.appendChild(document.createElement("td"));
+    tr.appendChild(document.createElement("td"));
+    tr.appendChild(document.createElement("td"));
+    tr.appendChild(document.createElement("td"));
     return tr;
   }
   function updateGapAfter(prevEntry) {
