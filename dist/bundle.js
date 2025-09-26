@@ -419,19 +419,16 @@
     input.oninput = () => {
       update(input.value);
     };
-    function update(value) {
+    function update(newValue) {
       let initialValue = entry[field];
-      entry[field] = value;
-      saveState();
-      updateDayTotal();
       const entries = state3.days[state3.openDay] || [];
       const index = entries.indexOf(entry);
       if (field === "end" && index < entries.length - 1) {
         const next = entries[index + 1];
         if (next.start === initialValue) {
           const nextCell = document.querySelector(`tr[data-entry-id="${next.id}"] input[data-field="start"]`);
-          nextCell.value = value;
-          next.start = value;
+          nextCell.value = newValue;
+          next.start = newValue;
         }
       }
       if (field === "start" && index > 0) {
@@ -439,11 +436,14 @@
         if (prev.end === initialValue) {
           const prevCell = document.querySelector(`tr[data-entry-id="${prev.id}"] input[data-field="end"]`);
           if (prevCell) {
-            prevCell.value = value;
-            prev.end = value;
+            prevCell.value = newValue;
+            prev.end = newValue;
           }
         }
       }
+      entry[field] = newValue;
+      saveState();
+      updateDayTotal();
       if (index > 0) updateGapAfter(entries[index - 1]);
       updateGapAfter(entry);
       if (onChange) onChange();

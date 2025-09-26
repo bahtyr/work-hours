@@ -295,11 +295,8 @@ function createTimeCell(entry, field, onChange) {
         update(input.value);
     };
 
-    function update(value) {
+    function update(newValue) {
         let initialValue = entry[field];
-        entry[field] = value;
-        saveState();
-        updateDayTotal();
 
         const entries = state.days[state.openDay] || [];
         const index = entries.indexOf(entry);
@@ -310,8 +307,8 @@ function createTimeCell(entry, field, onChange) {
             const next = entries[index + 1];
             if (next.start === initialValue) {
                 const nextCell = document.querySelector(`tr[data-entry-id="${next.id}"] input[data-field="start"]`);
-                nextCell.value = value;
-                next.start = value;
+                nextCell.value = newValue;
+                next.start = newValue;
             }
         }
 
@@ -321,11 +318,16 @@ function createTimeCell(entry, field, onChange) {
             if (prev.end === initialValue) {
                 const prevCell = document.querySelector(`tr[data-entry-id="${prev.id}"] input[data-field="end"]`);
                 if (prevCell) {
-                    prevCell.value = value;
-                    prev.end = value;
+                    prevCell.value = newValue;
+                    prev.end = newValue;
                 }
             }
         }
+
+        // save the entry and update
+        entry[field] = newValue;
+        saveState();
+        updateDayTotal();
 
         // update gaps
         if (index > 0) updateGapAfter(entries[index - 1]);
