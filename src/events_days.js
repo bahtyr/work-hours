@@ -1,7 +1,7 @@
 import {elements} from './elements';
 import {renderAll, renderSummary} from './render';
 import {todayKey} from './utils';
-import {stateManager} from "./state_v2";
+import {stateManager} from "./state";
 
 // Summary
 

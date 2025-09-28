@@ -10,7 +10,7 @@ import {
     todayKey
 } from './utils';
 import {deleteOpenDay} from "./events_days";
-import {stateManager} from "./state_v2";
+import {stateManager} from "./state";
 
 const gapRows = new Map();
 const types = [

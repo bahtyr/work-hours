@@ -1,7 +1,7 @@
 import {focusLastDescription, parseHM, roundHM, timeNow} from './utils';
 import {renderAll} from './render';
 import {locators} from './elements';
-import {stateManager} from "./state_v2";
+import {stateManager} from "./state";
 
 function startNow() {
     stateManager.newEntry(timeNow(), '', '', 0);
