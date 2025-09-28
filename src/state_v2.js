@@ -3,24 +3,20 @@ import {findLast, roundHM, todayKey, uid} from "./utils";
 const STORAGE_KEY = 'simpleTimesheetV3';
 
 export class StateManager {
+    // Constructor / Init
 
     constructor(storageKey) {
-        this.state = this.loadState(storageKey)
+        this.state = this.#loadState(storageKey);
         this.openDay = this.state.openDay;
         if (!this.state.days) this.state.days = {};
-        if (!this.state.openDay) this.setOpenDay(todayKey())
+        if (!this.state.openDay) this.setOpenDay(todayKey());
 
         this.listeners = new Set();
     }
 
+    // State Load & Save
 
-    // GET & SAVE
-
-    getState() {
-        return this.state;
-    }
-
-    loadState(storageKey) {
+    #loadState(storageKey) {
         try {
             return JSON.parse(localStorage.getItem(storageKey)) || {};
         } catch {
@@ -32,21 +28,51 @@ export class StateManager {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
     }
 
-    getCurrentDayEntries() {
-        this.#initEntries(this.state.openDay)
-        return this.state.days[this.state.openDay];
+    getState() {
+        return this.state;
     }
 
-    getDays() {
+    // Day Management
+
+    getDayNames() {
         return new Set(Object.keys(this.state.days || {}));
+    }
+
+    setOpenDay(day) {
+        this.openDay = day;
+        this.state.openDay = day;
+        this.#initEntries(day);
+        this.saveState();
     }
 
     deleteDay(day) {
         delete this.state.days[day];
     }
 
+    // Entries
+
+    #initEntries(day) {
+        if (!this.state.days[day]) this.state.days[day] = [];
+    }
+
+    getEntries() {
+        this.#initEntries(this.state.openDay);
+        return this.state.days[this.state.openDay];
+    }
+
+    getLastEntry() {
+        const entries = this.getEntries();
+        return entries[entries.length - 1];
+    }
+
+    getLastUnfinishedEntry() {
+        return findLast(this.getEntries(), e => e.start && !e.end);
+    }
+
+    // Entry Management
+
     newEntry(start, end, desc, type) {
-        this.getCurrentDayEntries().push({
+        this.getEntries().push({
             id: uid(),
             start: roundHM(start),
             end: roundHM(end),
@@ -56,33 +82,7 @@ export class StateManager {
         this.saveState();
     }
 
-    getLastEntry() {
-        const entries = this.getCurrentDayEntries();
-        return entries[entries.length - 1];
-    }
-
-    getLastUnfinishedEntry() {
-        return findLast(this.getCurrentDayEntries(), e => e.start && !e.end);
-    }
-
-    //
-
-    #initEntries(day) {
-        if (!this.state.days[day]) this.state.days[day] = [];
-    }
-
-    /**
-     * Changes the day, initiates the day, saves this day as current day
-     * @param day
-     */
-    setOpenDay(day) {
-        this.openDay = day;
-        this.state.openDay = day;
-        this.#initEntries(day);
-        this.saveState();
-    }
-
-    // subscribe notify
+    // Subscription / Notification
 
     subscribe(listener) {
         this.listeners.add(listener);

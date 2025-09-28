@@ -38,7 +38,7 @@ export function renderAll(scrollBottom = false) {
 
 function renderTabs() {
     const today = todayKey();
-    const allDays = stateManager.getDays();
+    const allDays = stateManager.getDayNames();
     allDays.add(today);
 
     const otherDays = Array.from(allDays)
@@ -80,7 +80,7 @@ function updateDayTotal() {
     const uniqueTickets = new Set();
 
     // count total minutes per entry type
-    for (const entry of stateManager.getCurrentDayEntries()) {
+    for (const entry of stateManager.getEntries()) {
         const start = parseHM(entry.start);
         const end = parseHM(entry.end);
 
@@ -121,7 +121,7 @@ export function renderSummary() {
     const grouped = []; // will store { type, key, minutes, descs }
 
     // Count totals for matching entries
-    for (const entry of stateManager.getCurrentDayEntries()) {
+    for (const entry of stateManager.getEntries()) {
         const start = parseHM(entry.start);
         const end = parseHM(entry.end);
 
@@ -219,7 +219,7 @@ export function renderSummary() {
 // --------- Hours Table //
 
 function renderHoursTable() {
-    const entries = stateManager.getCurrentDayEntries();
+    const entries = stateManager.getEntries();
     const tbody = elements.hoursTableBody;
     tbody.innerHTML = '';
     gapRows.clear();
@@ -297,7 +297,7 @@ function createTimeCell(entry, field, onChange) {
     function update(newValue) {
         let initialValue = entry[field];
 
-        const entries = stateManager.getCurrentDayEntries();
+        const entries = stateManager.getEntries();
         const index = entries.indexOf(entry);
 
         // --- SNAP LOGIC ---
@@ -678,7 +678,7 @@ function createGapRow(minutes, isOverlap = false) {
 }
 
 function updateGapAfter(prevEntry) {
-    const entries = stateManager.getCurrentDayEntries();
+    const entries = stateManager.getEntries();
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;

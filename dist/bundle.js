@@ -156,18 +156,16 @@
       init_utils();
       STORAGE_KEY = "simpleTimesheetV3";
       StateManager = class {
+        // Constructor / Init
         constructor(storageKey) {
-          this.state = this.loadState(storageKey);
+          this.state = this.#loadState(storageKey);
           this.openDay = this.state.openDay;
           if (!this.state.days) this.state.days = {};
           if (!this.state.openDay) this.setOpenDay(todayKey());
           this.listeners = /* @__PURE__ */ new Set();
         }
-        // GET & SAVE
-        getState() {
-          return this.state;
-        }
-        loadState(storageKey) {
+        // State Load & Save
+        #loadState(storageKey) {
           try {
             return JSON.parse(localStorage.getItem(storageKey)) || {};
           } catch {
@@ -177,18 +175,40 @@
         saveState() {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
         }
-        getCurrentDayEntries() {
-          this.#initEntries(this.state.openDay);
-          return this.state.days[this.state.openDay];
+        getState() {
+          return this.state;
         }
-        getDays() {
+        // Day Management
+        getDayNames() {
           return new Set(Object.keys(this.state.days || {}));
+        }
+        setOpenDay(day) {
+          this.openDay = day;
+          this.state.openDay = day;
+          this.#initEntries(day);
+          this.saveState();
         }
         deleteDay(day) {
           delete this.state.days[day];
         }
+        // Entries
+        #initEntries(day) {
+          if (!this.state.days[day]) this.state.days[day] = [];
+        }
+        getEntries() {
+          this.#initEntries(this.state.openDay);
+          return this.state.days[this.state.openDay];
+        }
+        getLastEntry() {
+          const entries = this.getEntries();
+          return entries[entries.length - 1];
+        }
+        getLastUnfinishedEntry() {
+          return findLast(this.getEntries(), (e) => e.start && !e.end);
+        }
+        // Entry Management
         newEntry(start, end, desc, type) {
-          this.getCurrentDayEntries().push({
+          this.getEntries().push({
             id: uid(),
             start: roundHM(start),
             end: roundHM(end),
@@ -197,28 +217,7 @@
           });
           this.saveState();
         }
-        getLastEntry() {
-          const entries = this.getCurrentDayEntries();
-          return entries[entries.length - 1];
-        }
-        getLastUnfinishedEntry() {
-          return findLast(this.getCurrentDayEntries(), (e) => e.start && !e.end);
-        }
-        //
-        #initEntries(day) {
-          if (!this.state.days[day]) this.state.days[day] = [];
-        }
-        /**
-         * Changes the day, initiates the day, saves this day as current day
-         * @param day
-         */
-        setOpenDay(day) {
-          this.openDay = day;
-          this.state.openDay = day;
-          this.#initEntries(day);
-          this.saveState();
-        }
-        // subscribe notify
+        // Subscription / Notification
         subscribe(listener) {
           this.listeners.add(listener);
         }
@@ -266,7 +265,7 @@
   }
   function renderTabs() {
     const today = todayKey();
-    const allDays = stateManager.getDays();
+    const allDays = stateManager.getDayNames();
     allDays.add(today);
     const otherDays = Array.from(allDays).filter((d) => d !== today).sort((a, b) => b.localeCompare(a));
     const orderedDays = [today, ...otherDays];
@@ -296,7 +295,7 @@
   function updateDayTotal() {
     const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
     const uniqueTickets = /* @__PURE__ */ new Set();
-    for (const entry of stateManager.getCurrentDayEntries()) {
+    for (const entry of stateManager.getEntries()) {
       const start = parseHM(entry.start);
       const end = parseHM(entry.end);
       if (start !== null && end !== null && end >= start) {
@@ -326,7 +325,7 @@
   }
   function renderSummary() {
     const grouped = [];
-    for (const entry of stateManager.getCurrentDayEntries()) {
+    for (const entry of stateManager.getEntries()) {
       const start = parseHM(entry.start);
       const end = parseHM(entry.end);
       if (start === null || end === null || end < start) continue;
@@ -406,7 +405,7 @@
     elements.summary.innerHTML = html;
   }
   function renderHoursTable() {
-    const entries = stateManager.getCurrentDayEntries();
+    const entries = stateManager.getEntries();
     const tbody = elements.hoursTableBody;
     tbody.innerHTML = "";
     gapRows.clear();
@@ -464,7 +463,7 @@
     };
     function update(newValue) {
       let initialValue = entry[field];
-      const entries = stateManager.getCurrentDayEntries();
+      const entries = stateManager.getEntries();
       const index = entries.indexOf(entry);
       if (field === "end" && index < entries.length - 1) {
         const next = entries[index + 1];
@@ -749,7 +748,7 @@
     return tr;
   }
   function updateGapAfter(prevEntry) {
-    const entries = stateManager.getCurrentDayEntries();
+    const entries = stateManager.getEntries();
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;
