@@ -42,3 +42,7 @@ export function setOpenDay(day) {
     initDay(day);
     saveState();
 }
+
+export function getCurrentDayEntries() {
+    return this.state.days[this.state.openDay] || [];
+}

@@ -1,5 +1,5 @@
 import {elements, locators} from './elements';
-import {getState, saveState, setOpenDay} from './state';
+import {getCurrentDayEntries, getState, saveState, setOpenDay} from './state';
 import {
     escapeHtml,
     findTicketNumber,
@@ -77,8 +77,7 @@ function renderTabs() {
 }
 
 function updateDayTotal() {
-    const state = getState();
-    const entries = state.days[state.openDay] || [];
+    const entries = getCurrentDayEntries();
     const minutes = {ticket: 0, meeting: 0, break: 0, other: 0, total: 0};
     const uniqueTickets = new Set();
 
@@ -121,8 +120,7 @@ function updateDayTotal() {
 // --------- Summary Table //
 
 export function renderSummary() {
-    const state = getState();
-    const entries = state.days[state.openDay] || [];
+    const entries = getCurrentDayEntries();
     const grouped = []; // will store { type, key, minutes, descs }
 
     // Count totals for matching entries
@@ -224,8 +222,7 @@ export function renderSummary() {
 // --------- Hours Table //
 
 function renderHoursTable() {
-    const state = getState();
-    const entries = state.days[state.openDay] || [];
+    const entries = getCurrentDayEntries();
     const tbody = elements.hoursTableBody;
     tbody.innerHTML = '';
     gapRows.clear();
@@ -301,10 +298,9 @@ function createTimeCell(entry, field, onChange) {
     };
 
     function update(newValue) {
-        const state = getState();
         let initialValue = entry[field];
 
-        const entries = state.days[state.openDay] || [];
+        const entries = getCurrentDayEntries();
         const index = entries.indexOf(entry);
 
         // --- SNAP LOGIC ---
@@ -685,8 +681,7 @@ function createGapRow(minutes, isOverlap = false) {
 }
 
 function updateGapAfter(prevEntry) {
-    const state = getState();
-    const entries = state.days[state.openDay] || [];
+    const entries = getCurrentDayEntries();
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;

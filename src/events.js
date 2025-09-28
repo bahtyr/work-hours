@@ -1,4 +1,4 @@
-import {getState, saveState} from './state';
+import {getCurrentDayEntries, saveState} from './state';
 import {findLast, focusLastDescription, parseHM, roundHM, timeNow, uid} from './utils';
 import {renderAll} from './render';
 import {locators} from './elements';
@@ -14,8 +14,7 @@ function newEntry(start, end, desc, type) {
 }
 
 function startNow() {
-    const state = getState();
-    const entries = state.days[state.openDay];
+    const entries = getCurrentDayEntries();
     entries.push(newEntry(timeNow(), '', '', 0));
     saveState();
     renderAll(true);
@@ -23,8 +22,7 @@ function startNow() {
 }
 
 function startSinceLast() {
-    const state = getState();
-    const entries = state.days[state.openDay];
+    const entries = getCurrentDayEntries();
     // Check for gap between last entry and now
     const lastEntry = entries[entries.length - 1];
     // create gap entry
@@ -41,8 +39,7 @@ function startSinceLast() {
 }
 
 function stopLast() {
-    const state = getState();
-    const entries = state.days[state.openDay];
+    const entries = getCurrentDayEntries();
     const running = findLast(entries, e => e.start && !e.end);
 
     if (running && !running.end) {
