@@ -206,6 +206,7 @@
       init_render();
       init_utils();
       state2 = getState();
+      elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
     }
   });
 
@@ -744,6 +745,7 @@
         { label: "Meeting", emoji: "\u{1F4DE}" },
         { label: "Break", emoji: "\u{1F9CB}" }
       ];
+      renderAll();
     }
   });
 
@@ -853,7 +855,6 @@
       return;
     }
     if (focusedOnTime && e.key === "Tab") {
-      console.log("asdf");
       handleTimeNavigation(e, active);
       return;
     }
@@ -874,19 +875,19 @@
       init_render();
       init_elements();
       state4 = getState();
+      document.addEventListener("keydown", onDocumentKeyDown);
     }
   });
 
-  // src/main.js
+  // main.js
   var require_main = __commonJS({
-    "src/main.js"() {
+    "main.js"() {
+      init_utils();
       init_elements();
+      init_state();
       init_render();
       init_events();
       init_events_days();
-      elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
-      document.addEventListener("keydown", onDocumentKeyDown);
-      renderAll();
     }
   });
   require_main();

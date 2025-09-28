@@ -21,6 +21,8 @@ const types = [
     {label: 'Break', emoji: '🧋'},
 ];
 
+renderAll();
+
 export function renderAll(scrollBottom = false) {
     // return
     renderTabs();

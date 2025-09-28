@@ -54,6 +54,8 @@ function stopLast() {
     return false;
 }
 
+document.addEventListener('keydown', onDocumentKeyDown);
+
 /**
  * Navigate to other entries
  */
@@ -146,7 +148,6 @@ export function onDocumentKeyDown(e) {
 
     // navigate time fields
     if (focusedOnTime && e.key === 'Tab') {
-        console.log("asdf")
         handleTimeNavigation(e, active);
         return;
     }

@@ -7,6 +7,8 @@ const state = getState();
 
 // Summary
 
+elements.toggleSummaryBtn.addEventListener('click', toggleSummary);
+
 export function toggleSummary() {
     renderSummary();
     elements.hoursTable.classList.toggle('hidden');
