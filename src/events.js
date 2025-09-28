@@ -1,37 +1,23 @@
-import {getCurrentDayEntries, saveState} from './state';
-import {findLast, focusLastDescription, parseHM, roundHM, timeNow, uid} from './utils';
+import {focusLastDescription, parseHM, roundHM, timeNow} from './utils';
 import {renderAll} from './render';
 import {locators} from './elements';
-
-function newEntry(start, end, desc, type) {
-    return {
-        id: uid(),
-        start: roundHM(start),
-        end: roundHM(end),
-        desc: desc,
-        type: type,
-    };
-}
+import {stateManager} from "./state_v2";
 
 function startNow() {
-    const entries = getCurrentDayEntries();
-    entries.push(newEntry(timeNow(), '', '', 0));
-    saveState();
+    stateManager.newEntry(timeNow(), '', '', 0);
     renderAll(true);
     focusLastDescription();
 }
 
 function startSinceLast() {
-    const entries = getCurrentDayEntries();
     // Check for gap between last entry and now
-    const lastEntry = entries[entries.length - 1];
+    const lastEntry = stateManager.getLastEntry();
     // create gap entry
     if (lastEntry && lastEntry.end) {
         const lastEnd = parseHM(lastEntry.end);
         const nowHM = parseHM(timeNow());
         if (nowHM >= lastEnd) {
-            entries.push(newEntry(lastEntry.end, '', '', 3));
-            saveState();
+            stateManager.newEntry(lastEntry.end, '', '', 3);
             renderAll(true);
             focusLastDescription();
         }
@@ -39,12 +25,11 @@ function startSinceLast() {
 }
 
 function stopLast() {
-    const entries = getCurrentDayEntries();
-    const running = findLast(entries, e => e.start && !e.end);
+    const running = stateManager.getLastUnfinishedEntry();
 
     if (running && !running.end) {
         running.end = roundHM(timeNow());
-        saveState();
+        stateManager.saveState();
         renderAll(true);
         return true;
     }

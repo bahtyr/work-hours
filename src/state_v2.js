@@ -1,18 +1,15 @@
-import {todayKey} from "./utils";
+import {findLast, roundHM, todayKey, uid} from "./utils";
 
 const STORAGE_KEY = 'simpleTimesheetV3';
 
 export class StateManager {
 
     constructor(storageKey) {
-        try {
-            this.state = JSON.parse(localStorage.getItem(storageKey)) || {};
-        } catch {
-            this.state = {};
-            this.state.openDay = todayKey();
-            this.state.days = {};
-            this.#initDay(this.state.openDay);
-        }
+        this.state = this.loadState(storageKey)
+        this.openDay = this.state.openDay;
+        if (!this.state.days) this.state.days = {};
+        if (!this.state.openDay) this.setOpenDay(todayKey())
+
         this.listeners = new Set();
     }
 
@@ -23,13 +20,54 @@ export class StateManager {
         return this.state;
     }
 
+    loadState(storageKey) {
+        try {
+            return JSON.parse(localStorage.getItem(storageKey)) || {};
+        } catch {
+            return {};
+        }
+    }
+
     saveState() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
     }
 
+    getCurrentDayEntries() {
+        this.#initEntries(this.state.openDay)
+        return this.state.days[this.state.openDay];
+    }
+
+    getDays() {
+        return new Set(Object.keys(this.state.days || {}));
+    }
+
+    deleteDay(day) {
+        delete this.state.days[day];
+    }
+
+    newEntry(start, end, desc, type) {
+        this.getCurrentDayEntries().push({
+            id: uid(),
+            start: roundHM(start),
+            end: roundHM(end),
+            desc: desc,
+            type: type,
+        });
+        this.saveState();
+    }
+
+    getLastEntry() {
+        const entries = this.getCurrentDayEntries();
+        return entries[entries.length - 1];
+    }
+
+    getLastUnfinishedEntry() {
+        return findLast(this.getCurrentDayEntries(), e => e.start && !e.end);
+    }
+
     //
 
-    #initDay(day) {
+    #initEntries(day) {
         if (!this.state.days[day]) this.state.days[day] = [];
     }
 
@@ -38,8 +76,9 @@ export class StateManager {
      * @param day
      */
     setOpenDay(day) {
+        this.openDay = day;
         this.state.openDay = day;
-        this.#initDay(day);
+        this.#initEntries(day);
         this.saveState();
     }
 

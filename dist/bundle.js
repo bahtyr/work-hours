@@ -149,38 +149,84 @@
     }
   });
 
-  // src/state.js
-  function loadState() {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-    } catch {
-      return {};
-    }
-  }
-  function getState() {
-    return state;
-  }
-  function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
-  function initDay(day) {
-    if (!state.days[day]) state.days[day] = [];
-  }
-  function setOpenDay(day) {
-    state.openDay = day;
-    initDay(day);
-    saveState();
-  }
-  var STORAGE_KEY, state;
-  var init_state = __esm({
-    "src/state.js"() {
+  // src/state_v2.js
+  var STORAGE_KEY, StateManager, stateManager;
+  var init_state_v2 = __esm({
+    "src/state_v2.js"() {
       init_utils();
       STORAGE_KEY = "simpleTimesheetV3";
-      state = loadState();
-      if (!state.days) state.days = {};
-      if (!state.openDay) state.openDay = todayKey();
-      initDay(state.openDay);
-      saveState();
+      StateManager = class {
+        constructor(storageKey) {
+          this.state = this.loadState(storageKey);
+          this.openDay = this.state.openDay;
+          if (!this.state.days) this.state.days = {};
+          if (!this.state.openDay) this.setOpenDay(todayKey());
+          this.listeners = /* @__PURE__ */ new Set();
+        }
+        // GET & SAVE
+        getState() {
+          return this.state;
+        }
+        loadState(storageKey) {
+          try {
+            return JSON.parse(localStorage.getItem(storageKey)) || {};
+          } catch {
+            return {};
+          }
+        }
+        saveState() {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+        }
+        getCurrentDayEntries() {
+          this.#initEntries(this.state.openDay);
+          return this.state.days[this.state.openDay];
+        }
+        getDays() {
+          return new Set(Object.keys(this.state.days || {}));
+        }
+        deleteDay(day) {
+          delete this.state.days[day];
+        }
+        newEntry(start, end, desc, type) {
+          this.getCurrentDayEntries().push({
+            id: uid(),
+            start: roundHM(start),
+            end: roundHM(end),
+            desc,
+            type
+          });
+          this.saveState();
+        }
+        getLastEntry() {
+          const entries = this.getCurrentDayEntries();
+          return entries[entries.length - 1];
+        }
+        getLastUnfinishedEntry() {
+          return findLast(this.getCurrentDayEntries(), (e) => e.start && !e.end);
+        }
+        //
+        #initEntries(day) {
+          if (!this.state.days[day]) this.state.days[day] = [];
+        }
+        /**
+         * Changes the day, initiates the day, saves this day as current day
+         * @param day
+         */
+        setOpenDay(day) {
+          this.openDay = day;
+          this.state.openDay = day;
+          this.#initEntries(day);
+          this.saveState();
+        }
+        // subscribe notify
+        subscribe(listener) {
+          this.listeners.add(listener);
+        }
+        notify() {
+          for (const l of this.listeners) l(this.state);
+        }
+      };
+      stateManager = new StateManager(STORAGE_KEY);
     }
   });
 
@@ -194,18 +240,16 @@
     if (!confirm("Delete all entries for this day? This cannot be undone.")) {
       return;
     }
-    delete state2.days[state2.openDay];
-    setOpenDay(todayKey());
+    stateManager.deleteDay(stateManager.openDay);
+    stateManager.setOpenDay(todayKey());
     renderAll();
   }
-  var state2;
   var init_events_days = __esm({
     "src/events_days.js"() {
       init_elements();
-      init_state();
       init_render();
       init_utils();
-      state2 = getState();
+      init_state_v2();
       elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
     }
   });
@@ -222,14 +266,14 @@
   }
   function renderTabs() {
     const today = todayKey();
-    const allDays = new Set(Object.keys(state3.days || {}));
+    const allDays = stateManager.getDays();
     allDays.add(today);
     const otherDays = Array.from(allDays).filter((d) => d !== today).sort((a, b) => b.localeCompare(a));
     const orderedDays = [today, ...otherDays];
     elements.tabs.innerHTML = "";
     orderedDays.forEach((day) => {
       const tabEl = document.createElement("div");
-      tabEl.className = "tab" + (day === state3.openDay ? " active" : "");
+      tabEl.className = "tab" + (day === stateManager.openDay ? " active" : "");
       tabEl.title = day;
       const textEl = document.createElement("span");
       textEl.textContent = formatDayName(day);
@@ -243,17 +287,16 @@
       });
       tabEl.appendChild(deleteBtn);
       tabEl.addEventListener("click", () => {
-        setOpenDay(day);
+        stateManager.setOpenDay(day);
         renderAll();
       });
       elements.tabs.appendChild(tabEl);
     });
   }
   function updateDayTotal() {
-    const entries = state3.days[state3.openDay] || [];
     const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
     const uniqueTickets = /* @__PURE__ */ new Set();
-    for (const entry of entries) {
+    for (const entry of stateManager.getCurrentDayEntries()) {
       const start = parseHM(entry.start);
       const end = parseHM(entry.end);
       if (start !== null && end !== null && end >= start) {
@@ -282,9 +325,8 @@
     elements.timelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
   }
   function renderSummary() {
-    const entries = state3.days[state3.openDay] || [];
     const grouped = [];
-    for (const entry of entries) {
+    for (const entry of stateManager.getCurrentDayEntries()) {
       const start = parseHM(entry.start);
       const end = parseHM(entry.end);
       if (start === null || end === null || end < start) continue;
@@ -364,7 +406,7 @@
     elements.summary.innerHTML = html;
   }
   function renderHoursTable() {
-    const entries = state3.days[state3.openDay] || [];
+    const entries = stateManager.getCurrentDayEntries();
     const tbody = elements.hoursTableBody;
     tbody.innerHTML = "";
     gapRows.clear();
@@ -386,7 +428,7 @@
       if (from !== to) {
         const item = entries.splice(from, 1)[0];
         entries.splice(to, 0, item);
-        saveState();
+        stateManager.saveState();
         renderAll();
       }
     };
@@ -422,7 +464,7 @@
     };
     function update(newValue) {
       let initialValue = entry[field];
-      const entries = state3.days[state3.openDay] || [];
+      const entries = stateManager.getCurrentDayEntries();
       const index = entries.indexOf(entry);
       if (field === "end" && index < entries.length - 1) {
         const next = entries[index + 1];
@@ -443,7 +485,7 @@
         }
       }
       entry[field] = newValue;
-      saveState();
+      stateManager.saveState();
       updateDayTotal();
       if (index > 0) updateGapAfter(entries[index - 1]);
       updateGapAfter(entry);
@@ -484,7 +526,7 @@
       entry.type = (entry.type + 1) % types.length;
       btn.textContent = types[entry.type].emoji;
       btn.classList.add("type-" + entry.type);
-      saveState();
+      stateManager.saveState();
       updateDayTotal();
     };
     td.appendChild(btn);
@@ -505,7 +547,7 @@
       btn.textContent = types[identifiedType].emoji;
       entry.type = identifiedType;
       updateDayTotal();
-      saveState();
+      stateManager.saveState();
     };
     input.addEventListener("keydown", (e) => {
       if ((e.key === "Backspace" || e.key === "Delete") && input.value === "") {
@@ -526,7 +568,7 @@
     deleteBtn.onclick = () => {
       if (confirm("Delete this entry?")) {
         entries.splice(index, 1);
-        saveState();
+        stateManager.saveState();
         renderAll();
       }
     };
@@ -571,7 +613,7 @@
         if (finalIndex !== -1 && finalIndex !== startIndex) {
           const item = entries.splice(startIndex, 1)[0];
           entries.splice(finalIndex, 0, item);
-          saveState();
+          stateManager.saveState();
           renderAll();
         } else {
           renderAll();
@@ -707,7 +749,7 @@
     return tr;
   }
   function updateGapAfter(prevEntry) {
-    const entries = state3.days[state3.openDay] || [];
+    const entries = stateManager.getCurrentDayEntries();
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;
@@ -730,14 +772,13 @@
       }
     }
   }
-  var state3, gapRows, types;
+  var gapRows, types;
   var init_render = __esm({
     "src/render.js"() {
       init_elements();
-      init_state();
       init_utils();
       init_events_days();
-      state3 = getState();
+      init_state_v2();
       gapRows = /* @__PURE__ */ new Map();
       types = [
         { label: "Work", emoji: "\u2800\n" },
@@ -750,42 +791,28 @@
   });
 
   // src/events.js
-  function newEntry(start, end, desc, type) {
-    return {
-      id: uid(),
-      start: roundHM(start),
-      end: roundHM(end),
-      desc,
-      type
-    };
-  }
   function startNow() {
-    const entries = state4.days[state4.openDay];
-    entries.push(newEntry(timeNow(), "", "", 0));
-    saveState();
+    stateManager.newEntry(timeNow(), "", "", 0);
     renderAll(true);
     focusLastDescription();
   }
   function startSinceLast() {
-    const entries = state4.days[state4.openDay];
-    const lastEntry = entries[entries.length - 1];
+    const lastEntry = stateManager.getLastEntry();
     if (lastEntry && lastEntry.end) {
       const lastEnd = parseHM(lastEntry.end);
       const nowHM = parseHM(timeNow());
       if (nowHM >= lastEnd) {
-        entries.push(newEntry(lastEntry.end, "", "", 3));
-        saveState();
+        stateManager.newEntry(lastEntry.end, "", "", 3);
         renderAll(true);
         focusLastDescription();
       }
     }
   }
   function stopLast() {
-    const entries = state4.days[state4.openDay];
-    const running = findLast(entries, (e) => e.start && !e.end);
+    const running = stateManager.getLastUnfinishedEntry();
     if (running && !running.end) {
       running.end = roundHM(timeNow());
-      saveState();
+      stateManager.saveState();
       renderAll(true);
       return true;
     }
@@ -867,14 +894,12 @@
       }
     }
   }
-  var state4;
   var init_events = __esm({
     "src/events.js"() {
-      init_state();
       init_utils();
       init_render();
       init_elements();
-      state4 = getState();
+      init_state_v2();
       document.addEventListener("keydown", onDocumentKeyDown);
     }
   });
@@ -884,7 +909,7 @@
     "main.js"() {
       init_utils();
       init_elements();
-      init_state();
+      init_state_v2();
       init_render();
       init_events();
       init_events_days();

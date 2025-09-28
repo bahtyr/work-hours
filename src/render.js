@@ -1,5 +1,4 @@
 import {elements, locators} from './elements';
-import {getCurrentDayEntries, getState, saveState, setOpenDay} from './state';
 import {
     escapeHtml,
     findTicketNumber,
@@ -11,6 +10,7 @@ import {
     todayKey
 } from './utils';
 import {deleteOpenDay} from "./events_days";
+import {stateManager} from "./state_v2";
 
 const gapRows = new Map();
 const types = [
@@ -37,9 +37,8 @@ export function renderAll(scrollBottom = false) {
 // --------- Header //
 
 function renderTabs() {
-    const state = getState();
     const today = todayKey();
-    const allDays = new Set(Object.keys(state.days || {}));
+    const allDays = stateManager.getDays();
     allDays.add(today);
 
     const otherDays = Array.from(allDays)
@@ -51,7 +50,7 @@ function renderTabs() {
 
     orderedDays.forEach(day => {
         const tabEl = document.createElement('div');
-        tabEl.className = 'tab' + (day === state.openDay ? ' active' : '');
+        tabEl.className = 'tab' + (day === stateManager.openDay ? ' active' : '');
         tabEl.title = day;
 
         const textEl = document.createElement('span');
@@ -68,7 +67,7 @@ function renderTabs() {
         tabEl.appendChild(deleteBtn);
 
         tabEl.addEventListener('click', () => {
-            setOpenDay(day);
+            stateManager.setOpenDay(day);
             renderAll();
         });
 
@@ -77,12 +76,11 @@ function renderTabs() {
 }
 
 function updateDayTotal() {
-    const entries = getCurrentDayEntries();
     const minutes = {ticket: 0, meeting: 0, break: 0, other: 0, total: 0};
     const uniqueTickets = new Set();
 
     // count total minutes per entry type
-    for (const entry of entries) {
+    for (const entry of stateManager.getCurrentDayEntries()) {
         const start = parseHM(entry.start);
         const end = parseHM(entry.end);
 
@@ -120,11 +118,10 @@ function updateDayTotal() {
 // --------- Summary Table //
 
 export function renderSummary() {
-    const entries = getCurrentDayEntries();
     const grouped = []; // will store { type, key, minutes, descs }
 
     // Count totals for matching entries
-    for (const entry of entries) {
+    for (const entry of stateManager.getCurrentDayEntries()) {
         const start = parseHM(entry.start);
         const end = parseHM(entry.end);
 
@@ -222,7 +219,7 @@ export function renderSummary() {
 // --------- Hours Table //
 
 function renderHoursTable() {
-    const entries = getCurrentDayEntries();
+    const entries = stateManager.getCurrentDayEntries();
     const tbody = elements.hoursTableBody;
     tbody.innerHTML = '';
     gapRows.clear();
@@ -250,7 +247,7 @@ function createTableRow(entry, index, entries) {
         if (from !== to) {
             const item = entries.splice(from, 1)[0];
             entries.splice(to, 0, item);
-            saveState();
+            stateManager.saveState();
             renderAll();
         }
     };
@@ -300,7 +297,7 @@ function createTimeCell(entry, field, onChange) {
     function update(newValue) {
         let initialValue = entry[field];
 
-        const entries = getCurrentDayEntries();
+        const entries = stateManager.getCurrentDayEntries();
         const index = entries.indexOf(entry);
 
         // --- SNAP LOGIC ---
@@ -328,7 +325,7 @@ function createTimeCell(entry, field, onChange) {
 
         // save the entry and update
         entry[field] = newValue;
-        saveState();
+        stateManager.saveState();
         updateDayTotal();
 
         // update gaps
@@ -389,7 +386,7 @@ function createTypeCell(entry) {
         entry.type = (entry.type + 1) % types.length;
         btn.textContent = types[entry.type].emoji;
         btn.classList.add('type-' + entry.type);
-        saveState();
+        stateManager.saveState();
         updateDayTotal();
     };
 
@@ -417,7 +414,7 @@ function createDescriptionCell(entry) {
         entry.type = identifiedType;
         updateDayTotal();
 
-        saveState();
+        stateManager.saveState();
     };
     input.addEventListener('keydown', e => {
         if ((e.key === 'Backspace' || e.key === 'Delete') && input.value === '') {
@@ -444,7 +441,7 @@ function createDeleteCell(index, entries) {
     deleteBtn.onclick = () => {
         if (confirm('Delete this entry?')) {
             entries.splice(index, 1);
-            saveState();
+            stateManager.saveState();
             renderAll();
         }
     };
@@ -502,7 +499,7 @@ function initSmoothRowDnD(tbody, entries) {
             if (finalIndex !== -1 && finalIndex !== startIndex) {
                 const item = entries.splice(startIndex, 1)[0];
                 entries.splice(finalIndex, 0, item);
-                saveState();
+                stateManager.saveState();
                 renderAll();
             } else {
                 // unchanged -> just re-render to restore UI/gaps
@@ -681,7 +678,7 @@ function createGapRow(minutes, isOverlap = false) {
 }
 
 function updateGapAfter(prevEntry) {
-    const entries = getCurrentDayEntries();
+    const entries = stateManager.getCurrentDayEntries();
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;
