@@ -3,8 +3,6 @@ import {getState, saveState, setOpenDay} from './state';
 import {renderAll, renderSummary} from './render';
 import {todayKey} from './utils';
 
-const state = getState();
-
 // Summary
 
 elements.toggleSummaryBtn.addEventListener('click', toggleSummary);
@@ -27,6 +25,7 @@ export function onAddDay() {
 }
 
 export function onSaveEditDay() {
+    const state = getState();
     const newDate = ''; //elements.editDayInput.value;
     const oldDate = state.openDay;
 
@@ -64,6 +63,7 @@ export function deleteOpenDay() {
         return;
     }
 
+    const state = getState();
     delete state.days[state.openDay];
     setOpenDay(todayKey());
     renderAll();

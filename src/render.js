@@ -12,7 +12,6 @@ import {
 } from './utils';
 import {deleteOpenDay} from "./events_days";
 
-const state = getState();
 const gapRows = new Map();
 const types = [
     {label: 'Work', emoji: '⠀\n'},
@@ -38,6 +37,7 @@ export function renderAll(scrollBottom = false) {
 // --------- Header //
 
 function renderTabs() {
+    const state = getState();
     const today = todayKey();
     const allDays = new Set(Object.keys(state.days || {}));
     allDays.add(today);
@@ -77,6 +77,7 @@ function renderTabs() {
 }
 
 function updateDayTotal() {
+    const state = getState();
     const entries = state.days[state.openDay] || [];
     const minutes = {ticket: 0, meeting: 0, break: 0, other: 0, total: 0};
     const uniqueTickets = new Set();
@@ -120,6 +121,7 @@ function updateDayTotal() {
 // --------- Summary Table //
 
 export function renderSummary() {
+    const state = getState();
     const entries = state.days[state.openDay] || [];
     const grouped = []; // will store { type, key, minutes, descs }
 
@@ -222,6 +224,7 @@ export function renderSummary() {
 // --------- Hours Table //
 
 function renderHoursTable() {
+    const state = getState();
     const entries = state.days[state.openDay] || [];
     const tbody = elements.hoursTableBody;
     tbody.innerHTML = '';
@@ -298,6 +301,7 @@ function createTimeCell(entry, field, onChange) {
     };
 
     function update(newValue) {
+        const state = getState();
         let initialValue = entry[field];
 
         const entries = state.days[state.openDay] || [];
@@ -681,6 +685,7 @@ function createGapRow(minutes, isOverlap = false) {
 }
 
 function updateGapAfter(prevEntry) {
+    const state = getState();
     const entries = state.days[state.openDay] || [];
     const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
