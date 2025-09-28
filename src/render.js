@@ -245,9 +245,7 @@ function createTableRow(entry, index, entries) {
         const from = +ev.dataTransfer.getData('text/plain');
         const to = index;
         if (from !== to) {
-            const item = entries.splice(from, 1)[0];
-            entries.splice(to, 0, item);
-            stateManager.saveState();
+            stateManager.moveEntry(from, to);
             renderAll();
         }
     };
@@ -263,7 +261,7 @@ function createTableRow(entry, index, entries) {
     tr.appendChild(createDescriptionCell(entry));
     tr.appendChild(startCell);
     tr.appendChild(endCell);
-    tr.appendChild(createDeleteCell(index, entries));
+    tr.appendChild(createDeleteCell(index));
     tr.appendChild(createDragHandleCell());
 
     // Initialize duration immediately
@@ -307,7 +305,7 @@ function createTimeCell(entry, field, onChange) {
             if (next.start === initialValue) {
                 const nextCell = document.querySelector(`tr[data-entry-id="${next.id}"] input[data-field="start"]`);
                 nextCell.value = newValue;
-                next.start = newValue;
+                stateManager.updateEntry(next.id, {start: newValue});
             }
         }
 
@@ -318,14 +316,13 @@ function createTimeCell(entry, field, onChange) {
                 const prevCell = document.querySelector(`tr[data-entry-id="${prev.id}"] input[data-field="end"]`);
                 if (prevCell) {
                     prevCell.value = newValue;
-                    prev.end = newValue;
+                    stateManager.updateEntry(prev.id, {end: newValue});
                 }
             }
         }
 
         // save the entry and update
-        entry[field] = newValue;
-        stateManager.saveState();
+        stateManager.updateEntry(entry.id, {[field]: newValue});
         updateDayTotal();
 
         // update gaps
@@ -383,10 +380,9 @@ function createTypeCell(entry) {
     // cycle to next type
     btn.onclick = () => {
         btn.classList.remove('type-' + entry.type);
-        entry.type = (entry.type + 1) % types.length;
+        stateManager.updateEntry(entry.id, {type: (entry.type + 1) % types.length});
         btn.textContent = types[entry.type].emoji;
         btn.classList.add('type-' + entry.type);
-        stateManager.saveState();
         updateDayTotal();
     };
 
@@ -403,18 +399,14 @@ function createDescriptionCell(entry) {
     input.placeholder = 'Description';
     input.value = entry.desc || '';
     input.oninput = () => {
-        entry.desc = input.value;
-
         // identify entry type based on description
-        const identifiedType = identifyTicketType(entry.desc);
+        const identifiedType = identifyTicketType(input.desc);
         // update entry type and row icon
         const row = input.closest('tr');
         const btn = row.querySelector(locators.entryTypeBtn);
         btn.textContent = types[identifiedType].emoji;
-        entry.type = identifiedType;
+        stateManager.updateEntry(entry.id, {desc: input.value, type: identifiedType});
         updateDayTotal();
-
-        stateManager.saveState();
     };
     input.addEventListener('keydown', e => {
         if ((e.key === 'Backspace' || e.key === 'Delete') && input.value === '') {
@@ -432,7 +424,7 @@ function createDescriptionCell(entry) {
 
 // Delete and Drag
 
-function createDeleteCell(index, entries) {
+function createDeleteCell(index) {
     const td = document.createElement('td');
     const deleteBtn = document.createElement('button');
     td.classList.add('actions');
@@ -440,8 +432,7 @@ function createDeleteCell(index, entries) {
     deleteBtn.textContent = 'x';
     deleteBtn.onclick = () => {
         if (confirm('Delete this entry?')) {
-            entries.splice(index, 1);
-            stateManager.saveState();
+            stateManager.deleteEntry(index);
             renderAll();
         }
     };
@@ -497,9 +488,7 @@ function initSmoothRowDnD(tbody, entries) {
             cleanup();
 
             if (finalIndex !== -1 && finalIndex !== startIndex) {
-                const item = entries.splice(startIndex, 1)[0];
-                entries.splice(finalIndex, 0, item);
-                stateManager.saveState();
+                stateManager.moveEntry(startIndex, finalIndex);
                 renderAll();
             } else {
                 // unchanged -> just re-render to restore UI/gaps

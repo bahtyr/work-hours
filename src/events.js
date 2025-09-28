@@ -25,16 +25,7 @@ function startSinceLast() {
 }
 
 function stopLast() {
-    const running = stateManager.getLastUnfinishedEntry();
-
-    if (running && !running.end) {
-        running.end = roundHM(timeNow());
-        stateManager.saveState();
-        renderAll(true);
-        return true;
-    }
-
-    return false;
+    return stateManager.stopLastRunningEntry();
 }
 
 document.addEventListener('keydown', onDocumentKeyDown);

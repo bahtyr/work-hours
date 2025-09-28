@@ -1,4 +1,4 @@
-import {findLast, roundHM, todayKey, uid} from "./utils";
+import {findLast, roundHM, timeNow, todayKey, uid} from "./utils";
 
 const STORAGE_KEY = 'simpleTimesheetV3';
 
@@ -24,7 +24,7 @@ export class StateManager {
         }
     }
 
-    saveState() {
+    #saveState() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
     }
 
@@ -42,7 +42,7 @@ export class StateManager {
         this.openDay = day;
         this.state.openDay = day;
         this.#initEntries(day);
-        this.saveState();
+        this.#saveState();
     }
 
     deleteDay(day) {
@@ -65,10 +65,6 @@ export class StateManager {
         return entries[entries.length - 1];
     }
 
-    getLastUnfinishedEntry() {
-        return findLast(this.getEntries(), e => e.start && !e.end);
-    }
-
     // Entry Management
 
     newEntry(start, end, desc, type) {
@@ -79,7 +75,49 @@ export class StateManager {
             desc: desc,
             type: type,
         });
-        this.saveState();
+        this.#saveState();
+        this.notify();
+    }
+
+    updateEntry(entryId, updates) {
+        const entries = this.getEntries();
+        const entry = entries.find(e => e.id === entryId);
+        if (!entry) return false;
+
+        Object.assign(entry, updates);
+        this.#saveState();
+        this.notify();
+        return true;
+    }
+
+    stopLastRunningEntry() {
+        const running = findLast(this.getEntries(), e => e.start && !e.end);
+        if (!running) return false;
+
+        running.end = roundHM(timeNow());
+        this.#saveState();
+        this.notify();
+        return true;
+    }
+
+    deleteEntry(indexOrId) {
+        const entries = this.getEntries();
+        let index = typeof indexOrId === 'number' ? indexOrId : entries.findIndex(e => e.id === indexOrId);
+        if (index === -1) return false;
+        entries.splice(index, 1);
+        this.#saveState();
+        this.notify();
+        return true;
+    }
+
+    moveEntry(fromIndex, toIndex) {
+        const entries = this.getEntries();
+        if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= entries.length || toIndex >= entries.length) return false;
+        const item = entries.splice(fromIndex, 1)[0];
+        entries.splice(toIndex, 0, item);
+        this.#saveState();
+        this.notify();
+        return true;
     }
 
     // Subscription / Notification
