@@ -149,10 +149,10 @@
     }
   });
 
-  // src/state_v2.js
+  // src/state.js
   var STORAGE_KEY, StateManager, stateManager;
-  var init_state_v2 = __esm({
-    "src/state_v2.js"() {
+  var init_state = __esm({
+    "src/state.js"() {
       init_utils();
       STORAGE_KEY = "simpleTimesheetV3";
       StateManager = class {
@@ -172,7 +172,7 @@
             return {};
           }
         }
-        saveState() {
+        #saveState() {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
         }
         getState() {
@@ -186,7 +186,7 @@
           this.openDay = day;
           this.state.openDay = day;
           this.#initEntries(day);
-          this.saveState();
+          this.#saveState();
         }
         deleteDay(day) {
           delete this.state.days[day];
@@ -203,9 +203,6 @@
           const entries = this.getEntries();
           return entries[entries.length - 1];
         }
-        getLastUnfinishedEntry() {
-          return findLast(this.getEntries(), (e) => e.start && !e.end);
-        }
         // Entry Management
         newEntry(start, end, desc, type) {
           this.getEntries().push({
@@ -215,7 +212,43 @@
             desc,
             type
           });
-          this.saveState();
+          this.#saveState();
+          this.notify();
+        }
+        updateEntry(entryId, updates) {
+          const entries = this.getEntries();
+          const entry = entries.find((e) => e.id === entryId);
+          if (!entry) return false;
+          Object.assign(entry, updates);
+          this.#saveState();
+          this.notify();
+          return true;
+        }
+        stopLastRunningEntry() {
+          const running = findLast(this.getEntries(), (e) => e.start && !e.end);
+          if (!running) return false;
+          running.end = roundHM(timeNow());
+          this.#saveState();
+          this.notify();
+          return true;
+        }
+        deleteEntry(indexOrId) {
+          const entries = this.getEntries();
+          let index = typeof indexOrId === "number" ? indexOrId : entries.findIndex((e) => e.id === indexOrId);
+          if (index === -1) return false;
+          entries.splice(index, 1);
+          this.#saveState();
+          this.notify();
+          return true;
+        }
+        moveEntry(fromIndex, toIndex) {
+          const entries = this.getEntries();
+          if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= entries.length || toIndex >= entries.length) return false;
+          const item = entries.splice(fromIndex, 1)[0];
+          entries.splice(toIndex, 0, item);
+          this.#saveState();
+          this.notify();
+          return true;
         }
         // Subscription / Notification
         subscribe(listener) {
@@ -248,7 +281,7 @@
       init_elements();
       init_render();
       init_utils();
-      init_state_v2();
+      init_state();
       elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
     }
   });
@@ -425,9 +458,7 @@
       const from = +ev.dataTransfer.getData("text/plain");
       const to = index;
       if (from !== to) {
-        const item = entries.splice(from, 1)[0];
-        entries.splice(to, 0, item);
-        stateManager.saveState();
+        stateManager.moveEntry(from, to);
         renderAll();
       }
     };
@@ -439,7 +470,7 @@
     tr.appendChild(createDescriptionCell(entry));
     tr.appendChild(startCell);
     tr.appendChild(endCell);
-    tr.appendChild(createDeleteCell(index, entries));
+    tr.appendChild(createDeleteCell(index));
     tr.appendChild(createDragHandleCell());
     updateDurationCell(entry, durationCell);
     return tr;
@@ -470,7 +501,7 @@
         if (next.start === initialValue) {
           const nextCell = document.querySelector(`tr[data-entry-id="${next.id}"] input[data-field="start"]`);
           nextCell.value = newValue;
-          next.start = newValue;
+          stateManager.updateEntry(next.id, { start: newValue });
         }
       }
       if (field === "start" && index > 0) {
@@ -479,12 +510,11 @@
           const prevCell = document.querySelector(`tr[data-entry-id="${prev.id}"] input[data-field="end"]`);
           if (prevCell) {
             prevCell.value = newValue;
-            prev.end = newValue;
+            stateManager.updateEntry(prev.id, { end: newValue });
           }
         }
       }
-      entry[field] = newValue;
-      stateManager.saveState();
+      stateManager.updateEntry(entry.id, { [field]: newValue });
       updateDayTotal();
       if (index > 0) updateGapAfter(entries[index - 1]);
       updateGapAfter(entry);
@@ -522,10 +552,9 @@
     btn.textContent = types[entry.type].emoji;
     btn.onclick = () => {
       btn.classList.remove("type-" + entry.type);
-      entry.type = (entry.type + 1) % types.length;
+      stateManager.updateEntry(entry.id, { type: (entry.type + 1) % types.length });
       btn.textContent = types[entry.type].emoji;
       btn.classList.add("type-" + entry.type);
-      stateManager.saveState();
       updateDayTotal();
     };
     td.appendChild(btn);
@@ -539,14 +568,12 @@
     input.placeholder = "Description";
     input.value = entry.desc || "";
     input.oninput = () => {
-      entry.desc = input.value;
-      const identifiedType = identifyTicketType(entry.desc);
+      const identifiedType = identifyTicketType(input.desc);
       const row = input.closest("tr");
       const btn = row.querySelector(locators.entryTypeBtn);
       btn.textContent = types[identifiedType].emoji;
-      entry.type = identifiedType;
+      stateManager.updateEntry(entry.id, { desc: input.value, type: identifiedType });
       updateDayTotal();
-      stateManager.saveState();
     };
     input.addEventListener("keydown", (e) => {
       if ((e.key === "Backspace" || e.key === "Delete") && input.value === "") {
@@ -558,7 +585,7 @@
     td.appendChild(input);
     return td;
   }
-  function createDeleteCell(index, entries) {
+  function createDeleteCell(index) {
     const td = document.createElement("td");
     const deleteBtn = document.createElement("button");
     td.classList.add("actions");
@@ -566,8 +593,7 @@
     deleteBtn.textContent = "x";
     deleteBtn.onclick = () => {
       if (confirm("Delete this entry?")) {
-        entries.splice(index, 1);
-        stateManager.saveState();
+        stateManager.deleteEntry(index);
         renderAll();
       }
     };
@@ -610,9 +636,7 @@
         const finalIndex = nonGapRows.indexOf(placeholder);
         cleanup();
         if (finalIndex !== -1 && finalIndex !== startIndex) {
-          const item = entries.splice(startIndex, 1)[0];
-          entries.splice(finalIndex, 0, item);
-          stateManager.saveState();
+          stateManager.moveEntry(startIndex, finalIndex);
           renderAll();
         } else {
           renderAll();
@@ -777,7 +801,7 @@
       init_elements();
       init_utils();
       init_events_days();
-      init_state_v2();
+      init_state();
       gapRows = /* @__PURE__ */ new Map();
       types = [
         { label: "Work", emoji: "\u2800\n" },
@@ -805,17 +829,13 @@
         renderAll(true);
         focusLastDescription();
       }
+      return true;
+    } else {
+      return false;
     }
   }
   function stopLast() {
-    const running = stateManager.getLastUnfinishedEntry();
-    if (running && !running.end) {
-      running.end = roundHM(timeNow());
-      stateManager.saveState();
-      renderAll(true);
-      return true;
-    }
-    return false;
+    return stateManager.stopLastRunningEntry();
   }
   function handleArrowNavigation(e, active) {
     const inputs = Array.from(document.querySelectorAll(locators.entryDescription));
@@ -872,7 +892,9 @@
     if (!focusedOnInput && e.key === " ") {
       if (!stopLast()) {
         e.preventDefault();
-        startSinceLast();
+        if (!startSinceLast()) {
+          startNow();
+        }
         return;
       }
     }
@@ -898,7 +920,7 @@
       init_utils();
       init_render();
       init_elements();
-      init_state_v2();
+      init_state();
       document.addEventListener("keydown", onDocumentKeyDown);
     }
   });
@@ -908,7 +930,7 @@
     "main.js"() {
       init_utils();
       init_elements();
-      init_state_v2();
+      init_state();
       init_render();
       init_events();
       init_events_days();

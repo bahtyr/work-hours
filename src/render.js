@@ -414,9 +414,6 @@ function createDescriptionCell(entry) {
             const btn = row.querySelector(locators.entryDeleteBtn);
             btn.click();
         }
-        // if (e.key === 'Enter') {
-        //     onNew();
-        // }
     });
     td.appendChild(input);
     return td;

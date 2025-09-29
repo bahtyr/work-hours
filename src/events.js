@@ -10,9 +10,7 @@ function startNow() {
 }
 
 function startSinceLast() {
-    // Check for gap between last entry and now
     const lastEntry = stateManager.getLastEntry();
-    // create gap entry
     if (lastEntry && lastEntry.end) {
         const lastEnd = parseHM(lastEntry.end);
         const nowHM = parseHM(timeNow());
@@ -21,6 +19,9 @@ function startSinceLast() {
             renderAll(true);
             focusLastDescription();
         }
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -109,7 +110,9 @@ export function onDocumentKeyDown(e) {
     if (!focusedOnInput && e.key === ' ') {
         if (!stopLast()) {
             e.preventDefault();
-            startSinceLast();
+            if (!startSinceLast()) {
+                startNow();
+            }
             return;
         }
     }
