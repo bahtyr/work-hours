@@ -39,10 +39,12 @@
         entryDeleteBtn: "button.action.delete"
       };
       types = [
-        { label: "Work", emoji: "\u2800\n" },
-        { label: "Ticket", emoji: "\u{1F4D8}\uFE0F" },
-        { label: "Meeting", emoji: "\u{1F4DE}" },
-        { label: "Break", emoji: "\u{1F9CB}" }
+        { priority: 2, label: "Work", emoji: "\u2800\n", keywords: [] },
+        // everything else
+        { priority: 0, label: "Ticket", emoji: "\u{1F4D8}\uFE0F", keywords: [] },
+        // identified by ticket regex
+        { priority: 1, label: "Meeting", emoji: "\u{1F4DE}", keywords: ["meet", "call", "ask", "msg", "message"] },
+        { priority: 3, label: "Break", emoji: "\u{1F9CB}", keywords: ["ara", "break", "lunch"] }
       ];
     }
   });
@@ -137,14 +139,11 @@
   function identifyTicketType(desc) {
     if (!desc) return 0;
     if (findTicketNumber(desc)) return 1;
-    if (desc.includes("meet")) return 2;
-    if (desc.includes("call")) return 2;
-    if (desc.includes("ask")) return 2;
-    if (desc.includes("msg")) return 2;
-    if (desc.includes("message")) return 2;
-    if (desc.includes("ara")) return 3;
-    if (desc.includes("break")) return 3;
-    if (desc.includes("lunch")) return 3;
+    for (let index = 0; index < types.length; index++) {
+      if (types[index].keywords.some((keyword) => desc.includes(keyword))) {
+        return index;
+      }
+    }
     return 0;
   }
   var pad;
@@ -307,19 +306,9 @@
     }
     if (grouped.length === 0) {
     }
-    const typeOrder = {
-      0: 2,
-      // work
-      1: 0,
-      // ticket
-      2: 1,
-      // meet
-      3: 3
-      // break
-    };
     grouped.sort((a, b) => {
-      const orderA = typeOrder[a.type] ?? 999;
-      const orderB = typeOrder[b.type] ?? 999;
+      const orderA = types[a.type].priority ?? 999;
+      const orderB = types[b.type].priority ?? 999;
       if (orderA !== orderB) return orderA - orderB;
       return a.key.localeCompare(b.key);
     });

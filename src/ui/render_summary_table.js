@@ -58,15 +58,9 @@ export function renderSummary() {
     }
 
     // Sort: first by type, then by key alphabetically
-    const typeOrder = {
-        0: 2, // work
-        1: 0, // ticket
-        2: 1, // meet
-        3: 3, // break
-    };
     grouped.sort((a, b) => {
-        const orderA = typeOrder[a.type] ?? 999;
-        const orderB = typeOrder[b.type] ?? 999;
+        const orderA = types[a.type].priority ?? 999;
+        const orderB = types[b.type].priority ?? 999;
         if (orderA !== orderB) return orderA - orderB;
         return a.key.localeCompare(b.key); // within type: A–Z
     });

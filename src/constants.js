@@ -28,8 +28,8 @@ export const locators = {
 };
 
 export const types = [
-    {label: 'Work', emoji: '⠀\n'},
-    {label: 'Ticket', emoji: '📘️'},
-    {label: 'Meeting', emoji: '📞'},
-    {label: 'Break', emoji: '🧋'},
+    {priority: 2, label: 'Work', emoji: '⠀\n', keywords: []},  // everything else
+    {priority: 0, label: 'Ticket', emoji: '📘️', keywords: []}, // identified by ticket regex
+    {priority: 1, label: 'Meeting', emoji: '📞', keywords: ['meet', 'call', 'ask', 'msg', 'message']},
+    {priority: 3, label: 'Break', emoji: '🧋', keywords: ['ara', 'break', 'lunch']},
 ];
