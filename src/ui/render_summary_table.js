@@ -7,14 +7,39 @@ elements.toggleSummaryBtn.addEventListener('click', toggleSummary);
 export function toggleSummary() {
     renderSummary();
     elements.hoursTable.classList.toggle('hidden');
-    elements.summary.classList.toggle('hidden');
+    elements.summaryTable.classList.toggle('hidden');
 }
 
 export function isSummaryDisplayed() {
-    return !elements.summary.classList.contains('hidden');
+    return !elements.summaryTable.classList.contains('hidden');
 }
 
 export function renderSummary() {
+    const grouped = groupAndSortEntries();
+
+    elements.summaryTableBody.innerHTML = "";
+
+    for (const g of grouped) {
+        let description = g.key;
+        if (g.descs.size > 0) {
+            description += " - " + [...g.descs].join(", ");
+        }
+
+        const row = elements.summaryRowTemplate.content.cloneNode(true);
+        const duration = row.querySelector(locators.fieldDuration);
+        const descInput = row.querySelector(locators.fieldDescription);
+        const type = row.querySelector(locators.fieldType);
+
+        duration.textContent = formatMinutes(g.minutes);
+        type.textContent = types[g.type]?.emoji || "";
+        type.classList.add(`type-${g.type}`);
+        descInput.value = description;
+
+        elements.summaryTableBody.appendChild(row);
+    }
+}
+
+function groupAndSortEntries() {
     const grouped = []; // will store { type, key, minutes, descs }
 
     // Count totals for matching entries
@@ -53,11 +78,6 @@ export function renderSummary() {
         if (desc) group.descs.add(desc);
     }
 
-    // Clear table
-    elements.summaryTableBody.innerHTML = "";
-
-    if (grouped.length === 0) return;
-
     // Sort: first by type, then by key alphabetically
     grouped.sort((a, b) => {
         const orderA = types[a.type].priority ?? 999;
@@ -66,26 +86,5 @@ export function renderSummary() {
         return a.key.localeCompare(b.key);
     });
 
-
-    // Build rows
-    for (const g of grouped) {
-        let description = g.key;
-        if (g.descs.size > 0) {
-            description += " - " + [...g.descs].join(", ");
-        }
-
-        const row = elements.summaryRowTemplate.content.cloneNode(true);
-
-        row.querySelector(locators.fieldDuration).textContent = formatMinutes(g.minutes);
-
-        const typeBtn = row.querySelector(locators.fieldType);
-        typeBtn.textContent = types[g.type]?.emoji || "";
-        typeBtn.classList.add(`type-${g.type}`);
-
-        const descInput = row.querySelector(locators.fieldDescription);
-        descInput.value = description;
-
-        elements.summaryTableBody.appendChild(row);
-    }
+    return grouped;
 }
-

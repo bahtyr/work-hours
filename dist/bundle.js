@@ -280,6 +280,25 @@
     return !elements.summary.classList.contains("hidden");
   }
   function renderSummary() {
+    const grouped = groupAndSortEntries();
+    elements.summaryTableBody.innerHTML = "";
+    for (const g of grouped) {
+      let description = g.key;
+      if (g.descs.size > 0) {
+        description += " - " + [...g.descs].join(", ");
+      }
+      const row = elements.summaryRowTemplate.content.cloneNode(true);
+      const duration = row.querySelector(locators.fieldDuration);
+      const descInput = row.querySelector(locators.fieldDescription);
+      const type = row.querySelector(locators.fieldType);
+      duration.textContent = formatMinutes(g.minutes);
+      type.textContent = types[g.type]?.emoji || "";
+      type.classList.add(`type-${g.type}`);
+      descInput.value = description;
+      elements.summaryTableBody.appendChild(row);
+    }
+  }
+  function groupAndSortEntries() {
     const grouped = [];
     for (const entry of stateManager.getEntries()) {
       const start = parseHM(entry.start);
@@ -307,28 +326,13 @@
       group.minutes += minutes;
       if (desc) group.descs.add(desc);
     }
-    elements.summaryTableBody.innerHTML = "";
-    if (grouped.length === 0) return;
     grouped.sort((a, b) => {
       const orderA = types[a.type].priority ?? 999;
       const orderB = types[b.type].priority ?? 999;
       if (orderA !== orderB) return orderA - orderB;
       return a.key.localeCompare(b.key);
     });
-    for (const g of grouped) {
-      let description = g.key;
-      if (g.descs.size > 0) {
-        description += " - " + [...g.descs].join(", ");
-      }
-      const row = elements.summaryRowTemplate.content.cloneNode(true);
-      row.querySelector(locators.fieldDuration).textContent = formatMinutes(g.minutes);
-      const typeBtn = row.querySelector(locators.fieldType);
-      typeBtn.textContent = types[g.type]?.emoji || "";
-      typeBtn.classList.add(`type-${g.type}`);
-      const descInput = row.querySelector(locators.fieldDescription);
-      descInput.value = description;
-      elements.summaryTableBody.appendChild(row);
-    }
+    return grouped;
   }
   var init_render_summary_table = __esm({
     "src/ui/render_summary_table.js"() {

@@ -1,10 +1,10 @@
 export const elements = {
     // tabs
     tabs: document.getElementById('tabs'),
-    // tables
+    // hours table
     hoursTable: document.getElementById('hoursTable'),
     hoursTableBody: document.getElementById('hoursTableBody'),
-    summary: document.getElementById('summary'),
+    // summary table
     summaryTable: document.getElementById('summaryTable'),
     summaryTableBody: document.getElementById('summaryTableBody'),
     summaryRowTemplate: document.getElementById('summaryRowTemplate'),
