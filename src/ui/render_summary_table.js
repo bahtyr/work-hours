@@ -1,6 +1,6 @@
 import {stateManager} from "../data";
 import {findTicketNumber, formatMinutes, parseHM} from "../utils";
-import {elements, types} from "../constants";
+import {elements, locators, types} from "../constants";
 
 elements.toggleSummaryBtn.addEventListener('click', toggleSummary);
 
@@ -53,56 +53,39 @@ export function renderSummary() {
         if (desc) group.descs.add(desc);
     }
 
-    // No table
-    if (grouped.length === 0) {
-    }
+    // Clear table
+    elements.summaryTableBody.innerHTML = "";
+
+    if (grouped.length === 0) return;
 
     // Sort: first by type, then by key alphabetically
     grouped.sort((a, b) => {
         const orderA = types[a.type].priority ?? 999;
         const orderB = types[b.type].priority ?? 999;
         if (orderA !== orderB) return orderA - orderB;
-        return a.key.localeCompare(b.key); // within type: A–Z
+        return a.key.localeCompare(b.key);
     });
 
-    // Build table
-    let html = `
-        <table id="summaryTable">
-            <thead>
-                <tr>
-                    <th class="duration" style="width:100px;">Duration</th>
-                    <th class="actions" style="width:14px;">Type</th>
-                    <th class="description">Description</th>
-                    <th class="time" style="width:70px;"></th>
-                    <th class="time" style="width:70px;"></th>
-                    <th class="actions" style="width:64px;"></th>
-                    <th class="actions" style="width:64px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
 
     // Build rows
     for (const g of grouped) {
         let description = g.key;
         if (g.descs.size > 0) {
-            description += ' - ' + [...g.descs].join(', ');
+            description += " - " + [...g.descs].join(", ");
         }
 
-        html += `
-            <tr disabled="true">
-                <td class="duration">${formatMinutes(g.minutes)}</td>
-                <td class="actions"><button class="action bigger type type-${g.type}" disabled>${types[g.type]?.emoji || ""}</button></td>
-                <td class="description"><input type="text" value="${escapeHtml(description)}" disabled/></td>
-                <td class="time"><input type="time" step="60" style="visibility: hidden"></td>
-                <td class="time"><input type="time" step="60" style="visibility: hidden"></td>
-                <td class="actions"></td>
-                <td class="actions"></td>
-            </tr>
-        `;
-    }
+        const row = elements.summaryRowTemplate.content.cloneNode(true);
 
-    html += "</tbody></table>";
-    elements.summary.innerHTML = html;
+        row.querySelector(locators.fieldDuration).textContent = formatMinutes(g.minutes);
+
+        const typeBtn = row.querySelector(locators.fieldType);
+        typeBtn.textContent = types[g.type]?.emoji || "";
+        typeBtn.classList.add(`type-${g.type}`);
+
+        const descInput = row.querySelector(locators.fieldDescription);
+        descInput.value = description;
+
+        elements.summaryTableBody.appendChild(row);
+    }
 }
 

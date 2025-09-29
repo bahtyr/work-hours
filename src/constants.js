@@ -5,6 +5,9 @@ export const elements = {
     hoursTable: document.getElementById('hoursTable'),
     hoursTableBody: document.getElementById('hoursTableBody'),
     summary: document.getElementById('summary'),
+    summaryTable: document.getElementById('summaryTable'),
+    summaryTableBody: document.getElementById('summaryTableBody'),
+    summaryRowTemplate: document.getElementById('summaryRowTemplate'),
     // hours-summary
     workTime: document.querySelector('.work-time .number'),
     breakTime: document.querySelector('.break-time .number'),
@@ -25,6 +28,9 @@ export const locators = {
     entryDescription: '#hoursTable input.description',
     entryTypeBtn: 'button.action.type',
     entryDeleteBtn: 'button.action.delete',
+    fieldDuration: '[data-field="duration"]',
+    fieldDescription: '[data-field="desc"]',
+    fieldType: '[data-field="type"]',
 };
 
 export const types = [

@@ -18,6 +18,9 @@
         hoursTable: document.getElementById("hoursTable"),
         hoursTableBody: document.getElementById("hoursTableBody"),
         summary: document.getElementById("summary"),
+        summaryTable: document.getElementById("summaryTable"),
+        summaryTableBody: document.getElementById("summaryTableBody"),
+        summaryRowTemplate: document.getElementById("summaryRowTemplate"),
         // hours-summary
         workTime: document.querySelector(".work-time .number"),
         breakTime: document.querySelector(".break-time .number"),
@@ -36,7 +39,10 @@
         entryTime: '#hoursTable input[type="time"]',
         entryDescription: "#hoursTable input.description",
         entryTypeBtn: "button.action.type",
-        entryDeleteBtn: "button.action.delete"
+        entryDeleteBtn: "button.action.delete",
+        fieldDuration: '[data-field="duration"]',
+        fieldDescription: '[data-field="desc"]',
+        fieldType: '[data-field="type"]'
       };
       types = [
         { priority: 2, label: "Work", emoji: "\u2800\n", keywords: [] },
@@ -301,48 +307,28 @@
       group.minutes += minutes;
       if (desc) group.descs.add(desc);
     }
-    if (grouped.length === 0) {
-    }
+    elements.summaryTableBody.innerHTML = "";
+    if (grouped.length === 0) return;
     grouped.sort((a, b) => {
       const orderA = types[a.type].priority ?? 999;
       const orderB = types[b.type].priority ?? 999;
       if (orderA !== orderB) return orderA - orderB;
       return a.key.localeCompare(b.key);
     });
-    let html = `
-        <table id="summaryTable">
-            <thead>
-                <tr>
-                    <th class="duration" style="width:100px;">Duration</th>
-                    <th class="actions" style="width:14px;">Type</th>
-                    <th class="description">Description</th>
-                    <th class="time" style="width:70px;"></th>
-                    <th class="time" style="width:70px;"></th>
-                    <th class="actions" style="width:64px;"></th>
-                    <th class="actions" style="width:64px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
     for (const g of grouped) {
       let description = g.key;
       if (g.descs.size > 0) {
         description += " - " + [...g.descs].join(", ");
       }
-      html += `
-            <tr disabled="true">
-                <td class="duration">${formatMinutes(g.minutes)}</td>
-                <td class="actions"><button class="action bigger type type-${g.type}" disabled>${types[g.type]?.emoji || ""}</button></td>
-                <td class="description"><input type="text" value="${escapeHtml(description)}" disabled/></td>
-                <td class="time"><input type="time" step="60" style="visibility: hidden"></td>
-                <td class="time"><input type="time" step="60" style="visibility: hidden"></td>
-                <td class="actions"></td>
-                <td class="actions"></td>
-            </tr>
-        `;
+      const row = elements.summaryRowTemplate.content.cloneNode(true);
+      row.querySelector(locators.fieldDuration).textContent = formatMinutes(g.minutes);
+      const typeBtn = row.querySelector(locators.fieldType);
+      typeBtn.textContent = types[g.type]?.emoji || "";
+      typeBtn.classList.add(`type-${g.type}`);
+      const descInput = row.querySelector(locators.fieldDescription);
+      descInput.value = description;
+      elements.summaryTableBody.appendChild(row);
     }
-    html += "</tbody></table>";
-    elements.summary.innerHTML = html;
   }
   var init_render_summary_table = __esm({
     "src/ui/render_summary_table.js"() {
