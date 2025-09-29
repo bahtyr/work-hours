@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Session Income Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 2rem;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        .card {
+            background: white;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 500;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        input[type="number"] {
+            width: 120px;
+        }
+        .result {
+            margin-top: 1rem;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background: #f0f4f8;
+            font-weight: 600;
+        }
+        .service-name input {
+            width: 100%;
+        }
+        .session-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .session-control button {
+            background: #eee;
+            border: none;
+            padding: 6px 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            margin: 0 4px;
+            width: 100%;
+            padding: 10px;
+        }
+        .session-control input {
+            width: 60px;
+            text-align: center;
+        }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #c0392b;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .remove-btn:hover {
+            color: #e74c3c;
+        }
+        tfoot td {
+            font-weight: bold;
+            background: #fafbfc;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Client Session Income Calculator</h1>
+
+<!-- Quick Package Calculator -->
+<div class="card">
+    <div class="section-title">Quick Package Calculator</div>
+    <label>Total Package Price ($):
+        <input type="number" id="quickPrice" value="0">
+    </label>
+    <label>Total Minutes:
+        <input type="number" id="quickMinutes" value="0">
+    </label>
+    <label>Number of Sessions:
+        <input type="number" id="quickSessions" value="0">
+    </label>
+    <div id="quickResult" class="result"></div>
+</div>
+
+<!-- Package Builder -->
+<div class="card">
+    <div class="section-title">Package Builder</div>
+    <table id="servicesTable">
+        <thead>
+        <tr>
+            <th style="width:30%">Service</th>
+            <th>Minutes / session</th>
+            <th>Price ($)</th>
+            <th>Sessions</th>
+            <th>Total ($)</th>
+            <th>Remove</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+        <tr>
+            <td>Totals</td>
+            <td id="totalMinutes">0</td>
+            <td></td>
+            <td id="totalSessions">0</td>
+            <td id="totalPrice">$0.00<br><small>Hourly: $0.00</small></td>
+            <td></td>
+        </tr>
+        </tfoot>
+    </table>
+    <button style="width: 100%;height: 42px;" onclick="addService()">+ Add Service</button>
+</div>
+
+<script>
+    // --- Quick Package Calculator (auto)
+    const quickPrice = document.getElementById('quickPrice');
+    const quickMinutes = document.getElementById('quickMinutes');
+    const quickSessions = document.getElementById('quickSessions');
+    const quickResult = document.getElementById('quickResult');
+
+    [quickPrice, quickMinutes, quickSessions].forEach(el => {
+        el.addEventListener('input', updateQuickCalculator);
+    });
+
+    function updateQuickCalculator() {
+        const price = parseFloat(quickPrice.value) || 0;
+        const minutes = parseFloat(quickMinutes.value) || 0;
+        const sessions = parseInt(quickSessions.value) || 0;
+
+        let perSession = 0;
+        let perHour = 0;
+
+        if (sessions > 0) perSession = price / sessions;
+        if (minutes > 0) perHour = price / (minutes / 60);
+
+        quickResult.innerHTML = `
+        Per session: $${perSession.toFixed(2)}<br>
+        Per hour: $${perHour.toFixed(2)}
+      `;
+    }
+
+    updateQuickCalculator(); // initialize
+
+    // --- Package Builder
+    function addService(name = "", price = "") {
+        const tbody = document.querySelector("#servicesTable tbody");
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+        <td class="service-name"><input type="text" value="${name}" placeholder="Service name" oninput="saveServices()"></td>
+        <td><input type="number" value="0" placeholder="Minutes" oninput="calculatePackage()"></td>
+        <td><input type="number" value="${price}" placeholder="0" oninput="saveServices(); calculatePackage()"></td>
+        <td class="session-control">
+          <button onclick="changeSessions(this, -1)">-</button>
+          <input type="number" value="0" min="0" oninput="calculatePackage()">
+          <button onclick="changeSessions(this, 1)">+</button>
+        </td>
+        <td class="service-total">$0.00</td>
+        <td><button class="remove-btn" onclick="removeService(this)">×</button></td>
+      `;
+
+        tbody.appendChild(row);
+        calculatePackage();
+    }
+
+    function changeSessions(btn, delta) {
+        const input = btn.parentElement.querySelector("input");
+        let val = parseInt(input.value) || 0;
+        val = Math.max(0, val + delta);
+        input.value = val;
+        calculatePackage();
+    }
+
+    function removeService(btn) {
+        btn.closest("tr").remove();
+        saveServices();
+        calculatePackage();
+    }
+
+    function calculatePackage() {
+        const rows = document.querySelectorAll("#servicesTable tbody tr");
+        let totalPrice = 0;
+        let totalSessions = 0;
+        let totalMinutes = 0;
+
+        rows.forEach(row => {
+            const price = parseFloat(row.cells[2].querySelector("input").value) || 0;
+            const sessions = parseInt(row.cells[3].querySelector("input").value) || 0;
+            const minutes = parseInt(row.cells[1].querySelector("input").value) || 0;
+
+            const rowTotal = price * sessions;
+            totalPrice += rowTotal;
+            totalSessions += sessions;
+            totalMinutes += minutes * sessions;
+
+            row.querySelector(".service-total").textContent = `$${rowTotal.toFixed(2)}`;
+        });
+
+        document.getElementById("totalSessions").textContent = totalSessions;
+        document.getElementById("totalMinutes").textContent = totalMinutes;
+
+        let perHour = 0;
+        if (totalMinutes > 0) perHour = totalPrice / (totalMinutes / 60);
+
+        document.getElementById("totalPrice").innerHTML =
+            `$${totalPrice.toFixed(2)}<br><small>Hourly: $${perHour.toFixed(2)}</small>`;
+    }
+
+    // --- Local Storage: Save/load services (only name + price)
+    function saveServices() {
+        const rows = document.querySelectorAll("#servicesTable tbody tr");
+        const services = [];
+        rows.forEach(row => {
+            const name = row.cells[0].querySelector("input").value;
+            const price = row.cells[2].querySelector("input").value;
+            services.push({ name, price });
+        });
+        localStorage.setItem("services", JSON.stringify(services));
+    }
+
+    function loadServices() {
+        const saved = JSON.parse(localStorage.getItem("services") || "[]");
+        saved.forEach(s => addService(s.name, s.price));
+    }
+
+    // init
+    loadServices();
+</script>
+</body>
+</html>
