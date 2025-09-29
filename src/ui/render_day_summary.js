@@ -1,6 +1,6 @@
 import {stateManager} from "../data";
 import {findTicketNumber, formatMinutes, parseHM} from "../utils";
-import {constants} from "../constants";
+import {elements} from "../constants";
 
 export function updateDayTotal() {
     const minutes = {ticket: 0, meeting: 0, break: 0, other: 0, total: 0};
@@ -28,16 +28,16 @@ export function updateDayTotal() {
     // sum total
     minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
     // hours
-    constants.workTime.textContent = formatMinutes(minutes.total - minutes.break);
-    constants.totalTimeLeft.textContent = formatMinutes((8 * 60) - minutes.total);
-    constants.breakTime.textContent = formatMinutes(minutes.break);
+    elements.workTime.textContent = formatMinutes(minutes.total - minutes.break);
+    elements.totalTimeLeft.textContent = formatMinutes((8 * 60) - minutes.total);
+    elements.breakTime.textContent = formatMinutes(minutes.break);
     // ticket count
-    constants.ticketsCount.textContent = uniqueTickets.size + '';
-    constants.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? 'ticket' : 'tickets';
+    elements.ticketsCount.textContent = uniqueTickets.size + '';
+    elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? 'ticket' : 'tickets';
     // timeline percentage based on 8 hours
     const maxDayMinutes = 8 * 60;
-    constants.timelineOther.style.width = (minutes.other / maxDayMinutes) * 100 + '%';
-    constants.timelineTicket.style.width = (minutes.ticket / maxDayMinutes) * 100 + '%';
-    constants.timelineBreak.style.width = (minutes.break / maxDayMinutes) * 100 + '%';
-    constants.timelineMeeting.style.width = (minutes.meeting / maxDayMinutes) * 100 + '%';
+    elements.timelineOther.style.width = (minutes.other / maxDayMinutes) * 100 + '%';
+    elements.timelineTicket.style.width = (minutes.ticket / maxDayMinutes) * 100 + '%';
+    elements.timelineBreak.style.width = (minutes.break / maxDayMinutes) * 100 + '%';
+    elements.timelineMeeting.style.width = (minutes.meeting / maxDayMinutes) * 100 + '%';
 }

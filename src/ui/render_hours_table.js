@@ -1,4 +1,4 @@
-import {constants, locators, types} from '../constants';
+import {elements, locators, types} from '../constants';
 import {formatMinutes, identifyTicketType, parseHM, roundHM} from '../utils';
 import {stateManager} from "../data";
 import {updateDayTotal} from "./render_day_summary";
@@ -10,7 +10,7 @@ const gapRows = new Map();
 
 export function renderHoursTable() {
     const entries = stateManager.getEntries();
-    const tbody = constants.hoursTableBody;
+    const tbody = elements.hoursTableBody;
     tbody.innerHTML = '';
     gapRows.clear();
 
@@ -455,7 +455,7 @@ function createGapRow(minutes, isOverlap = false) {
 
 function updateGapAfter(prevEntry) {
     const entries = stateManager.getEntries();
-    const tbody = constants.hoursTableBody;
+    const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;
 

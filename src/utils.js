@@ -1,4 +1,4 @@
-import {constants, locators, types} from './constants';
+import {elements, locators, types} from './constants';
 
 // Identifiers
 
@@ -21,7 +21,7 @@ export function findLast(arr, predicate) {
 }
 
 export function focusLastDescription() {
-    const inputs = constants.hoursTableBody.querySelectorAll(locators.entryDescription);
+    const inputs = elements.hoursTableBody.querySelectorAll(locators.entryDescription);
     if (inputs.length) {
         inputs[inputs.length - 1].focus();
     }

@@ -1,17 +1,17 @@
 import {stateManager} from "../data";
-import {escapeHtml, findTicketNumber, formatMinutes, parseHM} from "../utils";
-import {constants, types} from "../constants";
+import {findTicketNumber, formatMinutes, parseHM} from "../utils";
+import {elements, types} from "../constants";
 
-constants.toggleSummaryBtn.addEventListener('click', toggleSummary);
+elements.toggleSummaryBtn.addEventListener('click', toggleSummary);
 
 export function toggleSummary() {
     renderSummary();
-    constants.hoursTable.classList.toggle('hidden');
-    constants.summary.classList.toggle('hidden');
+    elements.hoursTable.classList.toggle('hidden');
+    elements.summary.classList.toggle('hidden');
 }
 
 export function isSummaryDisplayed() {
-    return !constants.summary.classList.contains('hidden');
+    return !elements.summary.classList.contains('hidden');
 }
 
 export function renderSummary() {
@@ -103,6 +103,6 @@ export function renderSummary() {
     }
 
     html += "</tbody></table>";
-    constants.summary.innerHTML = html;
+    elements.summary.innerHTML = html;
 }
 

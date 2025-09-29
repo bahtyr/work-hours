@@ -1,6 +1,6 @@
 import {formatDayName, todayKey} from "../utils";
 import {stateManager} from "../data";
-import {constants} from "../constants";
+import {elements} from "../constants";
 import {renderAll} from "./controller";
 
 export function renderTabs() {
@@ -13,7 +13,7 @@ export function renderTabs() {
         .sort((a, b) => b.localeCompare(a));
     const orderedDays = [today, ...otherDays];
 
-    constants.tabs.innerHTML = '';
+    elements.tabs.innerHTML = '';
 
     orderedDays.forEach(day => {
         const tabEl = document.createElement('div');
@@ -38,7 +38,7 @@ export function renderTabs() {
             renderAll();
         });
 
-        constants.tabs.appendChild(tabEl);
+        elements.tabs.appendChild(tabEl);
     });
 }
 

@@ -1,4 +1,4 @@
-export const constants = {
+export const elements = {
     // tabs
     tabs: document.getElementById('tabs'),
     // tables

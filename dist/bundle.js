@@ -8,10 +8,10 @@
   };
 
   // src/constants.js
-  var constants, locators, types;
+  var elements, locators, types;
   var init_constants = __esm({
     "src/constants.js"() {
-      constants = {
+      elements = {
         // tabs
         tabs: document.getElementById("tabs"),
         // tables
@@ -64,7 +64,7 @@
     return null;
   }
   function focusLastDescription() {
-    const inputs = constants.hoursTableBody.querySelectorAll(locators.entryDescription);
+    const inputs = elements.hoursTableBody.querySelectorAll(locators.entryDescription);
     if (inputs.length) {
       inputs[inputs.length - 1].focus();
     }
@@ -128,9 +128,6 @@
       return `Last ${dayName}`;
     }
     return `${day} ${month}`;
-  }
-  function escapeHtml(str) {
-    return String(str).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
   }
   function findTicketNumber(desc) {
     if (!desc) return null;
@@ -270,11 +267,11 @@
   // src/ui/render_summary_table.js
   function toggleSummary() {
     renderSummary();
-    constants.hoursTable.classList.toggle("hidden");
-    constants.summary.classList.toggle("hidden");
+    elements.hoursTable.classList.toggle("hidden");
+    elements.summary.classList.toggle("hidden");
   }
   function isSummaryDisplayed() {
-    return !constants.summary.classList.contains("hidden");
+    return !elements.summary.classList.contains("hidden");
   }
   function renderSummary() {
     const grouped = [];
@@ -345,14 +342,14 @@
         `;
     }
     html += "</tbody></table>";
-    constants.summary.innerHTML = html;
+    elements.summary.innerHTML = html;
   }
   var init_render_summary_table = __esm({
     "src/ui/render_summary_table.js"() {
       init_data();
       init_utils();
       init_constants();
-      constants.toggleSummaryBtn.addEventListener("click", toggleSummary);
+      elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
     }
   });
 
@@ -377,16 +374,16 @@
       }
     }
     minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
-    constants.workTime.textContent = formatMinutes(minutes.total - minutes.break);
-    constants.totalTimeLeft.textContent = formatMinutes(8 * 60 - minutes.total);
-    constants.breakTime.textContent = formatMinutes(minutes.break);
-    constants.ticketsCount.textContent = uniqueTickets.size + "";
-    constants.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
+    elements.workTime.textContent = formatMinutes(minutes.total - minutes.break);
+    elements.totalTimeLeft.textContent = formatMinutes(8 * 60 - minutes.total);
+    elements.breakTime.textContent = formatMinutes(minutes.break);
+    elements.ticketsCount.textContent = uniqueTickets.size + "";
+    elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
     const maxDayMinutes = 8 * 60;
-    constants.timelineOther.style.width = minutes.other / maxDayMinutes * 100 + "%";
-    constants.timelineTicket.style.width = minutes.ticket / maxDayMinutes * 100 + "%";
-    constants.timelineBreak.style.width = minutes.break / maxDayMinutes * 100 + "%";
-    constants.timelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
+    elements.timelineOther.style.width = minutes.other / maxDayMinutes * 100 + "%";
+    elements.timelineTicket.style.width = minutes.ticket / maxDayMinutes * 100 + "%";
+    elements.timelineBreak.style.width = minutes.break / maxDayMinutes * 100 + "%";
+    elements.timelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
   }
   var init_render_day_summary = __esm({
     "src/ui/render_day_summary.js"() {
@@ -399,7 +396,7 @@
   // src/ui/render_hours_table.js
   function renderHoursTable() {
     const entries = stateManager.getEntries();
-    const tbody = constants.hoursTableBody;
+    const tbody = elements.hoursTableBody;
     tbody.innerHTML = "";
     gapRows.clear();
     entries.forEach((entry, index) => {
@@ -733,7 +730,7 @@
   }
   function updateGapAfter(prevEntry) {
     const entries = stateManager.getEntries();
-    const tbody = constants.hoursTableBody;
+    const tbody = elements.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;
     const nextEntry = entries[index + 1];
@@ -774,7 +771,7 @@
     updateDayTotal();
     renderSummary();
     if (scrollBottom) {
-      constants.hoursTableBody.parentElement.scrollTop = constants.hoursTableBody.scrollHeight;
+      elements.hoursTableBody.parentElement.scrollTop = elements.hoursTableBody.scrollHeight;
     }
   }
   var init_controller = __esm({
@@ -795,7 +792,7 @@
     allDays.add(today);
     const otherDays = Array.from(allDays).filter((d) => d !== today).sort((a, b) => b.localeCompare(a));
     const orderedDays = [today, ...otherDays];
-    constants.tabs.innerHTML = "";
+    elements.tabs.innerHTML = "";
     orderedDays.forEach((day) => {
       const tabEl = document.createElement("div");
       tabEl.className = "tab" + (day === stateManager.openDay ? " active" : "");
@@ -815,7 +812,7 @@
         stateManager.setOpenDay(day);
         renderAll();
       });
-      constants.tabs.appendChild(tabEl);
+      elements.tabs.appendChild(tabEl);
     });
   }
   function deleteOpenDay() {

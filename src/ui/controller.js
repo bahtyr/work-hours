@@ -1,4 +1,4 @@
-import {constants} from "../constants";
+import {elements} from "../constants";
 import {renderSummary} from "./render_summary_table";
 import {renderTabs} from "./render_tabs";
 import {updateDayTotal} from "./render_day_summary";
@@ -14,6 +14,6 @@ export function renderAll(scrollBottom = false) {
     renderSummary();
 
     if (scrollBottom) {
-        constants.hoursTableBody.parentElement.scrollTop = constants.hoursTableBody.scrollHeight;
+        elements.hoursTableBody.parentElement.scrollTop = elements.hoursTableBody.scrollHeight;
     }
 }
