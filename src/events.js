@@ -1,7 +1,8 @@
-import {focusLastDescription, parseHM, roundHM, timeNow} from './utils';
+import {focusLastDescription, parseHM, timeNow} from './utils';
 import {renderAll} from './render';
 import {locators} from './elements';
 import {stateManager} from "./state";
+import {isSummaryDisplayed, toggleSummary} from "./events_days";
 
 function startNow() {
     stateManager.newEntry(timeNow(), '', '', 0);
@@ -26,7 +27,9 @@ function startSinceLast() {
 }
 
 function stopLast() {
-    return stateManager.stopLastRunningEntry();
+    const stoppedAnEntry = stateManager.stopLastRunningEntry();
+    renderAll(true);
+    return stoppedAnEntry;
 }
 
 document.addEventListener('keydown', onDocumentKeyDown);
@@ -91,6 +94,17 @@ export function onDocumentKeyDown(e) {
     const focusedOnInput = active && active.tagName === 'INPUT';
     const focusedOnTime = focusedOnInput && active.type === 'time';
     const focusedOnText = focusedOnInput && active.type === 'text';
+
+    // toggle edit/summary view
+    if (!focusedOnInput && (e.key === 'v' || e.key === 'V')) {
+        toggleSummary();
+        return;
+    }
+
+    // prevent edit actions on hours table if summary is displayed
+    if (isSummaryDisplayed()) {
+        return;
+    }
 
     // commit/unfocus an active input
     if (focusedOnInput && (e.key === 'Enter' || e.key === 'Escape')) {

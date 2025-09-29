@@ -268,6 +268,9 @@
     elements.hoursTable.classList.toggle("hidden");
     elements.summary.classList.toggle("hidden");
   }
+  function isSummaryDisplayed() {
+    return !elements.summary.classList.contains("hidden");
+  }
   function deleteOpenDay() {
     if (!confirm("Delete all entries for this day? This cannot be undone.")) {
       return;
@@ -835,7 +838,9 @@
     }
   }
   function stopLast() {
-    return stateManager.stopLastRunningEntry();
+    const stoppedAnEntry = stateManager.stopLastRunningEntry();
+    renderAll(true);
+    return stoppedAnEntry;
   }
   function handleArrowNavigation(e, active) {
     const inputs = Array.from(document.querySelectorAll(locators.entryDescription));
@@ -879,6 +884,13 @@
     const focusedOnInput = active && active.tagName === "INPUT";
     const focusedOnTime = focusedOnInput && active.type === "time";
     const focusedOnText = focusedOnInput && active.type === "text";
+    if (!focusedOnInput && e.key === "v") {
+      toggleSummary();
+      return;
+    }
+    if (isSummaryDisplayed()) {
+      return;
+    }
     if (focusedOnInput && (e.key === "Enter" || e.key === "Escape")) {
       active.blur();
       return;
@@ -921,6 +933,7 @@
       init_render();
       init_elements();
       init_state();
+      init_events_days();
       document.addEventListener("keydown", onDocumentKeyDown);
     }
   });

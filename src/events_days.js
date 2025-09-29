@@ -13,6 +13,10 @@ export function toggleSummary() {
     elements.summary.classList.toggle('hidden');
 }
 
+export function isSummaryDisplayed() {
+    return !elements.summary.classList.contains('hidden');
+}
+
 // Days
 
 export function onAddDay() {
