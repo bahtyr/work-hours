@@ -1,4 +1,4 @@
-export const elements = {
+export const constants = {
     // tabs
     tabs: document.getElementById('tabs'),
     // tables
@@ -26,3 +26,10 @@ export const locators = {
     entryTypeBtn: 'button.action.type',
     entryDeleteBtn: 'button.action.delete',
 };
+
+export const types = [
+    {label: 'Work', emoji: '⠀\n'},
+    {label: 'Ticket', emoji: '📘️'},
+    {label: 'Meeting', emoji: '📞'},
+    {label: 'Break', emoji: '🧋'},
+];

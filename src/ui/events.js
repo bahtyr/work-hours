@@ -1,8 +1,8 @@
-import {focusLastDescription, parseHM, timeNow} from './utils';
-import {renderAll} from './render';
-import {locators} from './elements';
-import {stateManager} from "./state";
-import {isSummaryDisplayed, toggleSummary} from "./events_days";
+import {focusLastDescription, parseHM, timeNow} from '../utils';
+import {renderAll} from './controller';
+import {locators} from '../constants';
+import {stateManager} from "../data";
+import {isSummaryDisplayed, toggleSummary} from "./render_summary_table";
 
 function startNow() {
     stateManager.newEntry(timeNow(), '', '', 0);

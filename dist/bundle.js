@@ -7,11 +7,11 @@
     return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
 
-  // src/elements.js
-  var elements, locators;
-  var init_elements = __esm({
-    "src/elements.js"() {
-      elements = {
+  // src/constants.js
+  var constants, locators, types;
+  var init_constants = __esm({
+    "src/constants.js"() {
+      constants = {
         // tabs
         tabs: document.getElementById("tabs"),
         // tables
@@ -38,6 +38,12 @@
         entryTypeBtn: "button.action.type",
         entryDeleteBtn: "button.action.delete"
       };
+      types = [
+        { label: "Work", emoji: "\u2800\n" },
+        { label: "Ticket", emoji: "\u{1F4D8}\uFE0F" },
+        { label: "Meeting", emoji: "\u{1F4DE}" },
+        { label: "Break", emoji: "\u{1F9CB}" }
+      ];
     }
   });
 
@@ -56,7 +62,7 @@
     return null;
   }
   function focusLastDescription() {
-    const inputs = elements.hoursTableBody.querySelectorAll(locators.entryDescription);
+    const inputs = constants.hoursTableBody.querySelectorAll(locators.entryDescription);
     if (inputs.length) {
       inputs[inputs.length - 1].focus();
     }
@@ -144,15 +150,15 @@
   var pad;
   var init_utils = __esm({
     "src/utils.js"() {
-      init_elements();
+      init_constants();
       pad = (n) => String(n).padStart(2, "0");
     }
   });
 
-  // src/state.js
+  // src/data.js
   var STORAGE_KEY, StateManager, stateManager;
-  var init_state = __esm({
-    "src/state.js"() {
+  var init_data = __esm({
+    "src/data.js"() {
       init_utils();
       STORAGE_KEY = "simpleTimesheetV3";
       StateManager = class {
@@ -262,102 +268,14 @@
     }
   });
 
-  // src/events_days.js
+  // src/ui/render_summary_table.js
   function toggleSummary() {
     renderSummary();
-    elements.hoursTable.classList.toggle("hidden");
-    elements.summary.classList.toggle("hidden");
+    constants.hoursTable.classList.toggle("hidden");
+    constants.summary.classList.toggle("hidden");
   }
   function isSummaryDisplayed() {
-    return !elements.summary.classList.contains("hidden");
-  }
-  function deleteOpenDay() {
-    if (!confirm("Delete all entries for this day? This cannot be undone.")) {
-      return;
-    }
-    stateManager.deleteDay(stateManager.openDay);
-    stateManager.setOpenDay(todayKey());
-    renderAll();
-  }
-  var init_events_days = __esm({
-    "src/events_days.js"() {
-      init_elements();
-      init_render();
-      init_utils();
-      init_state();
-      elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
-    }
-  });
-
-  // src/render.js
-  function renderAll(scrollBottom = false) {
-    renderTabs();
-    renderHoursTable();
-    updateDayTotal();
-    renderSummary();
-    if (scrollBottom) {
-      elements.hoursTableBody.parentElement.scrollTop = elements.hoursTableBody.scrollHeight;
-    }
-  }
-  function renderTabs() {
-    const today = todayKey();
-    const allDays = stateManager.getDayNames();
-    allDays.add(today);
-    const otherDays = Array.from(allDays).filter((d) => d !== today).sort((a, b) => b.localeCompare(a));
-    const orderedDays = [today, ...otherDays];
-    elements.tabs.innerHTML = "";
-    orderedDays.forEach((day) => {
-      const tabEl = document.createElement("div");
-      tabEl.className = "tab" + (day === stateManager.openDay ? " active" : "");
-      tabEl.title = day;
-      const textEl = document.createElement("span");
-      textEl.textContent = formatDayName(day);
-      tabEl.appendChild(textEl);
-      const deleteBtn = document.createElement("span");
-      deleteBtn.className = "delete-btn";
-      deleteBtn.textContent = "\xD7";
-      deleteBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        deleteOpenDay();
-      });
-      tabEl.appendChild(deleteBtn);
-      tabEl.addEventListener("click", () => {
-        stateManager.setOpenDay(day);
-        renderAll();
-      });
-      elements.tabs.appendChild(tabEl);
-    });
-  }
-  function updateDayTotal() {
-    const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
-    const uniqueTickets = /* @__PURE__ */ new Set();
-    for (const entry of stateManager.getEntries()) {
-      const start = parseHM(entry.start);
-      const end = parseHM(entry.end);
-      if (start !== null && end !== null && end >= start) {
-        const duration = end - start;
-        const ticketMatch = findTicketNumber(entry.desc);
-        if (entry.type === 1 || ticketMatch) {
-          uniqueTickets.add(ticketMatch ? ticketMatch[0] : "(no ticket number)");
-          minutes.ticket += duration;
-        } else if (entry.type === 2)
-          minutes.meeting += duration;
-        else if (entry.type === 3)
-          minutes.break += duration;
-        else minutes.other += duration;
-      }
-    }
-    minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
-    elements.workTime.textContent = formatMinutes(minutes.total - minutes.break);
-    elements.totalTimeLeft.textContent = formatMinutes(8 * 60 - minutes.total);
-    elements.breakTime.textContent = formatMinutes(minutes.break);
-    elements.ticketsCount.textContent = uniqueTickets.size + "";
-    elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
-    const maxDayMinutes = 8 * 60;
-    elements.timelineOther.style.width = minutes.other / maxDayMinutes * 100 + "%";
-    elements.timelineTicket.style.width = minutes.ticket / maxDayMinutes * 100 + "%";
-    elements.timelineBreak.style.width = minutes.break / maxDayMinutes * 100 + "%";
-    elements.timelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
+    return !constants.summary.classList.contains("hidden");
   }
   function renderSummary() {
     const grouped = [];
@@ -438,11 +356,61 @@
         `;
     }
     html += "</tbody></table>";
-    elements.summary.innerHTML = html;
+    constants.summary.innerHTML = html;
   }
+  var init_render_summary_table = __esm({
+    "src/ui/render_summary_table.js"() {
+      init_data();
+      init_utils();
+      init_constants();
+      constants.toggleSummaryBtn.addEventListener("click", toggleSummary);
+    }
+  });
+
+  // src/ui/render_day_summary.js
+  function updateDayTotal() {
+    const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
+    const uniqueTickets = /* @__PURE__ */ new Set();
+    for (const entry of stateManager.getEntries()) {
+      const start = parseHM(entry.start);
+      const end = parseHM(entry.end);
+      if (start !== null && end !== null && end >= start) {
+        const duration = end - start;
+        const ticketMatch = findTicketNumber(entry.desc);
+        if (entry.type === 1 || ticketMatch) {
+          uniqueTickets.add(ticketMatch ? ticketMatch[0] : "(no ticket number)");
+          minutes.ticket += duration;
+        } else if (entry.type === 2)
+          minutes.meeting += duration;
+        else if (entry.type === 3)
+          minutes.break += duration;
+        else minutes.other += duration;
+      }
+    }
+    minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
+    constants.workTime.textContent = formatMinutes(minutes.total - minutes.break);
+    constants.totalTimeLeft.textContent = formatMinutes(8 * 60 - minutes.total);
+    constants.breakTime.textContent = formatMinutes(minutes.break);
+    constants.ticketsCount.textContent = uniqueTickets.size + "";
+    constants.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
+    const maxDayMinutes = 8 * 60;
+    constants.timelineOther.style.width = minutes.other / maxDayMinutes * 100 + "%";
+    constants.timelineTicket.style.width = minutes.ticket / maxDayMinutes * 100 + "%";
+    constants.timelineBreak.style.width = minutes.break / maxDayMinutes * 100 + "%";
+    constants.timelineMeeting.style.width = minutes.meeting / maxDayMinutes * 100 + "%";
+  }
+  var init_render_day_summary = __esm({
+    "src/ui/render_day_summary.js"() {
+      init_data();
+      init_utils();
+      init_constants();
+    }
+  });
+
+  // src/ui/render_hours_table.js
   function renderHoursTable() {
     const entries = stateManager.getEntries();
-    const tbody = elements.hoursTableBody;
+    const tbody = constants.hoursTableBody;
     tbody.innerHTML = "";
     gapRows.clear();
     entries.forEach((entry, index) => {
@@ -776,7 +744,7 @@
   }
   function updateGapAfter(prevEntry) {
     const entries = stateManager.getEntries();
-    const tbody = elements.hoursTableBody;
+    const tbody = constants.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;
     const nextEntry = entries[index + 1];
@@ -798,25 +766,87 @@
       }
     }
   }
-  var gapRows, types;
-  var init_render = __esm({
-    "src/render.js"() {
-      init_elements();
+  var gapRows;
+  var init_render_hours_table = __esm({
+    "src/ui/render_hours_table.js"() {
+      init_constants();
       init_utils();
-      init_events_days();
-      init_state();
+      init_data();
+      init_render_day_summary();
+      init_controller();
       gapRows = /* @__PURE__ */ new Map();
-      types = [
-        { label: "Work", emoji: "\u2800\n" },
-        { label: "Ticket", emoji: "\u{1F4D8}\uFE0F" },
-        { label: "Meeting", emoji: "\u{1F4DE}" },
-        { label: "Break", emoji: "\u{1F9CB}" }
-      ];
+    }
+  });
+
+  // src/ui/controller.js
+  function renderAll(scrollBottom = false) {
+    renderTabs();
+    renderHoursTable();
+    updateDayTotal();
+    renderSummary();
+    if (scrollBottom) {
+      constants.hoursTableBody.parentElement.scrollTop = constants.hoursTableBody.scrollHeight;
+    }
+  }
+  var init_controller = __esm({
+    "src/ui/controller.js"() {
+      init_constants();
+      init_render_summary_table();
+      init_render_tabs();
+      init_render_day_summary();
+      init_render_hours_table();
       renderAll();
     }
   });
 
-  // src/events.js
+  // src/ui/render_tabs.js
+  function renderTabs() {
+    const today = todayKey();
+    const allDays = stateManager.getDayNames();
+    allDays.add(today);
+    const otherDays = Array.from(allDays).filter((d) => d !== today).sort((a, b) => b.localeCompare(a));
+    const orderedDays = [today, ...otherDays];
+    constants.tabs.innerHTML = "";
+    orderedDays.forEach((day) => {
+      const tabEl = document.createElement("div");
+      tabEl.className = "tab" + (day === stateManager.openDay ? " active" : "");
+      tabEl.title = day;
+      const textEl = document.createElement("span");
+      textEl.textContent = formatDayName(day);
+      tabEl.appendChild(textEl);
+      const deleteBtn = document.createElement("span");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.textContent = "\xD7";
+      deleteBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteOpenDay();
+      });
+      tabEl.appendChild(deleteBtn);
+      tabEl.addEventListener("click", () => {
+        stateManager.setOpenDay(day);
+        renderAll();
+      });
+      constants.tabs.appendChild(tabEl);
+    });
+  }
+  function deleteOpenDay() {
+    if (!confirm("Delete all entries for this day? This cannot be undone.")) {
+      return;
+    }
+    stateManager.deleteDay(stateManager.openDay);
+    stateManager.setOpenDay(todayKey());
+    renderAll();
+  }
+  var init_render_tabs = __esm({
+    "src/ui/render_tabs.js"() {
+      init_utils();
+      init_data();
+      init_constants();
+      init_controller();
+    }
+  });
+
+  // src/ui/events.js
   function startNow() {
     stateManager.newEntry(timeNow(), "", "", 0);
     renderAll(true);
@@ -928,12 +958,12 @@
     }
   }
   var init_events = __esm({
-    "src/events.js"() {
+    "src/ui/events.js"() {
       init_utils();
-      init_render();
-      init_elements();
-      init_state();
-      init_events_days();
+      init_controller();
+      init_constants();
+      init_data();
+      init_render_summary_table();
       document.addEventListener("keydown", onDocumentKeyDown);
     }
   });
@@ -942,11 +972,14 @@
   var require_main = __commonJS({
     "main.js"() {
       init_utils();
-      init_elements();
-      init_state();
-      init_render();
+      init_constants();
+      init_data();
+      init_render_tabs();
+      init_render_day_summary();
+      init_render_hours_table();
+      init_render_summary_table();
       init_events();
-      init_events_days();
+      init_controller();
     }
   });
   require_main();

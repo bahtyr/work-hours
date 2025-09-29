@@ -1,6 +1,9 @@
 import './src/utils';
-import './src/elements';
-import './src/state';
-import './src/render';
-import './src/events';
-import './src/events_days';
+import './src/constants';
+import './src/data';
+import './src/ui/render_tabs';
+import './src/ui/render_day_summary';
+import './src/ui/render_hours_table';
+import './src/ui/render_summary_table';
+import './src/ui/events';
+import './src/ui/controller';

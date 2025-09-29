@@ -1,226 +1,16 @@
-import {elements, locators} from './elements';
-import {
-    escapeHtml,
-    findTicketNumber,
-    formatDayName,
-    formatMinutes,
-    identifyTicketType,
-    parseHM,
-    roundHM,
-    todayKey
-} from './utils';
-import {deleteOpenDay} from "./events_days";
-import {stateManager} from "./state";
+import {constants, locators, types} from '../constants';
+import {formatMinutes, identifyTicketType, parseHM, roundHM} from '../utils';
+import {stateManager} from "../data";
+import {updateDayTotal} from "./render_day_summary";
+import {renderAll} from "./controller";
 
 const gapRows = new Map();
-const types = [
-    {label: 'Work', emoji: '⠀\n'},
-    {label: 'Ticket', emoji: '📘️'},
-    {label: 'Meeting', emoji: '📞'},
-    {label: 'Break', emoji: '🧋'},
-];
-
-renderAll();
-
-export function renderAll(scrollBottom = false) {
-    // return
-    renderTabs();
-    renderHoursTable();
-    updateDayTotal();
-    renderSummary();
-
-    if (scrollBottom) {
-        elements.hoursTableBody.parentElement.scrollTop = elements.hoursTableBody.scrollHeight;
-    }
-}
-
-// --------- Header //
-
-function renderTabs() {
-    const today = todayKey();
-    const allDays = stateManager.getDayNames();
-    allDays.add(today);
-
-    const otherDays = Array.from(allDays)
-        .filter(d => d !== today)
-        .sort((a, b) => b.localeCompare(a));
-    const orderedDays = [today, ...otherDays];
-
-    elements.tabs.innerHTML = '';
-
-    orderedDays.forEach(day => {
-        const tabEl = document.createElement('div');
-        tabEl.className = 'tab' + (day === stateManager.openDay ? ' active' : '');
-        tabEl.title = day;
-
-        const textEl = document.createElement('span');
-        textEl.textContent = formatDayName(day);
-        tabEl.appendChild(textEl);
-
-        const deleteBtn = document.createElement('span');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.textContent = '×';
-        deleteBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // prevent tab click
-            deleteOpenDay();
-        });
-        tabEl.appendChild(deleteBtn);
-
-        tabEl.addEventListener('click', () => {
-            stateManager.setOpenDay(day);
-            renderAll();
-        });
-
-        elements.tabs.appendChild(tabEl);
-    });
-}
-
-function updateDayTotal() {
-    const minutes = {ticket: 0, meeting: 0, break: 0, other: 0, total: 0};
-    const uniqueTickets = new Set();
-
-    // count total minutes per entry type
-    for (const entry of stateManager.getEntries()) {
-        const start = parseHM(entry.start);
-        const end = parseHM(entry.end);
-
-        if (start !== null && end !== null && end >= start) {
-            const duration = end - start;
-            const ticketMatch = findTicketNumber(entry.desc);
-            if (entry.type === 1 || ticketMatch) {
-                uniqueTickets.add(ticketMatch ? ticketMatch[0] : '(no ticket number)');
-                minutes.ticket += duration;
-            } else if (entry.type === 2)
-                minutes.meeting += duration;
-            else if (entry.type === 3)
-                minutes.break += duration;
-            else minutes.other += duration;
-        }
-    }
-
-    // sum total
-    minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
-    // hours
-    elements.workTime.textContent = formatMinutes(minutes.total - minutes.break);
-    elements.totalTimeLeft.textContent = formatMinutes((8 * 60) - minutes.total);
-    elements.breakTime.textContent = formatMinutes(minutes.break);
-    // ticket count
-    elements.ticketsCount.textContent = uniqueTickets.size + '';
-    elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? 'ticket' : 'tickets';
-    // timeline percentage based on 8 hours
-    const maxDayMinutes = 8 * 60;
-    elements.timelineOther.style.width = (minutes.other / maxDayMinutes) * 100 + '%';
-    elements.timelineTicket.style.width = (minutes.ticket / maxDayMinutes) * 100 + '%';
-    elements.timelineBreak.style.width = (minutes.break / maxDayMinutes) * 100 + '%';
-    elements.timelineMeeting.style.width = (minutes.meeting / maxDayMinutes) * 100 + '%';
-}
-
-// --------- Summary Table //
-
-export function renderSummary() {
-    const grouped = []; // will store { type, key, minutes, descs }
-
-    // Count totals for matching entries
-    for (const entry of stateManager.getEntries()) {
-        const start = parseHM(entry.start);
-        const end = parseHM(entry.end);
-
-        if (start === null || end === null || end < start) continue;
-
-        const minutes = end - start;
-        const entryDesc = entry.desc || '(no description)';
-        const entryType = entry.type ?? 0;
-
-        // Try to detect a Jira ticket key, e.g. "TUE-250"
-        const ticketMatch = findTicketNumber(entryDesc);
-
-        let key, desc;
-        if (!ticketMatch) {
-            key = entryDesc;
-            desc = null;
-        } else {
-            const ticketKey = ticketMatch[0].toUpperCase();
-            const ticketDesc = entryDesc.replace(ticketMatch[0], '').trim();
-            key = ticketKey;
-            desc = ticketDesc || null;
-        }
-
-        // find or create group
-        let group = grouped.find(g => g.type === entryType && g.key === key);
-        if (!group) {
-            group = {type: entryType, key, minutes: 0, descs: new Set()};
-            grouped.push(group);
-        }
-
-        group.minutes += minutes;
-        if (desc) group.descs.add(desc);
-    }
-
-    // No table
-    if (grouped.length === 0) {
-    }
-
-    // Sort: first by type, then by key alphabetically
-    const typeOrder = {
-        0: 2, // work
-        1: 0, // ticket
-        2: 1, // meet
-        3: 3, // break
-    };
-    grouped.sort((a, b) => {
-        const orderA = typeOrder[a.type] ?? 999;
-        const orderB = typeOrder[b.type] ?? 999;
-        if (orderA !== orderB) return orderA - orderB;
-        return a.key.localeCompare(b.key); // within type: A–Z
-    });
-
-    // Build table
-    let html = `
-        <table id="summaryTable">
-            <thead>
-                <tr>
-                    <th class="duration" style="width:100px;">Duration</th>
-                    <th class="actions" style="width:14px;">Type</th>
-                    <th class="description">Description</th>
-                    <th class="time" style="width:70px;"></th>
-                    <th class="time" style="width:70px;"></th>
-                    <th class="actions" style="width:64px;"></th>
-                    <th class="actions" style="width:64px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    // Build rows
-    for (const g of grouped) {
-        let description = g.key;
-        if (g.descs.size > 0) {
-            description += ' - ' + [...g.descs].join(', ');
-        }
-
-        html += `
-            <tr disabled="true">
-                <td class="duration">${formatMinutes(g.minutes)}</td>
-                <td class="actions"><button class="action bigger type type-${g.type}" disabled>${types[g.type]?.emoji || ""}</button></td>
-                <td class="description"><input type="text" value="${escapeHtml(description)}" disabled/></td>
-                <td class="time"><input type="time" step="60" style="visibility: hidden"></td>
-                <td class="time"><input type="time" step="60" style="visibility: hidden"></td>
-                <td class="actions"></td>
-                <td class="actions"></td>
-            </tr>
-        `;
-    }
-
-    html += "</tbody></table>";
-    elements.summary.innerHTML = html;
-}
-
 
 // --------- Hours Table //
 
-function renderHoursTable() {
+export function renderHoursTable() {
     const entries = stateManager.getEntries();
-    const tbody = elements.hoursTableBody;
+    const tbody = constants.hoursTableBody;
     tbody.innerHTML = '';
     gapRows.clear();
 
@@ -665,7 +455,7 @@ function createGapRow(minutes, isOverlap = false) {
 
 function updateGapAfter(prevEntry) {
     const entries = stateManager.getEntries();
-    const tbody = elements.hoursTableBody;
+    const tbody = constants.hoursTableBody;
     const index = entries.indexOf(prevEntry);
     if (index === -1) return;
 
