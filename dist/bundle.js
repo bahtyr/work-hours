@@ -571,7 +571,7 @@
     input.placeholder = "Description";
     input.value = entry.desc || "";
     input.oninput = () => {
-      const identifiedType = identifyTicketType(input.desc);
+      const identifiedType = identifyTicketType(input.value);
       const row = input.closest("tr");
       const btn = row.querySelector(locators.entryTypeBtn);
       btn.textContent = types[identifiedType].emoji;
@@ -884,7 +884,7 @@
     const focusedOnInput = active && active.tagName === "INPUT";
     const focusedOnTime = focusedOnInput && active.type === "time";
     const focusedOnText = focusedOnInput && active.type === "text";
-    if (!focusedOnInput && e.key === "v") {
+    if (!focusedOnInput && (e.key === "v" || e.key === "V")) {
       toggleSummary();
       return;
     }

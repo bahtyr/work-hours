@@ -400,7 +400,7 @@ function createDescriptionCell(entry) {
     input.value = entry.desc || '';
     input.oninput = () => {
         // identify entry type based on description
-        const identifiedType = identifyTicketType(input.desc);
+        const identifiedType = identifyTicketType(input.value);
         // update entry type and row icon
         const row = input.closest('tr');
         const btn = row.querySelector(locators.entryTypeBtn);
