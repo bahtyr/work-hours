@@ -14,10 +14,10 @@
       elements = {
         // tabs
         tabs: document.getElementById("tabs"),
-        // tables
+        // hours table
         hoursTable: document.getElementById("hoursTable"),
         hoursTableBody: document.getElementById("hoursTableBody"),
-        summary: document.getElementById("summary"),
+        // summary table
         summaryTable: document.getElementById("summaryTable"),
         summaryTableBody: document.getElementById("summaryTableBody"),
         summaryRowTemplate: document.getElementById("summaryRowTemplate"),
@@ -274,10 +274,10 @@
   function toggleSummary() {
     renderSummary();
     elements.hoursTable.classList.toggle("hidden");
-    elements.summary.classList.toggle("hidden");
+    elements.summaryTable.classList.toggle("hidden");
   }
   function isSummaryDisplayed() {
-    return !elements.summary.classList.contains("hidden");
+    return !elements.summaryTable.classList.contains("hidden");
   }
   function renderSummary() {
     const grouped = groupAndSortEntries();
