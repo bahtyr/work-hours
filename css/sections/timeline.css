@@ -73,6 +73,7 @@
 .block {
     height: 100%;
     transition: width var(--transition);
+    background: var(--color-other);
 }
 
 /* --------- Block Colors */
@@ -89,6 +90,16 @@
     background: var(--color-meeting);
 }
 
-.block.other {
+.block.other,
+.focus-mode .block {
+    /* Force all blocks to be same color on focus-mode */
     background: var(--color-other);
+}
+
+/* ============== FOCUS MODE ============== */
+
+.focus-mode .break-time,
+.focus-mode .work-time,
+.focus-mode .tickets-count {
+    display: none;
 }

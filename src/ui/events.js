@@ -2,7 +2,7 @@ import {focusLastDescription, parseHM, timeNow} from '../utils';
 import {renderAll} from './controller';
 import {locators} from '../constants';
 import {stateManager} from "../data";
-import {isSummaryDisplayed, toggleSummary} from "./render_summary_table";
+import {isSummaryDisplayed, toggleFocusMode, toggleSummary} from "./render_summary_table";
 
 function startNow() {
     stateManager.newEntry(timeNow(), '', '', 0);
@@ -94,6 +94,12 @@ export function onDocumentKeyDown(e) {
     const focusedOnInput = active && active.tagName === 'INPUT';
     const focusedOnTime = focusedOnInput && active.type === 'time';
     const focusedOnText = focusedOnInput && active.type === 'text';
+
+    // toggle focus-mode
+    if (!focusedOnInput && (e.key === 'f' || e.key === 'F')) {
+        toggleFocusMode();
+        return;
+    }
 
     // toggle edit/summary view
     if (!focusedOnInput && (e.key === 'v' || e.key === 'V')) {

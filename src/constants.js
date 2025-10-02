@@ -1,4 +1,5 @@
 export const elements = {
+    body: document.querySelector('body'),
     // tabs
     tabs: document.getElementById('tabs'),
     // hours table
@@ -20,6 +21,7 @@ export const elements = {
     timelineBreak: document.querySelector('.timeline .break'),
     timelineMeeting: document.querySelector('.timeline .meeting'),
     // buttons
+    focusBtn: document.getElementById('focusBtn'),
     toggleSummaryBtn: document.getElementById('toggleSummaryBtn'),
 };
 

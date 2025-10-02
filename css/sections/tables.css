@@ -6,7 +6,7 @@ table::after {
     /* extra scroll space */
     content: "";
     display: block;
-    /*height: 20vh;*/
+    height: 20vh;
 }
 
 tr {
@@ -125,7 +125,7 @@ tr .action.bigger {
 /* --------- Gap Row */
 
 .gap-row input[type='text'],
-table tr:has(.type-3)  input[type='text'] {
+table tr:has(.type-3) input[type='text'] {
     opacity: .5;
 }
 
@@ -163,4 +163,15 @@ table tr:has(.type-3) input::placeholder {
 #hoursTableBody tr {
     transition: transform 1s ease;
     will-change: transform;
+}
+
+/* ============== FOCUS MODE ============== */
+/* Hide all rows except the last 4 */
+
+.focus-mode #hoursTable tbody tr {
+    display: none;
+}
+
+.focus-mode #hoursTable tbody tr:nth-last-child(-n+3) {
+    display: table-row;
 }

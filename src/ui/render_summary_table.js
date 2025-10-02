@@ -3,8 +3,22 @@ import {findTicketNumber, formatMinutes, parseHM} from "../utils";
 import {elements, locators, types} from "../constants";
 
 elements.toggleSummaryBtn.addEventListener('click', toggleSummary);
+ elements.focusBtn.addEventListener('click', toggleFocusMode);
+
+/**
+ * Toggles .focus-mode class on Body. Hiding certain elements via CSS.
+ */
+export function toggleFocusMode() {
+    if (isSummaryDisplayed()) toggleSummary();
+    elements.body.classList.toggle('focus-mode');
+}
+
+export function isFocusModeActive() {
+    return elements.body.classList.contains('focus-mode');
+}
 
 export function toggleSummary() {
+    if (isFocusModeActive()) return;
     renderSummary();
     elements.hoursTable.classList.toggle('hidden');
     elements.summaryTable.classList.toggle('hidden');

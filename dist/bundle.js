@@ -12,6 +12,7 @@
   var init_constants = __esm({
     "src/constants.js"() {
       elements = {
+        body: document.querySelector("body"),
         // tabs
         tabs: document.getElementById("tabs"),
         // hours table
@@ -33,6 +34,7 @@
         timelineBreak: document.querySelector(".timeline .break"),
         timelineMeeting: document.querySelector(".timeline .meeting"),
         // buttons
+        focusBtn: document.getElementById("focusBtn"),
         toggleSummaryBtn: document.getElementById("toggleSummaryBtn")
       };
       locators = {
@@ -271,7 +273,15 @@
   });
 
   // src/ui/render_summary_table.js
+  function toggleFocusMode() {
+    if (isSummaryDisplayed()) toggleSummary();
+    elements.body.classList.toggle("focus-mode");
+  }
+  function isFocusModeActive() {
+    return elements.body.classList.contains("focus-mode");
+  }
   function toggleSummary() {
+    if (isFocusModeActive()) return;
     renderSummary();
     elements.hoursTable.classList.toggle("hidden");
     elements.summaryTable.classList.toggle("hidden");
@@ -340,6 +350,7 @@
       init_utils();
       init_constants();
       elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
+      elements.focusBtn.addEventListener("click", toggleFocusMode);
     }
   });
 
@@ -890,6 +901,10 @@
     const focusedOnInput = active && active.tagName === "INPUT";
     const focusedOnTime = focusedOnInput && active.type === "time";
     const focusedOnText = focusedOnInput && active.type === "text";
+    if (!focusedOnInput && (e.key === "f" || e.key === "F")) {
+      toggleFocusMode();
+      return;
+    }
     if (!focusedOnInput && (e.key === "v" || e.key === "V")) {
       toggleSummary();
       return;
