@@ -11,6 +11,10 @@ button {
     transition: background var(--transition), border-color var(--transition), opacity var(--transition);
 }
 
+button:focus {
+    outline: none;
+}
+
 button:hover {
     background: var(--color-button-hover);
 }
@@ -53,6 +57,10 @@ button.text {
 
 button.text:hover {
     background: var(--color-surface-hover);
+}
+
+button.text.active {
+    background: var(--color-surface-active);
 }
 
 /* --------- Danger */

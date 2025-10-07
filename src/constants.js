@@ -21,7 +21,7 @@ export const elements = {
     timelineBreak: document.querySelector('.timeline .break'),
     timelineMeeting: document.querySelector('.timeline .meeting'),
     // buttons
-    focusBtn: document.getElementById('focusBtn'),
+    toggleFocusBtn: document.getElementById('toggleFocusBtn'),
     toggleSummaryBtn: document.getElementById('toggleSummaryBtn'),
 };
 

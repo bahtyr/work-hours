@@ -34,7 +34,7 @@
         timelineBreak: document.querySelector(".timeline .break"),
         timelineMeeting: document.querySelector(".timeline .meeting"),
         // buttons
-        focusBtn: document.getElementById("focusBtn"),
+        toggleFocusBtn: document.getElementById("toggleFocusBtn"),
         toggleSummaryBtn: document.getElementById("toggleSummaryBtn")
       };
       locators = {
@@ -275,6 +275,7 @@
   // src/ui/render_summary_table.js
   function toggleFocusMode() {
     if (isSummaryDisplayed()) toggleSummary();
+    elements.toggleFocusBtn.classList.toggle("active");
     elements.body.classList.toggle("focus-mode");
   }
   function isFocusModeActive() {
@@ -283,6 +284,7 @@
   function toggleSummary() {
     if (isFocusModeActive()) return;
     renderSummary();
+    elements.toggleSummaryBtn.classList.toggle("active");
     elements.hoursTable.classList.toggle("hidden");
     elements.summaryTable.classList.toggle("hidden");
   }
@@ -350,7 +352,7 @@
       init_utils();
       init_constants();
       elements.toggleSummaryBtn.addEventListener("click", toggleSummary);
-      elements.focusBtn.addEventListener("click", toggleFocusMode);
+      elements.toggleFocusBtn.addEventListener("click", toggleFocusMode);
     }
   });
 
