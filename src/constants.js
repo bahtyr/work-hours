@@ -2,6 +2,9 @@ export const elements = {
     body: document.querySelector('body'),
     // tabs
     tabs: document.getElementById('tabs'),
+    addDayBtn: document.getElementById('addDayBtn'),
+    editDayBtn: document.getElementById('editDayBtn'),
+    estimatedEndTime: null,
     // hours table
     hoursTable: document.getElementById('hoursTable'),
     hoursTableBody: document.getElementById('hoursTableBody'),

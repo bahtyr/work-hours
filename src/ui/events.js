@@ -1,3 +1,32 @@
+// --- Day Controls ---
+import {elements} from '../constants';
+
+elements.addDayBtn.addEventListener('click', () => {
+    // Create new day with default date = today, name = '', workHours = 8
+    const today = new Date();
+    const key = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    stateManager.setOpenDay(key);
+    stateManager.updateDay(key, {name: '', date: key, workHours: 8});
+    renderAll();
+    // Optionally open edit dialog immediately
+    showEditDayDialog(key);
+});
+
+elements.editDayBtn.addEventListener('click', () => {
+    showEditDayDialog(stateManager.openDay);
+});
+
+function showEditDayDialog(dayKey) {
+    const dayInfo = stateManager.getDayInfo(dayKey);
+    // Simple prompt-based dialog for now
+    const name = prompt('Day name (optional):', dayInfo.name || '');
+    const date = prompt('Day date (YYYY-MM-DD):', dayInfo.date || dayKey);
+    let workHours = prompt('Work hours (number):', dayInfo.workHours || 8);
+    workHours = Number(workHours);
+    if (!date || isNaN(workHours) || workHours <= 0) return;
+    stateManager.updateDay(dayKey, {name, date, workHours});
+    renderAll();
+}
 import {focusLastDescription, parseHM, timeNow} from '../utils';
 import {renderAll} from './controller';
 import {locators} from '../constants';
