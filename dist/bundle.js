@@ -15,6 +15,9 @@
         body: document.querySelector("body"),
         // tabs
         tabs: document.getElementById("tabs"),
+        addDayBtn: document.getElementById("addDayBtn"),
+        editDayBtn: document.getElementById("editDayBtn"),
+        estimatedEndTime: null,
         // hours table
         hoursTable: document.getElementById("hoursTable"),
         hoursTableBody: document.getElementById("hoursTableBody"),
@@ -200,14 +203,43 @@
         }
         deleteDay(day) {
           delete this.state.days[day];
+          this.#saveState();
+          this.notify();
         }
         // Entries
         #initEntries(day) {
-          if (!this.state.days[day]) this.state.days[day] = [];
+          if (!this.state.days[day]) {
+            this.state.days[day] = {
+              entries: [],
+              name: "",
+              // custom label
+              date: day,
+              // ISO string
+              workHours: 8
+              // default
+            };
+          } else if (Array.isArray(this.state.days[day])) {
+            this.state.days[day] = {
+              entries: this.state.days[day],
+              name: "",
+              date: day,
+              workHours: 8
+            };
+          }
         }
         getEntries() {
           this.#initEntries(this.state.openDay);
-          return this.state.days[this.state.openDay];
+          return this.state.days[this.state.openDay].entries;
+        }
+        getDayInfo(dayKey = this.openDay) {
+          this.#initEntries(dayKey);
+          return this.state.days[dayKey];
+        }
+        updateDay(dayKey, updates) {
+          this.#initEntries(dayKey);
+          Object.assign(this.state.days[dayKey], updates);
+          this.#saveState();
+          this.notify();
         }
         getLastEntry() {
           const entries = this.getEntries();
@@ -358,6 +390,32 @@
 
   // src/ui/render_day_summary.js
   function updateDayTotal() {
+    const dayInfo = stateManager.getDayInfo();
+    const workHours = dayInfo.workHours || 8;
+    let earliestStart = null;
+    for (const entry of stateManager.getEntries()) {
+      const start = parseHM(entry.start);
+      if (start !== null && (earliestStart === null || start < earliestStart)) {
+        earliestStart = start;
+      }
+    }
+    let estimatedEndText = "";
+    if (earliestStart !== null) {
+      const endMinutes = earliestStart + workHours * 60;
+      const endHour = Math.floor(endMinutes / 60);
+      const endMinute = endMinutes % 60;
+      let suffix = endHour >= 12 ? "PM" : "AM";
+      let displayHour = endHour % 12;
+      if (displayHour === 0) displayHour = 12;
+      estimatedEndText = `Estimated end: ${displayHour}:${String(endMinute).padStart(2, "0")} ${suffix}`;
+    }
+    if (!elements.estimatedEndTime) {
+      const el = document.createElement("div");
+      el.className = "estimated-end-time";
+      elements.workTime.parentElement.appendChild(el);
+      elements.estimatedEndTime = el;
+    }
+    elements.estimatedEndTime.textContent = estimatedEndText;
     const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
     const uniqueTickets = /* @__PURE__ */ new Set();
     for (const entry of stateManager.getEntries()) {
@@ -378,11 +436,11 @@
     }
     minutes.total = minutes.ticket + minutes.meeting + minutes.break + minutes.other;
     elements.workTime.textContent = formatMinutes(minutes.total - minutes.break);
-    elements.totalTimeLeft.textContent = formatMinutes(8 * 60 - minutes.total);
+    elements.totalTimeLeft.textContent = formatMinutes(workHours * 60 - minutes.total);
     elements.breakTime.textContent = formatMinutes(minutes.break);
     elements.ticketsCount.textContent = uniqueTickets.size + "";
     elements.ticketsCountLabel.textContent = uniqueTickets.size === 1 ? "ticket" : "tickets";
-    const maxDayMinutes = 8 * 60;
+    const maxDayMinutes = workHours * 60;
     elements.timelineOther.style.width = minutes.other / maxDayMinutes * 100 + "%";
     elements.timelineTicket.style.width = minutes.ticket / maxDayMinutes * 100 + "%";
     elements.timelineBreak.style.width = minutes.break / maxDayMinutes * 100 + "%";
@@ -796,12 +854,13 @@
     const otherDays = Array.from(allDays).filter((d) => d !== today).sort((a, b) => b.localeCompare(a));
     const orderedDays = [today, ...otherDays];
     elements.tabs.innerHTML = "";
-    orderedDays.forEach((day) => {
+    orderedDays.forEach((dayKey) => {
+      const dayInfo = stateManager.getDayInfo(dayKey);
       const tabEl = document.createElement("div");
-      tabEl.className = "tab" + (day === stateManager.openDay ? " active" : "");
-      tabEl.title = day;
+      tabEl.className = "tab" + (dayKey === stateManager.openDay ? " active" : "");
+      tabEl.title = dayKey;
       const textEl = document.createElement("span");
-      textEl.textContent = formatDayName(day);
+      textEl.textContent = dayInfo.name && dayInfo.name.trim() ? dayInfo.name : formatDayName(dayInfo.date || dayKey);
       tabEl.appendChild(textEl);
       const deleteBtn = document.createElement("span");
       deleteBtn.className = "delete-btn";
@@ -812,7 +871,7 @@
       });
       tabEl.appendChild(deleteBtn);
       tabEl.addEventListener("click", () => {
-        stateManager.setOpenDay(day);
+        stateManager.setOpenDay(dayKey);
         renderAll();
       });
       elements.tabs.appendChild(tabEl);
@@ -836,6 +895,16 @@
   });
 
   // src/ui/events.js
+  function showEditDayDialog(dayKey) {
+    const dayInfo = stateManager.getDayInfo(dayKey);
+    const name = prompt("Day name (optional):", dayInfo.name || "");
+    const date = prompt("Day date (YYYY-MM-DD):", dayInfo.date || dayKey);
+    let workHours = prompt("Work hours (number):", dayInfo.workHours || 8);
+    workHours = Number(workHours);
+    if (!date || isNaN(workHours) || workHours <= 0) return;
+    stateManager.updateDay(dayKey, { name, date, workHours });
+    renderAll();
+  }
   function startNow() {
     stateManager.newEntry(timeNow(), "", "", 0);
     renderAll(true);
@@ -952,11 +1021,23 @@
   }
   var init_events = __esm({
     "src/ui/events.js"() {
+      init_constants();
       init_utils();
       init_controller();
       init_constants();
       init_data();
       init_render_summary_table();
+      elements.addDayBtn.addEventListener("click", () => {
+        const today = /* @__PURE__ */ new Date();
+        const key = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+        stateManager.setOpenDay(key);
+        stateManager.updateDay(key, { name: "", date: key, workHours: 8 });
+        renderAll();
+        showEditDayDialog(key);
+      });
+      elements.editDayBtn.addEventListener("click", () => {
+        showEditDayDialog(stateManager.openDay);
+      });
       document.addEventListener("keydown", onDocumentKeyDown);
     }
   });
