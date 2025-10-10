@@ -3,6 +3,8 @@ import {findTicketNumber, formatMinutes, parseHM} from "../utils";
 import {elements} from "../constants";
 
 export function updateDayTotal() {
+    const dayInfo = stateManager.getDayInfo();
+    const workHours = dayInfo.workHours || 8;
     // Estimated end time logic
     let earliestStart = null;
     for (const entry of stateManager.getEntries()) {
@@ -34,8 +36,6 @@ export function updateDayTotal() {
     elements.estimatedEndTime.textContent = estimatedEndText;
     const minutes = {ticket: 0, meeting: 0, break: 0, other: 0, total: 0};
     const uniqueTickets = new Set();
-    const dayInfo = stateManager.getDayInfo();
-    const workHours = dayInfo.workHours || 8;
 
     // count total minutes per entry type
     for (const entry of stateManager.getEntries()) {
