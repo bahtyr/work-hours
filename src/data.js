@@ -47,17 +47,47 @@ export class StateManager {
 
     deleteDay(day) {
         delete this.state.days[day];
+        this.#saveState();
+        this.notify();
     }
 
     // Entries
 
     #initEntries(day) {
-        if (!this.state.days[day]) this.state.days[day] = [];
+        // Backward compatibility: if day is missing, create with default structure
+        if (!this.state.days[day]) {
+            this.state.days[day] = {
+                entries: [],
+                name: '', // custom label
+                date: day, // ISO string
+                workHours: 8 // default
+            };
+        } else if (Array.isArray(this.state.days[day])) {
+            // Old format: array of entries only
+            this.state.days[day] = {
+                entries: this.state.days[day],
+                name: '',
+                date: day,
+                workHours: 8
+            };
+        }
     }
 
     getEntries() {
         this.#initEntries(this.state.openDay);
-        return this.state.days[this.state.openDay];
+        return this.state.days[this.state.openDay].entries;
+    }
+    
+    getDayInfo(dayKey = this.openDay) {
+        this.#initEntries(dayKey);
+        return this.state.days[dayKey];
+    }
+
+    updateDay(dayKey, updates) {
+        this.#initEntries(dayKey);
+        Object.assign(this.state.days[dayKey], updates);
+        this.#saveState();
+        this.notify();
     }
 
     getLastEntry() {

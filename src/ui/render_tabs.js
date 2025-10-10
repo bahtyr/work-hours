@@ -15,13 +15,15 @@ export function renderTabs() {
 
     elements.tabs.innerHTML = '';
 
-    orderedDays.forEach(day => {
+    orderedDays.forEach(dayKey => {
+        const dayInfo = stateManager.getDayInfo(dayKey);
         const tabEl = document.createElement('div');
-        tabEl.className = 'tab' + (day === stateManager.openDay ? ' active' : '');
-        tabEl.title = day;
+        tabEl.className = 'tab' + (dayKey === stateManager.openDay ? ' active' : '');
+        tabEl.title = dayKey;
 
         const textEl = document.createElement('span');
-        textEl.textContent = formatDayName(day);
+        // Prefer name, fallback to formatted date
+        textEl.textContent = dayInfo.name && dayInfo.name.trim() ? dayInfo.name : formatDayName(dayInfo.date || dayKey);
         tabEl.appendChild(textEl);
 
         const deleteBtn = document.createElement('span');
@@ -34,7 +36,7 @@ export function renderTabs() {
         tabEl.appendChild(deleteBtn);
 
         tabEl.addEventListener('click', () => {
-            stateManager.setOpenDay(day);
+            stateManager.setOpenDay(dayKey);
             renderAll();
         });
 
