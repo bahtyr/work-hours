@@ -3,6 +3,9 @@ import {findTicketNumber, formatMinutes, parseHM} from "../utils";
 import {elements} from "../constants";
 
 export function updateDayTotal() {
+
+    // Day End
+
     const dayInfo = stateManager.getDayInfo();
     const workHours = dayInfo.workHours || 8;
     // Estimated end time logic
@@ -24,16 +27,10 @@ export function updateDayTotal() {
         if (displayHour === 0) displayHour = 12;
         estimatedEndText = `Estimated end: ${displayHour}:${String(endMinute).padStart(2, '0')} ${suffix}`;
     }
-
-    // Display estimated end time in a dedicated element (add to DOM if needed)
-    if (!elements.estimatedEndTime) {
-        // Create and insert if not present
-        const el = document.createElement('div');
-        el.className = 'estimated-end-time';
-        elements.workTime.parentElement.appendChild(el);
-        elements.estimatedEndTime = el;
-    }
     elements.estimatedEndTime.textContent = estimatedEndText;
+
+    // Minutes
+
     const minutes = {ticket: 0, meeting: 0, break: 0, other: 0, total: 0};
     const uniqueTickets = new Set();
 

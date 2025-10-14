@@ -4,7 +4,6 @@ export const elements = {
     tabs: document.getElementById('tabs'),
     addDayBtn: document.getElementById('addDayBtn'),
     editDayBtn: document.getElementById('editDayBtn'),
-    estimatedEndTime: null,
     // hours table
     hoursTable: document.getElementById('hoursTable'),
     hoursTableBody: document.getElementById('hoursTableBody'),
@@ -13,6 +12,7 @@ export const elements = {
     summaryTableBody: document.getElementById('summaryTableBody'),
     summaryRowTemplate: document.getElementById('summaryRowTemplate'),
     // hours-summary
+    estimatedEndTime: document.querySelector('.estimated-end-time .label'),
     workTime: document.querySelector('.work-time .number'),
     breakTime: document.querySelector('.break-time .number'),
     totalTimeLeft: document.querySelector('.total-time-left .number'),

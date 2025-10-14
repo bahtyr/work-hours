@@ -17,7 +17,6 @@
         tabs: document.getElementById("tabs"),
         addDayBtn: document.getElementById("addDayBtn"),
         editDayBtn: document.getElementById("editDayBtn"),
-        estimatedEndTime: null,
         // hours table
         hoursTable: document.getElementById("hoursTable"),
         hoursTableBody: document.getElementById("hoursTableBody"),
@@ -26,6 +25,7 @@
         summaryTableBody: document.getElementById("summaryTableBody"),
         summaryRowTemplate: document.getElementById("summaryRowTemplate"),
         // hours-summary
+        estimatedEndTime: document.querySelector(".estimated-end-time .label"),
         workTime: document.querySelector(".work-time .number"),
         breakTime: document.querySelector(".break-time .number"),
         totalTimeLeft: document.querySelector(".total-time-left .number"),
@@ -408,12 +408,6 @@
       let displayHour = endHour % 12;
       if (displayHour === 0) displayHour = 12;
       estimatedEndText = `Estimated end: ${displayHour}:${String(endMinute).padStart(2, "0")} ${suffix}`;
-    }
-    if (!elements.estimatedEndTime) {
-      const el = document.createElement("div");
-      el.className = "estimated-end-time";
-      elements.workTime.parentElement.appendChild(el);
-      elements.estimatedEndTime = el;
     }
     elements.estimatedEndTime.textContent = estimatedEndText;
     const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
