@@ -16,7 +16,8 @@ export function updateDayTotal() {
             earliestStart = start;
         }
     }
-    let estimatedEndText = '';
+    let estimatedEndLabel = '';
+    let estimatedEndTime = '';
     if (earliestStart !== null) {
         const endMinutes = earliestStart + workHours * 60;
         const endHour = Math.floor(endMinutes / 60);
@@ -25,9 +26,11 @@ export function updateDayTotal() {
         let suffix = endHour >= 12 ? 'PM' : 'AM';
         let displayHour = endHour % 12;
         if (displayHour === 0) displayHour = 12;
-        estimatedEndText = `Estimated end: ${displayHour}:${String(endMinute).padStart(2, '0')} ${suffix}`;
+        estimatedEndLabel = 'Estimated end: ';
+        estimatedEndTime = `${displayHour}:${String(endMinute).padStart(2, '0')} ${suffix}`;
     }
-    elements.estimatedEndTime.textContent = estimatedEndText;
+    elements.estimatedEndTimeLabel.textContent = estimatedEndLabel;
+    elements.estimatedEndTime.textContent = estimatedEndTime;
 
     // Minutes
 

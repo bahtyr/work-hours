@@ -25,7 +25,8 @@
         summaryTableBody: document.getElementById("summaryTableBody"),
         summaryRowTemplate: document.getElementById("summaryRowTemplate"),
         // hours-summary
-        estimatedEndTime: document.querySelector(".estimated-end-time .label"),
+        estimatedEndTime: document.querySelector(".estimated-end-time .number"),
+        estimatedEndTimeLabel: document.querySelector(".estimated-end-time .label"),
         workTime: document.querySelector(".work-time .number"),
         breakTime: document.querySelector(".break-time .number"),
         totalTimeLeft: document.querySelector(".total-time-left .number"),
@@ -399,7 +400,8 @@
         earliestStart = start;
       }
     }
-    let estimatedEndText = "";
+    let estimatedEndLabel = "";
+    let estimatedEndTime = "";
     if (earliestStart !== null) {
       const endMinutes = earliestStart + workHours * 60;
       const endHour = Math.floor(endMinutes / 60);
@@ -407,9 +409,11 @@
       let suffix = endHour >= 12 ? "PM" : "AM";
       let displayHour = endHour % 12;
       if (displayHour === 0) displayHour = 12;
-      estimatedEndText = `Estimated end: ${displayHour}:${String(endMinute).padStart(2, "0")} ${suffix}`;
+      estimatedEndLabel = "Estimated end: ";
+      estimatedEndTime = `${displayHour}:${String(endMinute).padStart(2, "0")} ${suffix}`;
     }
-    elements.estimatedEndTime.textContent = estimatedEndText;
+    elements.estimatedEndTimeLabel.textContent = estimatedEndLabel;
+    elements.estimatedEndTime.textContent = estimatedEndTime;
     const minutes = { ticket: 0, meeting: 0, break: 0, other: 0, total: 0 };
     const uniqueTickets = /* @__PURE__ */ new Set();
     for (const entry of stateManager.getEntries()) {

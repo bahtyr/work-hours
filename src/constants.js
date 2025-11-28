@@ -12,7 +12,8 @@ export const elements = {
     summaryTableBody: document.getElementById('summaryTableBody'),
     summaryRowTemplate: document.getElementById('summaryRowTemplate'),
     // hours-summary
-    estimatedEndTime: document.querySelector('.estimated-end-time .label'),
+    estimatedEndTime: document.querySelector('.estimated-end-time .number'),
+    estimatedEndTimeLabel: document.querySelector('.estimated-end-time .label'),
     workTime: document.querySelector('.work-time .number'),
     breakTime: document.querySelector('.break-time .number'),
     totalTimeLeft: document.querySelector('.total-time-left .number'),
