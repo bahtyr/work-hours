@@ -10,16 +10,15 @@ function startNow() {
     focusLastDescription();
 }
 
+/**
+ * @returns {boolean} true if entry started, false if no entry exists or last entry has no end time
+ */
 function startSinceLast() {
     const lastEntry = stateManager.getLastEntry();
     if (lastEntry && lastEntry.end) {
-        const lastEnd = parseHM(lastEntry.end);
-        const nowHM = parseHM(timeNow());
-        if (nowHM >= lastEnd) {
-            stateManager.newEntry(lastEntry.end, '', '', 3);
-            renderAll(true);
-            focusLastDescription();
-        }
+        stateManager.newEntry(lastEntry.end, '', '', 3);
+        renderAll(true);
+        focusLastDescription();
         return true;
     } else {
         return false;
